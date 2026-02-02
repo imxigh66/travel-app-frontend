@@ -1,0 +1,19 @@
+.layout {
+  display: flex;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f0f2e 0%, #1a1a3e 50%, #2a1a3e 100%);
+}
+
+.content {
+  margin-left: 280px; /* Ширина сайдбара */
+  flex: 1;
+  padding: 40px;
+  overflow-y: auto;
+}
+
+@media (max-width: 1024px) {
+  .content {
+    margin-left: 0;
+    padding: 20px;
+  }
+}

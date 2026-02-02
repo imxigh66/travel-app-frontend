@@ -1,0 +1,172 @@
+.profilePage {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Loading */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  color: white;
+  gap: 20px;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #5b7cef;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Error */
+.error {
+  text-align: center;
+  padding: 60px 20px;
+  color: white;
+}
+
+.error h2 {
+  font-size: 32px;
+  margin-bottom: 16px;
+  color: #FF6B6B;
+}
+
+/* Шапка профиля */
+.header {
+  background: linear-gradient(135deg, #2e3a6e 0%, #4a3a7e 50%, #6b2c7e 100%);
+  border-radius: 16px;
+  padding: 40px;
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+  margin-bottom: 30px;
+}
+
+.avatar {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  border: 4px solid white;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.info {
+  flex: 1;
+}
+
+.name {
+  font-size: 36px;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 8px 0;
+}
+
+.username {
+  font-size: 20px;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 8px 0;
+}
+
+.email {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0 0 16px 0;
+}
+
+.bio {
+  font-size: 16px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 16px 0;
+}
+
+.joined {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 16px;
+}
+
+.editBtn {
+  padding: 12px 24px;
+  background: #5b7cef;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  height: fit-content;
+}
+
+.editBtn:hover {
+  background: #4a6bd8;
+  transform: translateY(-2px);
+}
+
+/* Контент */
+.content {
+  background: rgba(26, 29, 46, 0.5);
+  border-radius: 16px;
+  padding: 30px;
+}
+
+.tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 30px;
+}
+
+.tab {
+  padding: 16px 32px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s;
+  position: relative;
+  bottom: -2px;
+}
+
+.tab:hover {
+  color: white;
+}
+
+.tab.active {
+  color: #5b7cef;
+  border-bottom-color: #5b7cef;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 60px 20px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 18px;
+}
+
+/* Адаптив */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .name {
+    font-size: 28px;
+  }
+}

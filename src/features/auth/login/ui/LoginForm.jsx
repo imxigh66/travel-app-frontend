@@ -48,7 +48,7 @@ export default function LoginForm() {
     
     if (result.success) {
       // Редирект на главную страницу приложения
-      navigate('/home'); // или '/feed'
+      navigate('/profile'); 
     } else {
       setErrors({ submit: result.error });
     }
