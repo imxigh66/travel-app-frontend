@@ -24,7 +24,10 @@ if (!token) {
 }
 
 localStorage.setItem("authToken", token);
-
+const refreshToken = data.refreshToken;
+if (refreshToken) {
+  localStorage.setItem("refreshToken", refreshToken);
+}
     
     return { success: true, data: response.data.data };
   } catch (error) {

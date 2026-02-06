@@ -1,5 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './Sidebar.module.css';
+import LogoutButton from '../../features/auth/logout/ui/LogoutButton';
 
 export default function Sidebar() {
   const navigate = useNavigate();
@@ -69,10 +70,7 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {/* Кнопка выхода */}
-      <button className={styles.logoutBtn}>
-        ⚡ Выйти
-      </button>
+      <LogoutButton className={styles.logoutBtn} />
     </aside>
   );
 }

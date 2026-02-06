@@ -1,74 +1,122 @@
 .page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e22ce 100%);
+  background: radial-gradient(ellipse at 30% 20%, #0d3252 0%, #0b1a2e 40%, #080e1a 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
   position: relative;
+  overflow: hidden;
+}
+
+.page::before {
+  content: '';
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(56, 210, 235, 0.1) 0%, transparent 65%);
+  top: -20%;
+  left: -10%;
+  pointer-events: none;
+}
+
+.page::after {
+  content: '';
+  position: absolute;
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, rgba(96, 225, 250, 0.07) 0%, transparent 65%);
+  bottom: -12%;
+  right: -5%;
+  pointer-events: none;
 }
 
 .backButton {
   position: absolute;
   top: 40px;
   left: 40px;
-  background: transparent;
-  border: none;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
-  transition: color 0.3s;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: all 0.3s;
+  backdrop-filter: blur(12px);
 }
 
 .backButton:hover {
   color: white;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(56, 210, 235, 0.3);
 }
 
 .container {
   width: 100%;
-  max-width: 600px;
+  max-width: 460px;
+  position: relative;
+  z-index: 1;
 }
 
 .title {
-  font-size: 48px;
+  font-size: 36px;
   font-weight: 700;
   text-align: center;
-  color: white;
-  margin-bottom: 12px;
+  color: #e2e8f0;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
 }
 
 .subtitle {
-  font-size: 18px;
+  font-size: 15px;
   text-align: center;
-  color: rgba(255, 255, 255, 0.8);
-  margin-bottom: 48px;
+  color: rgba(148, 163, 184, 0.7);
+  margin-bottom: 36px;
 }
 
 .formContainer {
-  background: rgba(20, 20, 40, 0.8);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 24px;
-  padding: 60px 80px;
+  background: rgba(12, 22, 42, 0.3);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid rgba(56, 210, 235, 0.12);
+  border-radius: 20px;
+  padding: 48px 44px;
   display: flex;
   justify-content: center;
+  box-shadow:
+    0 8px 40px rgba(0, 0, 0, 0.3),
+    0 0 80px rgba(56, 210, 235, 0.03),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  position: relative;
+}
+
+.formContainer::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(56, 210, 235, 0.25), transparent);
+}
+
+.formContainer::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 25%;
+  right: 25%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(96, 225, 250, 0.12), transparent);
 }
 
 @media (max-width: 768px) {
-  .title {
-    font-size: 36px;
-  }
-
-  .formContainer {
-    padding: 40px 30px;
-  }
-
-  .backButton {
-    top: 20px;
-    left: 20px;
-  }
+  .title { font-size: 28px; }
+  .formContainer { padding: 36px 24px; }
+  .backButton { top: 20px; left: 20px; }
 }

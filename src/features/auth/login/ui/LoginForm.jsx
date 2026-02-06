@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Input from '../../../../shared/ui/Input';
-import Button from '../../../../shared/ui/InitPage/Button';
+import Input from '../../../../shared/ui/AuthInput';
+import Button from '../../../../shared/ui/AuthButton';
 import { loginUser } from '../api/loginApi';
 import styles from './LoginForm.module.css';
 
