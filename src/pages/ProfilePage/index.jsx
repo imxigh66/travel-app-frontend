@@ -23,6 +23,12 @@ export default function ProfilePage() {
     setLoading(false);
   };
 
+
+  const handleUserUpdate = (updatedUser) => {
+    console.log('User updated:', updatedUser);
+    setUser(updatedUser);
+  };
+
   if (loading) {
     return (
       <div className={styles.loading}>
@@ -45,7 +51,11 @@ export default function ProfilePage() {
 
   return (
     <div className={styles.page}>
-      <ProfileHeader user={user} />
+       <ProfileHeader 
+        user={user} 
+        onUserUpdate={handleUserUpdate}  
+        isOwnProfile={true}
+      />
       <ProfileTabs />
     </div>
   );
