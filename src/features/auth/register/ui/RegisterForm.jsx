@@ -5,11 +5,18 @@ import Button from '../../../../shared/ui/AuthButton';
 import { registerUser } from '../api/registerApi';
 import styles from './RegisterForm.module.css';
 
+/**
+ * @typedef {import('../../../../entities/auth/model/types').RegisterData} RegisterData
+ */
+
 export default function RegisterForm() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  
+  /** @type {[Record<string, string>, (errors: Record<string, string>) => void]} */
   const [errors, setErrors] = useState({});
   
+  /** @type {[RegisterData, (data: RegisterData) => void]} */
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -17,16 +24,22 @@ export default function RegisterForm() {
     password: '',
   });
 
+  /**
+   * @param {React.ChangeEvent<HTMLInputElement>} e
+   */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    // Очищаем ошибку при изменении поля
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
 
+  /**
+   * @returns {boolean}
+   */
   const validate = () => {
+    /** @type {Record<string, string>} */
     const newErrors = {};
     
     if (!formData.name.trim()) {
@@ -55,6 +68,9 @@ export default function RegisterForm() {
     return Object.keys(newErrors).length === 0;
   };
 
+  /**
+   * @param {React.FormEvent<HTMLFormElement>} e
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -74,11 +90,10 @@ export default function RegisterForm() {
     setLoading(false);
     
     if (result.success) {
-      // Показываем сообщение об успехе
       alert('Registration successful! Please check your email to confirm your account.');
       navigate('/login');
     } else {
-      setErrors({ submit: result.error });
+      setErrors({ submit: result.error || 'Registration failed' });
     }
   };
 

@@ -5,16 +5,27 @@ import Button from '../../../../shared/ui/AuthButton';
 import { loginUser } from '../api/loginApi';
 import styles from './LoginForm.module.css';
 
+/**
+ * @typedef {import('../../../../entities/auth/model/types').LoginCredentials} LoginCredentials
+ * @typedef {import('../../../../entities/auth/model/types').AuthResponse} AuthResponse
+ */
+
 export default function LoginForm() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  
+  /** @type {[Record<string, string>, (errors: Record<string, string>) => void]} */
   const [errors, setErrors] = useState({});
   
+  /** @type {[LoginCredentials, (data: LoginCredentials) => void]} */
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
 
+  /**
+   * @param {React.ChangeEvent<HTMLInputElement>} e
+   */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -23,10 +34,14 @@ export default function LoginForm() {
     }
   };
 
+  /**
+   * @param {React.FormEvent<HTMLFormElement>} e
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     // Валидация
+    /** @type {Record<string, string>} */
     const newErrors = {};
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
@@ -47,10 +62,9 @@ export default function LoginForm() {
     setLoading(false);
     
     if (result.success) {
-      // Редирект на главную страницу приложения
       navigate('/profile'); 
     } else {
-      setErrors({ submit: result.error });
+      setErrors({ submit: result.error || 'Login failed' });
     }
   };
 
