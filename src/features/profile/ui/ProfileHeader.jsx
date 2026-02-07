@@ -1,6 +1,7 @@
 // widgets/ProfileHeader/ProfileHeader.jsx
 import { useState } from 'react';
 import EditProfileModal from '../../../features/profile/ui/EditProfileModal';
+import UploadAvatarModal from '../../../features/profile/ui/UploadAvatarModal';
 import styles from './ProfileHeader.module.css';
 
 const TravelInterest = {
@@ -36,6 +37,7 @@ const BusinessType = {
 
 export default function ProfileHeader({ user, onUserUpdate, isOwnProfile = true }) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isUploadAvatarOpen, setIsUploadAvatarOpen] = useState(false);
 
   const initials = user.name
     ? user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
@@ -82,18 +84,38 @@ export default function ProfileHeader({ user, onUserUpdate, isOwnProfile = true 
     setIsEditModalOpen(false);
   };
 
+  const handleAvatarUploadSuccess = (newAvatarUrl) => {
+    const updatedUser = {
+      ...user,
+      profilePicture: newAvatarUrl
+    };
+    onUserUpdate(updatedUser);
+  };
   return (
     <div className={styles.header}>
       <div className={styles.banner} />
 
       <div className={styles.content}>
         {/* Аватар */}
-        <div className={styles.avatarWrap}>
-          {user.profilePicture ? (
-            <img src={user.profilePicture} alt={user.name} className={styles.avatar} />
-          ) : (
-            <div className={styles.avatarFallback}>{initials}</div>
-          )}
+         <div className={styles.avatarWrap}>
+          <div 
+            className={`${styles.avatarContainer} ${isOwnProfile ? styles.clickable : ''}`}
+            onClick={() => isOwnProfile && setIsUploadAvatarOpen(true)}
+          >
+            {user.profilePicture ? (
+              <img src={user.profilePicture} alt={user.name} className={styles.avatar} />
+            ) : (
+              <div className={styles.avatarFallback}>{initials}</div>
+            )}
+            
+            {/* Оверлей для редактирования */}
+            {isOwnProfile && (
+              <div className={styles.avatarOverlay}>
+                <CameraIcon />
+                <span>Изменить фото</span>
+              </div>
+            )}
+          </div>
           
           {isBusiness && (
             <div className={styles.businessBadge} title="Бизнес аккаунт">
@@ -248,6 +270,15 @@ export default function ProfileHeader({ user, onUserUpdate, isOwnProfile = true 
           onSuccess={handleUpdateSuccess}
         />
       )}
+
+      {isOwnProfile && (
+        <UploadAvatarModal
+          isOpen={isUploadAvatarOpen}
+          onClose={() => setIsUploadAvatarOpen(false)}
+          onSuccess={handleAvatarUploadSuccess}
+          currentAvatar={user.profilePicture}
+        />
+      )}
     </div>
   );
 }
@@ -262,6 +293,14 @@ function MailIcon() {
   );
 }
 
+function CameraIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+      <circle cx="12" cy="13" r="4" />
+    </svg>
+  );
+}
 function CalendarIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">

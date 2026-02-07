@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { getCurrentUser } from '../../features/profile/api/userApi';
 import styles from './Sidebar.module.css';
 import LogoutButton from '../../features/auth/logout/ui/LogoutButton';
 
@@ -7,6 +8,21 @@ export default function Sidebar({ collapsed, setCollapsed }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Загрузка данных пользователя
+  useEffect(() => {
+    const loadUser = async () => {
+      setLoading(true);
+      const result = await getCurrentUser();
+      if (result.success && result.data) {
+        setUser(result.data);
+      }
+      setLoading(false);
+    };
+    loadUser();
+  }, []);
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -36,6 +52,17 @@ export default function Sidebar({ collapsed, setCollapsed }) {
 
   const sidebarClass = `${styles.sidebar} ${collapsed ? styles.collapsed : ''} ${mobileOpen ? styles.mobileOpen : ''}`;
 
+  // Получаем инициалы
+  const getInitials = () => {
+    if (!user?.name) return '?';
+    return user.name
+      .split(' ')
+      .map(w => w[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
     <>
       {/* Mobile hamburger */}
@@ -63,22 +90,46 @@ export default function Sidebar({ collapsed, setCollapsed }) {
         </div>
 
         {/* User card */}
-        <div
-          className={styles.userCard}
-          onClick={() => navigate('/profile')}
-          title={collapsed ? 'Sarah' : ''}
-        >
-          <div className={styles.avatar}>S</div>
-          {!collapsed && (
-            <div className={styles.userInfo}>
-              <div className={styles.userName}>Sarah</div>
-              <div className={styles.userBadge}>Супер-турист</div>
-            </div>
-          )}
-        </div>
+        {loading ? (
+          <div className={styles.userCard}>
+            <div className={styles.avatarSkeleton} />
+            {!collapsed && (
+              <div className={styles.userInfo}>
+                <div className={styles.skeletonLine} />
+                <div className={styles.skeletonLineSm} />
+              </div>
+            )}
+          </div>
+        ) : (
+          <div
+            className={styles.userCard}
+            onClick={() => navigate('/profile')}
+            title={collapsed ? user?.name || 'Профиль' : ''}
+          >
+            {user?.profilePicture ? (
+              <img 
+                src={user.profilePicture} 
+                alt={user.name} 
+                className={styles.avatar}
+              />
+            ) : (
+              <div className={styles.avatarFallback}>
+                {getInitials()}
+              </div>
+            )}
+            {!collapsed && (
+              <div className={styles.userInfo}>
+                <div className={styles.userName}>{user?.name || 'Пользователь'}</div>
+                <div className={styles.userBadge}>
+                  {user?.accountType === 1 ? '🏢 Бизнес' : '👤 Персональный'}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Stats - hidden when collapsed */}
-        {!collapsed && (
+        {!collapsed && !loading && (
           <div className={styles.stats}>
             <div className={styles.stat}>
               <div className={styles.statValue}>24</div>

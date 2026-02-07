@@ -102,25 +102,87 @@
   justify-content: center;
 }
 
+/* Аватар - если это изображение */
 .avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: rgba(56, 210, 235, 0.12);
-  border: 1px solid rgba(56, 210, 235, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #5ee7ff;
-  font-size: 16px;
-  font-weight: 600;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(56, 210, 235, 0.2);
   flex-shrink: 0;
 }
 
-.collapsed .avatar {
-  width: 36px;
-  height: 36px;
-  font-size: 14px;
+/* Аватар - fallback с инициалами */
+.avatarFallback {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0d3252, #38d2eb);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  border: 2px solid rgba(56, 210, 235, 0.2);
+  flex-shrink: 0;
+}
+
+/* Скелетоны для загрузки */
+.avatarSkeleton {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+.skeletonLine {
+  height: 14px;
+  width: 100px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  border-radius: 4px;
+  animation: loading 1.5s infinite;
+}
+
+.skeletonLineSm {
+  height: 12px;
+  width: 80px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  border-radius: 4px;
+  margin-top: 6px;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Обновляем userCard для курсора */
+.userCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(56, 210, 235, 0.04);
+  border: 1px solid rgba(56, 210, 235, 0.1);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.userCard:hover {
+  background: rgba(56, 210, 235, 0.08);
+  border-color: rgba(56, 210, 235, 0.2);
 }
 
 .userInfo {

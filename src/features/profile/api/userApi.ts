@@ -80,3 +80,39 @@ export const updateBusinessProfile = async (
     return { success: false, error: errorMessage };
   }
 };
+
+export const uploadProfilePicture = async (
+  file: File
+): Promise<{ success: boolean; data?: { fileUrl: string; fileName: string }; error?: string }> => {
+  try {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const response = await api.post<ApiResponse<{
+      fileUrl: string;
+      fileName: string;
+      fileSize: number;
+      contentType: string;
+      uploadedAt: string;
+    }>>('/users/profile-picture', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    return {
+      success: true,
+      data: {
+        fileUrl: response.data.data!.fileUrl,
+        fileName: response.data.data!.fileName
+      }
+    };
+  } catch (error: unknown) {
+    console.error('Upload profile picture error:', error);
+
+    const errorMessage = (error as any).response?.data?.message ||
+                        (error as any).response?.data?.error ||
+                        'Failed to upload profile picture';
+    return { success: false, error: errorMessage };
+  }
+};
