@@ -1,5 +1,5 @@
 import axios from '../../../shared/api/axios'; // Ваш настроенный axios с токенами
-import { Post, CreatePostDto, PostResponse, PostsListResponse } from '../../../entities/post/post';
+import { Post, CreatePostDto, PostResponse, PostsListResponse } from '../model/post';
 
 export const postApi = {
   // Создать пост

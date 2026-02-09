@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { getCurrentUser } from '../../features/profile/api/userApi';
-import ProfileHeader from '../../features/profile/ui/ProfileHeader';
-import ProfileTabs from '../../features/profile/ui/ProfileTabs';
+import { getCurrentUser } from '../../entities/user/api/userApi';
+import ProfileHeader from '../../widgets/Profile/ProfileHeader';
+import ProfileTabs from '../../widgets/Profile/ProfileTabs';
 import styles from './ProfilePage.module.css';
 
 export default function ProfilePage() {

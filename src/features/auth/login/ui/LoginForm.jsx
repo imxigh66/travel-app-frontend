@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Input from '../../../../shared/ui/AuthInput';
-import Button from '../../../../shared/ui/AuthButton';
+import Button from '../../../../shared/ui/Button';
 import { loginUser } from '../api/loginApi';
 import styles from './LoginForm.module.css';
 
@@ -99,7 +99,7 @@ export default function LoginForm() {
       </div>
 
       <Button 
-        variant="primary" 
+        variant="auth" 
         type="submit"
         disabled={loading}
       >

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { getCurrentUser } from '../../features/profile/api/userApi';
+import { getCurrentUser } from '../../entities/user/api/userApi';
 import styles from './Sidebar.module.css';
 import LogoutButton from '../../features/auth/logout/ui/LogoutButton';
 
@@ -89,63 +89,9 @@ export default function Sidebar({ collapsed, setCollapsed }) {
           </button>
         </div>
 
-        {/* User card */}
-        {loading ? (
-          <div className={styles.userCard}>
-            <div className={styles.avatarSkeleton} />
-            {!collapsed && (
-              <div className={styles.userInfo}>
-                <div className={styles.skeletonLine} />
-                <div className={styles.skeletonLineSm} />
-              </div>
-            )}
-          </div>
-        ) : (
-          <div
-            className={styles.userCard}
-            onClick={() => navigate('/profile')}
-            title={collapsed ? user?.name || 'Профиль' : ''}
-          >
-            {user?.profilePicture ? (
-              <img 
-                src={user.profilePicture} 
-                alt={user.name} 
-                className={styles.avatar}
-              />
-            ) : (
-              <div className={styles.avatarFallback}>
-                {getInitials()}
-              </div>
-            )}
-            {!collapsed && (
-              <div className={styles.userInfo}>
-                <div className={styles.userName}>{user?.name || 'Пользователь'}</div>
-                <div className={styles.userBadge}>
-                  {user?.accountType === 1 ? '🏢 Бизнес' : '👤 Персональный'}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+        
 
-        {/* Stats - hidden when collapsed */}
-        {!collapsed && !loading && (
-          <div className={styles.stats}>
-            <div className={styles.stat}>
-              <div className={styles.statValue}>24</div>
-              <div className={styles.statLabel}>Страны</div>
-            </div>
-            <div className={styles.stat}>
-              <div className={styles.statValue}>47</div>
-              <div className={styles.statLabel}>Поездки</div>
-            </div>
-            <div className={styles.stat}>
-              <div className={styles.statValue}>2.4K</div>
-              <div className={styles.statLabel}>Друзья</div>
-            </div>
-          </div>
-        )}
-
+        
         <div className={styles.divider} />
 
         {/* Navigation */}

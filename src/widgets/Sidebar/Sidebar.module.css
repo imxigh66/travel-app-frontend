@@ -4,7 +4,7 @@
   position: fixed;
   left: 0;
   top: 0;
-  background: rgba(8, 14, 26, 0.7);
+  background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px);
   border-right: 1px solid rgba(56, 210, 235, 0.08);
@@ -41,7 +41,7 @@
 }
 
 .logoIcon {
-  color: #5ee7ff;
+  color: #000000;
   display: flex;
   align-items: center;
   flex-shrink: 0;
@@ -50,7 +50,7 @@
 .logoText {
   font-size: 20px;
   font-weight: 700;
-  color: #e2e8f0;
+  color: #000000;
   letter-spacing: -0.5px;
   white-space: nowrap;
 }
@@ -272,7 +272,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(148, 163, 184, 0.5);
+  color: rgba(0, 0, 0, 0.5);
   transition: color 0.2s;
   width: 20px;
   flex-shrink: 0;
@@ -280,7 +280,7 @@
 
 .navItem .label {
   font-size: 14px;
-  color: rgba(178, 200, 220, 0.6);
+  color: rgba(0, 0, 0, 0.6);
   font-weight: 500;
   transition: color 0.2s;
   white-space: nowrap;

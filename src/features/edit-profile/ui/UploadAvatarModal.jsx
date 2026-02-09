@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { uploadProfilePicture } from '../api/userApi';
+import { uploadProfilePicture } from '../../edit-profile/api/editProfile';
 import styles from './UploadAvatarModal.module.css';
 
 export default function UploadAvatarModal({ isOpen, onClose, onSuccess, currentAvatar }) {

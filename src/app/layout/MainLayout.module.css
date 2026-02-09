@@ -1,7 +1,7 @@
 .layout {
   display: flex;
   min-height: 100vh;
-  background: linear-gradient(135deg, #325b77 0%, #1a313e 50%, #3c6485 100%);
+  background: linear-gradient(135deg, #e7f4f5 10%, #75c6f5 90%, #ffffff 100%);;
 }
 
 .content {

@@ -43,43 +43,56 @@ export const PostCard = ({ post, onLikeChange }) => {
   };
 
   const userInitials = post.username
-  ? post.username
-      .split(' ')
-      .map(w => w[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2)
-  : '?';
-
+    ? post.username
+        .split(' ')
+        .map(w => w[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
+    : '?';
 
   return (
     <div className={styles.card}>
       {/* Header */}
       <div className={styles.header}>
-  {post.userProfilePicture ? (
-    <img
-      src={post.userProfilePicture}
-      alt={post.username}
-      className={styles.avatar}
-    />
-  ) : (
-    <div className={styles.avatarFallback}>{userInitials}</div>
-  )}
+        {post.userProfilePicture ? (
+          <img
+            src={post.userProfilePicture}
+            alt={post.username}
+            className={styles.avatar}
+          />
+        ) : (
+          <div className={styles.avatarFallback}>{userInitials}</div>
+        )}
 
-  <div className={styles.userInfo}>
-    <p className={styles.userName}>{post.username}</p>
-    <p className={styles.timestamp}>
-      {formatDistanceToNow(new Date(post.createdAt), {
-        addSuffix: true,
-        locale: ru,
-      })}
-    </p>
-  </div>
-</div>
+        <div className={styles.userInfo}>
+          <p className={styles.userName}>{post.username}</p>
+          <p className={styles.timestamp}>
+            {formatDistanceToNow(new Date(post.createdAt), {
+              addSuffix: true,
+              locale: ru,
+            })}
+          </p>
+        </div>
+      </div>
 
+      {/* Location */}
+      {post.location && (
+        <div className={styles.location}>
+          <MapPinIcon />
+          <span>{post.location}</span>
+        </div>
+      )}
+
+      {/* Content */}
+      {post.content && (
+        <div className={styles.textContent}>
+          <p>{post.content}</p>
+        </div>
+      )}
 
       {/* Images */}
-      {post.imageUrls.length > 0 && (
+      {post.imageUrls && post.imageUrls.length > 0 && (
         <div className={styles.imageCarousel}>
           <img
             src={post.imageUrls[currentImageIndex]}
@@ -94,13 +107,13 @@ export const PostCard = ({ post, onLikeChange }) => {
                 onClick={prevImage}
                 className={`${styles.carouselBtn} ${styles.carouselBtnPrev}`}
               >
-                ←
+                <ChevronLeftIcon />
               </button>
               <button
                 onClick={nextImage}
                 className={`${styles.carouselBtn} ${styles.carouselBtnNext}`}
               >
-                →
+                <ChevronRightIcon />
               </button>
 
               {/* Dots */}
@@ -111,6 +124,7 @@ export const PostCard = ({ post, onLikeChange }) => {
                     className={`${styles.dot} ${
                       index === currentImageIndex ? styles.dotActive : ''
                     }`}
+                    onClick={() => setCurrentImageIndex(index)}
                   />
                 ))}
               </div>
@@ -119,31 +133,28 @@ export const PostCard = ({ post, onLikeChange }) => {
         </div>
       )}
 
-      {/* Content & Actions */}
-      <div className={styles.content}>
-        <div className={styles.actions}>
-          <button
-            onClick={handleLike}
-            className={`${styles.actionBtn} ${isLiked ? styles.actionBtnLiked : ''}`}
-          >
-            <HeartIcon size={24} fill={isLiked} />
-            <span>{likesCount}</span>
-          </button>
+      {/* Actions */}
+      <div className={styles.actions}>
+        <button
+          onClick={handleLike}
+          className={`${styles.actionBtn} ${isLiked ? styles.actionBtnLiked : ''}`}
+        >
+          <HeartIcon size={22} fill={isLiked} />
+          {likesCount > 0 && <span>{likesCount}</span>}
+        </button>
 
-          <button className={styles.actionBtn}>
-            <MessageIcon size={24} />
-          </button>
+        <button className={styles.actionBtn}>
+          <MessageIcon size={22} />
+          {post.commentsCount > 0 && <span>{post.commentsCount}</span>}
+        </button>
 
-          <button className={`${styles.actionBtn} ${styles.actionBtnBookmark}`}>
-            <BookmarkIcon size={24} />
-          </button>
-        </div>
+        <button className={styles.actionBtn}>
+          <ShareIcon size={22} />
+        </button>
 
-        {/* Post Content */}
-        {post.title && (
-          <h3 className={styles.postTitle}>{post.title}</h3>
-        )}
-        <p className={styles.postContent}>{post.content}</p>
+        <button className={`${styles.actionBtn} ${styles.actionBtnBookmark}`}>
+          <BookmarkIcon size={22} />
+        </button>
       </div>
     </div>
   );
@@ -166,10 +177,47 @@ function MessageIcon({ size }) {
   );
 }
 
+function ShareIcon({ size }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="18" cy="5" r="3"/>
+      <circle cx="6" cy="12" r="3"/>
+      <circle cx="18" cy="19" r="3"/>
+      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+    </svg>
+  );
+}
+
 function BookmarkIcon({ size }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+    </svg>
+  );
+}
+
+function MapPinIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+      <circle cx="12" cy="10" r="3"/>
+    </svg>
+  );
+}
+
+function ChevronLeftIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+  );
+}
+
+function ChevronRightIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="9 18 15 12 9 6"/>
     </svg>
   );
 }

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { CreatePostModal } from '../../../features/post/ui/CreatePostModal';
-import { PostCard } from '../../../features/post/ui/PostCard';
-import { postApi } from '../../../features/post/api/postApi';
-import Button from '../../../shared/ui/PublishButton';
+import { CreatePostModal } from '../../features/post/ui/CreatePostModal';
+import { PostCard } from '../../entities/post/ui/PostCard';
+import { postApi } from '../../entities/post/api/postApi';
+
 import styles from './ProfileTabs.module.css';
 
 export default function ProfileTabs({ currentUser }) {
@@ -30,43 +30,33 @@ export default function ProfileTabs({ currentUser }) {
   }, [activeTab]);
 
   const tabs = [
-    { id: 'posts', label: 'Посты', icon: <PostIcon /> },
-    { id: 'photos', label: 'Фото', icon: <PhotoIcon /> },
+    { id: 'posts', label: 'Posts' },
+    { id: 'photos', label: 'Photo' },
+    { id: 'travel', label: 'Travel' },
   ];
 
   const allPhotos = posts.flatMap(p => p.imageUrls || []);
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.tabs}>
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            className={`${styles.tab} ${activeTab === tab.id ? styles.active : ''}`}
-            onClick={() => setActiveTab(tab.id)}
-          >
-            {tab.icon}
-            {tab.label}
-          </button>
-        ))}
+      {/* Tabs Navigation */}
+      <div className={styles.tabsContainer}>
+        <div className={styles.tabs}>
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              className={`${styles.tab} ${activeTab === tab.id ? styles.active : ''}`}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className={styles.content}>
         {activeTab === 'posts' && (
           <>
-            {/* Create Post Button */}
-            <div className={styles.createButtonWrapper}>
-              <Button
-                variant="primary"
-                size="large"
-                fullWidth
-                 icon={<PlusIcon />}
-                onClick={() => setIsCreateModalOpen(true)}
-              >
-                Создать пост
-              </Button>
-            </div>
-
             {/* Posts List */}
             {isLoading ? (
               <div className={styles.loading}>
@@ -80,6 +70,7 @@ export default function ProfileTabs({ currentUser }) {
                 <p className={styles.emptyText}>
                   Поделитесь своими впечатлениями о путешествиях
                 </p>
+               
               </div>
             ) : (
               <div className={styles.postsList}>
@@ -116,6 +107,16 @@ export default function ProfileTabs({ currentUser }) {
             )}
           </>
         )}
+
+        {activeTab === 'travel' && (
+          <div className={styles.empty}>
+            <EmptyIcon />
+            <p className={styles.emptyTitle}>Путешествия</p>
+            <p className={styles.emptyText}>
+              Здесь будут отображаться ваши путешествия
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Create Post Modal */}
@@ -125,28 +126,16 @@ export default function ProfileTabs({ currentUser }) {
         onSuccess={fetchMyPosts}
         currentUser={currentUser}
       />
+
+      {/* Floating Create Button */}
+      <button 
+        className={styles.floatingBtn}
+        onClick={() => setIsCreateModalOpen(true)}
+        title="Создать пост"
+      >
+        <PlusIcon size={24} />
+      </button>
     </div>
-  );
-}
-
-function PostIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-      <polyline points="14 2 14 8 20 8" />
-      <line x1="16" y1="13" x2="8" y2="13" />
-      <line x1="16" y1="17" x2="8" y2="17" />
-    </svg>
-  );
-}
-
-function PhotoIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2" />
-      <circle cx="8.5" cy="8.5" r="1.5" />
-      <polyline points="21 15 16 10 5 21" />
-    </svg>
   );
 }
 

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Input from '../../../../shared/ui/AuthInput';
-import Button from '../../../../shared/ui/AuthButton';
+import Button from '../../../../shared/ui/Button';
 import Select from '../../../../shared/ui/AuthSelect';
 import { registerUser } from '../api/registerApi';
 import styles from './RegisterForm.module.css';
@@ -205,7 +205,7 @@ export default function RegisterForm() {
         <div className={styles.errorMessage}>{errors.submit}</div>
       )}
 
-      <Button type="submit" disabled={loading}>
+      <Button variant="auth" type="submit" disabled={loading}>
         {loading ? 'Creating Account...' : 'Create Account'}
       </Button>
 

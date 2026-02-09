@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import Button from '../../../shared/ui/EditButton';
 import Input from '../../../shared/ui/EditInput';
 import Textarea from '../../../shared/ui/EditTextarea';
-import Select from '../../../shared/ui//EditSelect';
+import Select from '../../../shared/ui/EditSelect';
 import Modal from '../../../shared/ui/EditModal';
-import { updatePersonalProfile, updateBusinessProfile } from '../../../features/profile/api/userApi';
+import { updatePersonalProfile, updateBusinessProfile } from '../../edit-profile/api/editProfile';
 import styles from './EditProfileModal.module.css';
 
 const TRAVEL_INTERESTS = [

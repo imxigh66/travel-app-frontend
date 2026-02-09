@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { postApi } from '../api/postApi';
-import Button from '../../../shared/ui/PublishButton';
+import { postApi } from '../api/createPost';
+import Button from '../../../shared/ui/Button';
 import styles from './CreatePostModal.module.css';
 
 export const CreatePostModal = ({ isOpen, onClose, onSuccess, currentUser }) => {
@@ -198,9 +198,9 @@ export const CreatePostModal = ({ isOpen, onClose, onSuccess, currentUser }) => 
 
             {/* Submit Button */}
             <Button
+              variant="primary"
               type="submit"
               disabled={isLoading || !content.trim()}
-              variant="primary"
               size="medium"
             >
               {isLoading ? 'Публикация...' : 'Опубликовать'}
