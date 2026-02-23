@@ -1,0 +1,88 @@
+.wrap {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+}
+
+.ico {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+.input {
+  width: 100%;
+  background: #f5f5f7;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 15px 52px 15px 46px;
+  font-size: 0.9rem;
+  color: #1a1a2e;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.input::placeholder { color: #9ca3af; }
+
+.input:focus {
+  border-color: #6366f1;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.08);
+}
+
+.btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #6366f1;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  transition: opacity 0.2s, transform 0.15s;
+  flex-shrink: 0;
+}
+
+.btn:hover { opacity: 0.85; }
+.btn:active { transform: translateY(-50%) scale(0.94); }
+
+/* ── MOBILE ── */
+@media (max-width: 768px) {
+  .wrap {
+    max-width: 40%;
+  }
+
+  .input {
+    padding: 10px 42px 10px 36px;   /* ← намного компактнее */
+    font-size: 0.82rem;
+    border-radius: 10px;
+  }
+
+  .ico {
+    left: 12px;
+    width: 14px;
+    height: 14px;
+  }
+
+  .btn {
+    width: 28px;           /* ← маленькая кнопка */
+    height: 28px;
+    border-radius: 7px;
+    right: 6px;
+  }
+
+  .btn svg {
+    width: 11px;
+    height: 11px;
+  }
+}

@@ -39,7 +39,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
   }, []);
 
   const menuItems = [
-    { icon: <HomeIcon />, label: 'Главная', path: '/home' },
+    { icon: <HomeIcon />, label: 'Explore', path: '/explore' },
     { icon: <FeedIcon />, label: 'Лента', path: '/feed' },
     { icon: <MessageIcon />, label: 'Сообщения', path: '/messages' },
     { icon: <MapIcon />, label: 'Маршруты', path: '/trips' },

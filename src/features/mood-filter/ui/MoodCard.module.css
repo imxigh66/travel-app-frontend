@@ -1,0 +1,51 @@
+/* features/mood-filter/ui/MoodCard/MoodCard.module.css */
+
+.card {
+  border-radius: 12px;
+  padding: 16px 10px;
+  border: 1.5px solid #e5e7eb;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  user-select: none;
+}
+
+.card:hover {
+  border-color: #6366f1;
+  background: rgba(99, 102, 241, 0.04);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+}
+
+.active {
+  border-color: #6366f1;
+  background: rgba(99, 102, 241, 0.06);
+}
+
+.emoji {
+  display: block;
+  font-size: 1.5rem;
+  margin-bottom: 6px;
+}
+
+.label {
+  font-size: 0.72rem;
+  color: #6b7280;
+  line-height: 1.3;
+}
+
+.active .label {
+  color: #6366f1;
+  font-weight: 600;
+}
+
+/* ── MOBILE ── */
+@media (max-width: 768px) {
+  .card {
+    padding: 10px 6px;
+    border-radius: 10px;
+  }
+  .emoji { font-size: 1.2rem; margin-bottom: 4px; }
+  .label { font-size: 0.6rem; }
+}

@@ -1,0 +1,42 @@
+/* features/mood-filter/ui/MoodSelector/MoodSelector.module.css */
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.label {
+  font-size: 0.65rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #9ca3af;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  max-width: 800px;
+}
+
+.gridVibe {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* ── MOBILE ── */
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr); /* 4 в ряд — компактно */
+    gap: 7px;
+  }
+  .gridVibe {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

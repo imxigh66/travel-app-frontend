@@ -4,7 +4,9 @@ import InitPage from '../../pages/InitPage';
 import RegisterPage from '../../pages/RegisterPage';
 import LoginPage from '../../pages/LoginPage';
 import ProfilePage from '../../pages/ProfilePage';
-
+import { ExplorePage } from '../../pages/ExplorePage'
+import { ResultsPage } from '../../pages/ResultsPage'
+import { PlaceDetailPage } from '../../pages/PlaceDetailPage'
 export const router = createBrowserRouter([
   // Публичные страницы (без сайдбара)
   {
@@ -29,8 +31,16 @@ export const router = createBrowserRouter([
         element: <ProfilePage />,
       },
       {
-        path: '/home',
-        element: <div style={{color: 'white'}}>Главная (TODO)</div>,
+        path: '/explore',
+        element: <ExplorePage />,
+      },
+      {
+        path: '/places/:id',
+        element: <PlaceDetailPage />,
+      },
+      {
+        path: '/places',
+        element: <ResultsPage />,
       },
       {
         path: '/feed',

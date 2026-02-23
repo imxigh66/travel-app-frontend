@@ -1,0 +1,10 @@
+.wrap {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+  max-width: 800px;
+}
+
+.wrap::-webkit-scrollbar { display: none; }
