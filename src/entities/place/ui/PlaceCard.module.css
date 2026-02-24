@@ -162,3 +162,64 @@
     right: 7px;
   }
 }
+
+/* Вариант для грида (SavedPlacesPage и похожие) */
+.cardGrid {
+  width: 100%;
+  flex-shrink: unset;
+}
+
+.cardGrid .thumb {
+  height: 200px;
+}
+
+.cardGrid .placeholder {
+  font-size: 4rem;
+}
+
+.cardGrid .body {
+  padding: 14px 16px 16px;
+}
+
+.cardGrid .name {
+  font-size: 1rem;
+  margin-bottom: 5px;
+}
+
+.cardGrid .loc {
+  font-size: 0.8rem;
+}
+
+.cardGrid .desc {
+  font-size: 0.82rem;
+  margin-top: 8px;
+  -webkit-line-clamp: 3;
+}
+
+.cardGrid .save {
+  width: 32px;
+  height: 32px;
+  bottom: 14px;
+  right: 14px;
+  border-radius: 10px;
+}
+
+.cardGrid .badge {
+  font-size: 0.7rem;
+  padding: 3px 10px;
+}
+
+.cardGrid .rating {
+  font-size: 0.7rem;
+  padding: 3px 10px;
+}
+
+@media (max-width: 768px) {
+  .cardGrid .thumb {
+    height: 160px;
+  }
+
+  .cardGrid .name {
+    font-size: 0.9rem;
+  }
+}

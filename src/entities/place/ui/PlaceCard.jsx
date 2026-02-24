@@ -2,29 +2,34 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getCategoryLabel, getCategoryEmoji, formatRating } from '../model/place.helpers'
 import styles from './PlaceCard.module.css'
+import { useSavePlace } from '../../../features/save-place/useSavePlace'
 
 export function PlaceCard({
   place,
   variant = 'default',
-  onClick,
-  onSave,
+  onUnsave,      
   isSaved = false,
 }) {
-  const [saved, setSaved] = useState(isSaved)
+   const { isSaved: saved, toggle } = useSavePlace(place.placeId)
   const navigate = useNavigate()
-  const handleSave = (e) => {
+
+  const handleToggle = (e) => {
     e.stopPropagation()
-    setSaved(prev => !prev)
-    onSave?.(place.placeId)
+    if (saved) onUnsave?.(place.placeId) 
+    toggle(e)
   }
 
   const thumbnail = place.coverImageUrl ?? place.imageUrls?.[0]
 
   return (
-    <div
-      className={`${styles.card} ${variant === 'wide' ? styles.cardWide : ''}`}
-      onClick={() => navigate(`/places/${place.placeId}`)}
-    >
+   <div
+  className={[
+    styles.card,
+    variant === 'wide' && styles.cardWide,
+    variant === 'grid' && styles.cardGrid,
+  ].filter(Boolean).join(' ')}
+  onClick={() => navigate(`/places/${place.placeId}`)}
+>
       <div className={styles.thumb}>
         {thumbnail ? (
           <img src={thumbnail} alt={place.name} className={styles.img} />
@@ -47,7 +52,7 @@ export function PlaceCard({
 
       <button
         className={`${styles.save} ${saved ? styles.saveSaved : ''}`}
-        onClick={handleSave}
+        onClick={handleToggle}
         aria-label="Сохранить"
       >
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none"

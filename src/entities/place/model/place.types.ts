@@ -205,3 +205,8 @@ export interface PostDto {
   createdAt:            string
   updatedAt:            string
 }
+
+export interface SavePlaceState {
+  isSaved: boolean
+  loading: boolean
+}

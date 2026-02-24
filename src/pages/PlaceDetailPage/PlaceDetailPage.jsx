@@ -5,6 +5,7 @@ import { PlaceNearbyCard } from '../../entities/place/ui/PlaceNearbyCard'
 import { PlacePosts } from '../../widgets/PlacePosts/PlacePosts'
 import { getCategoryLabel } from '../../entities/place/model/place.helpers'
 import styles from './PlaceDetailPage.module.css'
+import { useSavePlace } from '../../features/save-place/useSavePlace'
 
 const CATEGORY_GRADIENT = {
   0: 'linear-gradient(145deg, #fef3c7, #fde68a)',
@@ -152,8 +153,9 @@ export function PlaceDetailPage() {
   const [place, setPlace]       = useState(null)
   const [nearby, setNearby]     = useState([])
   const [loading, setLoading]   = useState(true)
-  const [saved, setSaved]       = useState(false)
+  const [initialSaved, setInitialSaved] = useState(undefined)
   const [lightbox, setLightbox] = useState(null)
+  const { isSaved: saved, toggle: toggleSave } = useSavePlace(Number(id), initialSaved)
 
   useEffect(() => {
     if (!id) return
@@ -165,8 +167,13 @@ export function PlaceDetailPage() {
     Promise.all([
       placeApi.getById(placeId),
       placeApi.getNearby(placeId).catch(() => []),
+      placeApi.isSaved(placeId).catch(() => undefined),
     ])
-      .then(([p, n]) => { setPlace(p); setNearby(n) })
+      .then(([p, n, savedFromServer]) => { 
+  setPlace(p)
+  setNearby(n)
+  setInitialSaved(savedFromServer)
+})
       .catch(() => setPlace(null))
       .finally(() => setLoading(false))
   }, [id])
@@ -229,15 +236,15 @@ export function PlaceDetailPage() {
               <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
             </svg>
           </button>
-          <button
-            className={`${styles.iconBtn} ${saved ? styles.iconBtnSaved : ''}`}
-            onClick={() => setSaved(v => !v)}
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24"
-              fill={saved ? 'white' : 'none'} stroke="currentColor" strokeWidth="2">
-              <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
-            </svg>
-          </button>
+         <button
+  className={`${styles.iconBtn} ${saved ? styles.iconBtnSaved : ''}`}
+  onClick={toggleSave}  // ← было: onClick={() => setSaved(v => !v)}
+>
+  <svg width="15" height="15" viewBox="0 0 24 24"
+    fill={saved ? 'white' : 'none'} stroke="currentColor" strokeWidth="2">
+    <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+  </svg>
+</button>
         </div>
       </div>
 

@@ -55,3 +55,4 @@ export function getCategoryEmoji(category: PlaceCategory): string {
   const label = CATEGORY_LABELS[category] ?? '📍'
   return label.split(' ')[0]
 }
+

@@ -7,6 +7,7 @@ import ProfilePage from '../../pages/ProfilePage';
 import { ExplorePage } from '../../pages/ExplorePage'
 import { ResultsPage } from '../../pages/ResultsPage'
 import { PlaceDetailPage } from '../../pages/PlaceDetailPage'
+import { SavedPlacesPage } from '../../pages/SavedPlacesPage'
 export const router = createBrowserRouter([
   // Публичные страницы (без сайдбара)
   {
@@ -60,7 +61,7 @@ export const router = createBrowserRouter([
       },
       {
         path: '/saved',
-        element: <div style={{color: 'white'}}>Сохраненные (TODO)</div>,
+        element: <SavedPlacesPage />,
       },
       {
         path: '/settings',
