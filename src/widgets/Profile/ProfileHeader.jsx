@@ -2,8 +2,9 @@ import { useState } from 'react';
 import UserCard from '../../entities/user/ui/UserCard';
 import EditProfileModal from '../../features/edit-profile/ui/EditProfileModal';
 import styles from './ProfileHeader.module.css';
+import FollowButton from '../../features/follow/FollowButton'
 
-export default function ProfileHeader({ user, onUserUpdate, isOwnProfile = true }) {
+export default function ProfileHeader({ user, onUserUpdate, isOwnProfile = true ,isFollowing = false}) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const getMissingFields = () => {
@@ -50,8 +51,8 @@ export default function ProfileHeader({ user, onUserUpdate, isOwnProfile = true 
   const stats = {
     countries: 24,
     trips: 8,
-    followers: 100,
-    following: 12
+    followers: user?.followersCount ?? 0,   
+  following: user?.followingCount ?? 0,
   };
 
   return (
@@ -64,6 +65,15 @@ export default function ProfileHeader({ user, onUserUpdate, isOwnProfile = true 
         stats={stats}
       />
 
+     {!isOwnProfile && user &&(
+      <div className={styles.followRow}>
+        <FollowButton
+          userId={user.userId}
+          serverFollowing={isFollowing}
+          size="md"
+        />
+      </div>
+    )}
       {/* Profile Incomplete Warning */}
       {!profileComplete && isOwnProfile && (
         <div className={styles.incompleteWarning}>
@@ -78,7 +88,7 @@ export default function ProfileHeader({ user, onUserUpdate, isOwnProfile = true 
       )}
 
       {/* Edit Profile Modal */}
-      {isOwnProfile && (
+      {isOwnProfile && user &&  (
         <EditProfileModal
           user={user}
           isOpen={isEditModalOpen}

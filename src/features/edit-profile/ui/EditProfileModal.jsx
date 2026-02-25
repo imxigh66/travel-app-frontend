@@ -58,8 +58,8 @@ export default function EditProfileModal({ user, isOpen, onClose, onSuccess }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const isPersonal = user.accountType === 0;
-  const isBusiness = user.accountType === 1;
+const isPersonal = user?.accountType === 0;  
+const isBusiness = user?.accountType === 1;
 
   useEffect(() => {
     if (isOpen && user) {

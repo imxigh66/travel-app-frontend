@@ -65,4 +65,11 @@ export const postApi = {
     const response = await axios.get(`/posts/${postId}/likes`);
     return response.data;
   },
+
+  getUserPosts: async (userId: number, pageNumber = 1, pageSize = 10) => {
+  const response = await axios.get<PostsListResponse>(`/posts/user/${userId}`, {
+    params: { pageNumber, pageSize },
+  });
+  return response.data;
+},
 };

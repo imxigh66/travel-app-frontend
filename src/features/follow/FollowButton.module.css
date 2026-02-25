@@ -1,0 +1,54 @@
+.btn {
+  border: none;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+/* Размеры */
+.sm {
+  padding: 6px 14px;
+  font-size: 13px;
+}
+
+.md {
+  padding: 9px 22px;
+  font-size: 14px;
+}
+
+.lg {
+  padding: 11px 28px;
+  font-size: 15px;
+}
+
+/* Не подписан — фиолетовый градиент */
+.notFollowing {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.35);
+}
+
+.notFollowing:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+}
+
+/* Подписан — серый */
+.following {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1.5px solid #e5e7eb;
+}
+
+/* При hover на подписан — красноватый (Отписаться) */
+.unfollow {
+  background: #fff0f0;
+  color: #ef4444;
+  border: 1.5px solid #fecaca;
+}
+
+.unfollow:hover {
+  background: #fee2e2;
+}

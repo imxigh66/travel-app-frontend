@@ -8,6 +8,8 @@ import { ExplorePage } from '../../pages/ExplorePage'
 import { ResultsPage } from '../../pages/ResultsPage'
 import { PlaceDetailPage } from '../../pages/PlaceDetailPage'
 import { SavedPlacesPage } from '../../pages/SavedPlacesPage'
+import { FollowersPage } from '../../pages/FollowersPage/FollowersPage'
+import { FollowingPage } from '../../pages/FollowingPage/FollowingPage'
 export const router = createBrowserRouter([
   // Публичные страницы (без сайдбара)
   {
@@ -43,6 +45,16 @@ export const router = createBrowserRouter([
         path: '/places',
         element: <ResultsPage />,
       },
+      { 
+        path: '/users/:id/followers',
+        element: <FollowersPage /> 
+      },
+      { 
+        path: '/users/:id/following', 
+        element: <FollowingPage /> 
+      },
+
+  { path: '/users/:id', element: <ProfilePage /> },
       {
         path: '/feed',
         element: <div style={{color: 'white'}}>Лента (TODO)</div>,

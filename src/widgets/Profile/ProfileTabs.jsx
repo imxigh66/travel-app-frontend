@@ -5,16 +5,21 @@ import { postApi } from '../../entities/post/api/postApi';
 
 import styles from './ProfileTabs.module.css';
 
-export default function ProfileTabs({ currentUser }) {
+export default function ProfileTabs({ currentUser , userId, isOwnProfile = true}) {
   const [activeTab, setActiveTab] = useState('posts');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchMyPosts = async () => {
+ const fetchPosts = async () => {
     setIsLoading(true);
     try {
-      const response = await postApi.getMyPosts(1, 20);
+      let response;
+      if (isOwnProfile) {
+        response = await postApi.getMyPosts(1, 20)      // свои посты
+      } else {
+        response = await postApi.getUserPosts(userId, 1, 20)  // чужие посты
+      }
       setPosts(response.items);
     } catch (error) {
       console.error('Error fetching posts:', error);
@@ -25,7 +30,7 @@ export default function ProfileTabs({ currentUser }) {
 
   useEffect(() => {
     if (activeTab === 'posts') {
-      fetchMyPosts();
+      fetchPosts();
     }
   }, [activeTab]);
 
@@ -123,18 +128,19 @@ export default function ProfileTabs({ currentUser }) {
       <CreatePostModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
-        onSuccess={fetchMyPosts}
+        onSuccess={fetchPosts}
         currentUser={currentUser}
       />
 
-      {/* Floating Create Button */}
-      <button 
-        className={styles.floatingBtn}
-        onClick={() => setIsCreateModalOpen(true)}
-        title="Создать пост"
-      >
-        <PlusIcon size={24} />
-      </button>
+     {/* Floating Create Button — только на своём профиле */}
+{isOwnProfile && (
+  <button
+    className={styles.floatingBtn}
+    onClick={() => setIsCreateModalOpen(true)}
+  >
+    <PlusIcon size={24} />
+  </button>
+)}
     </div>
   );
 }

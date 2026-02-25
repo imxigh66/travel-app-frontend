@@ -1,5 +1,6 @@
 // shared/ui/UserCard/UserCard.jsx
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom'
 import UploadAvatarModal from '../../../features/edit-profile/ui/UploadAvatarModal';
 import UploadBannerModal from '../../../features/edit-profile/ui/Uploadbannermodal';
 import styles from './UserCard.module.css';
@@ -35,16 +36,19 @@ const BusinessType = {
   7: 'Провайдер впечатлений'
 };
 
+
 export default function UserCard({ 
   user, 
   onUserUpdate, 
   isOwnProfile = true,
   onEditClick,
-  stats = { countries: 24, trips: 8, followers: 100, following: 12 }
+  stats = { countries: 0, trips: 0, followers: 0, following: 0 }
 }) {
+  const navigate = useNavigate()
   const [isUploadAvatarOpen, setIsUploadAvatarOpen] = useState(false);
   const [isUploadBannerOpen, setIsUploadBannerOpen] = useState(false);
   const [isDetailsExpanded, setIsDetailsExpanded] = useState(false);
+  
 
   const initials = user?.name
     ? user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
@@ -149,14 +153,21 @@ export default function UserCard({
             <span className={styles.statValue}>{stats.trips}</span>
             <span className={styles.statLabel}>Total Trips</span>
           </div>
-          <div className={styles.stat}>
-            <span className={styles.statValue}>{stats.followers}</span>
-            <span className={styles.statLabel}>Followers</span>
-          </div>
-          <div className={styles.stat}>
-            <span className={styles.statValue}>{stats.following}</span>
-            <span className={styles.statLabel}>Following</span>
-          </div>
+          <div className={styles.stat}
+  onClick={() => navigate(`/users/${user?.userId}/followers`)}
+  style={{ cursor: 'pointer' }}
+>
+  <span className={styles.statValue}>{stats.followers}</span>
+  <span className={styles.statLabel}>Followers</span>
+</div>
+
+<div className={styles.stat}
+  onClick={() => navigate(`/users/${user?.userId}/following`)}
+  style={{ cursor: 'pointer' }}
+>
+  <span className={styles.statValue}>{stats.following}</span>
+  <span className={styles.statLabel}>Following</span>
+</div>
         </div>
 
         <button 

@@ -44,6 +44,8 @@ export interface User {
   bio?: string;
   profilePicture?: string;
   accountType: AccountType;
+  followersCount: number
+  followingCount: number
   
   // Personal fields
   travelInterest?: TravelInterest;
