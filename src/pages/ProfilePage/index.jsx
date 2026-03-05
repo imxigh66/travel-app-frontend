@@ -8,38 +8,40 @@ import styles from './ProfilePage.module.css';
 
 export default function ProfilePage() {
   const { id } = useParams() // undefined на /profile, число на /users/:id
-  const isOwnProfile = !id
+  
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isFollowing, setIsFollowing] = useState(false)
+  const [currentUserId, setCurrentUserId] = useState(null)  
 
+  const isOwnProfile = !id || (currentUserId !== null && Number(id) === currentUserId)
   useEffect(() => {
     loadUser();
   }, [id]);
 
-
 const loadUser = async () => {
   setLoading(true)
   try {
-    if (isOwnProfile) {
+    if (!id) {
       const result = await getCurrentUser()
-      console.log('getCurrentUser result:', result)  // ← добавь
       if (result.success) setUser(result.data)
       else setError(result.error)
     } else {
-      console.log('Loading user id:', id)  // ← добавь
-      const [userResult, following] = await Promise.all([
+      const [meResult, userResult, following] = await Promise.all([
+        getCurrentUser(),                                       
         getUserById(id),
         followApi.isFollowing(Number(id)).catch(() => false)
       ])
-      console.log('getUserById result:', userResult)  // ← добавь
-      if (userResult.success) setUser(userResult.data)
-      else setError(userResult.error ?? 'Не удалось загрузить профиль')
+
+      if (meResult.success) setCurrentUserId(meResult.data.userId)
+if (userResult.success) setUser(userResult.data)      // ← добавь
+else setError(userResult.error ?? 'Не удалось загрузить профиль')
+
+      setIsFollowing(following)  
     }
   } catch (e) {
-    console.error('loadUser error:', e)  // ← добавь
     setError('Не удалось загрузить профиль')
   } finally {
     setLoading(false)
