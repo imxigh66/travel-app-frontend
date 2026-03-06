@@ -1,0 +1,148 @@
+.wrap {
+  border-top: 1px solid #f1f5f9;
+  padding: 0.75rem 1rem 1rem;
+  background: #fafbfc;
+  border-radius: 0 0 1rem 1rem;
+}
+
+/* Список */
+.list {
+  margin-bottom: 0.75rem;
+  max-height: 320px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #e2e8f0 transparent;
+}
+
+.list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.list::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 2px;
+}
+
+/* Skeleton */
+.loading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.25rem 0;
+}
+
+.skeleton {
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Пусто */
+.empty {
+  font-size: 0.8125rem;
+  color: #94a3b8;
+  text-align: center;
+  padding: 1rem 0 0.5rem;
+  margin: 0;
+}
+
+/* Показать ещё */
+.loadMore {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  font-size: 0.8125rem;
+  color: #38d2eb;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  text-align: center;
+  transition: opacity 0.15s;
+}
+
+.loadMore:hover {
+  opacity: 0.75;
+}
+
+/* Поле ввода */
+.inputRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.input {
+  flex: 1;
+  resize: none;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 1.25rem;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.875rem;
+  font-family: inherit;
+  color: #0f172a;
+  background: white;
+  outline: none;
+  transition: border-color 0.15s;
+  line-height: 1.4;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.input::placeholder {
+  color: #94a3b8;
+}
+
+.input:focus {
+  border-color: #38d2eb;
+}
+
+.sendBtn {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  border: none;
+  background: #0d3252;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.sendBtn:hover:not(:disabled) {
+  background: #38d2eb;
+}
+
+.sendBtn:active:not(:disabled) {
+  transform: scale(0.92);
+}
+
+.sendBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Spinner */
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

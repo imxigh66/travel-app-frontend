@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { postApi } from '../api/postApi';
 import { formatDistanceToNow } from '../../../shared/utils/dateUtils';
 import styles from './PostCard.module.css';
+import { CommentSection } from '../../../features/comment/CommentSection';
 
-export const PostCard = ({ post, onLikeChange }) => {
+export const PostCard = ({ post, onLikeChange, currentUserId }) => {
+  const navigate = useNavigate();
   const [isLiked, setIsLiked] = useState(post.isLikedByCurrentUser || false);
   const [likesCount, setLikesCount] = useState(post.likesCount);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showComments, setShowComments] = useState(false);
+  const [commentsCount, setCommentsCount] = useState(post.commentsCount ?? 0);
 
   const handleLike = async () => {
     try {
@@ -27,6 +32,14 @@ export const PostCard = ({ post, onLikeChange }) => {
     }
   };
 
+  const handleCountChange = (delta) => {
+    setCommentsCount(prev => prev + delta);
+  };
+
+  const handleUserClick = () => {
+    navigate(`/users/${post.userId}`);
+  };
+
   const nextImage = () => {
     if (post.imageUrls && post.imageUrls.length > 0) {
       setCurrentImageIndex((prev) => (prev + 1) % post.imageUrls.length);
@@ -43,7 +56,7 @@ export const PostCard = ({ post, onLikeChange }) => {
 
   const userInitials = post.userFullName
     ? post.userFullName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
-    : post.username.slice(0, 2).toUpperCase();
+    : post.username?.slice(0, 2).toUpperCase();
 
   const hasImages = post.imageUrls && post.imageUrls.length > 0;
 
@@ -51,24 +64,31 @@ export const PostCard = ({ post, onLikeChange }) => {
     <div className={styles.card}>
       {/* Header */}
       <div className={styles.header}>
-        {post.userProfilePicture ? (
-          <img
-            src={post.userProfilePicture}
-            alt={post.userFullName}
-            className={styles.avatar}
-          />
-        ) : (
-          <div className={styles.avatarFallback}>{userInitials}</div>
-        )}
+        {/* Аватар — кликабельный */}
+        <div className={styles.avatarWrap} onClick={handleUserClick}>
+          {post.userProfilePicture ? (
+            <img
+              src={post.userProfilePicture}
+              alt={post.userFullName}
+              className={styles.avatar}
+            />
+          ) : (
+            <div className={styles.avatarFallback}>{userInitials}</div>
+          )}
+        </div>
+
         <div className={styles.userInfo}>
-          <p className={styles.userName}>{post.userFullName}</p>
+          {/* Имя — кликабельное */}
+          <p className={styles.userName} onClick={handleUserClick}>
+            {post.userFullName ?? post.username}
+          </p>
           <p className={styles.timestamp}>
             {formatDistanceToNow(post.createdAt)}
           </p>
         </div>
       </div>
 
-      {/* Content - ПЕРЕД фото */}
+      {/* Content */}
       <div className={styles.textContent}>
         {post.title && (
           <h3 className={styles.postTitle}>{post.title}</h3>
@@ -76,7 +96,7 @@ export const PostCard = ({ post, onLikeChange }) => {
         <p className={styles.postContent}>{post.content}</p>
       </div>
 
-      {/* Images - только если есть */}
+      {/* Images */}
       {hasImages && (
         <div className={styles.imageCarousel}>
           <img
@@ -84,8 +104,6 @@ export const PostCard = ({ post, onLikeChange }) => {
             alt="Post"
             className={styles.carouselImage}
           />
-
-          {/* Navigation */}
           {post.imageUrls.length > 1 && (
             <>
               <button
@@ -100,8 +118,6 @@ export const PostCard = ({ post, onLikeChange }) => {
               >
                 →
               </button>
-
-              {/* Dots */}
               <div className={styles.dots}>
                 {post.imageUrls.map((_, index) => (
                   <div
@@ -127,19 +143,31 @@ export const PostCard = ({ post, onLikeChange }) => {
           <span>{likesCount}</span>
         </button>
 
-        <button className={styles.actionBtn}>
+        <button
+          className={`${styles.actionBtn} ${showComments ? styles.actionBtnActive : ''}`}
+          onClick={() => setShowComments(v => !v)}
+        >
           <MessageIcon size={22} />
+          {commentsCount > 0 && <span>{commentsCount}</span>}
         </button>
 
         <button className={`${styles.actionBtn} ${styles.actionBtnBookmark}`}>
           <BookmarkIcon size={22} />
         </button>
       </div>
+
+      {/* Comments */}
+      {showComments && (
+        <CommentSection
+          postId={post.postId}
+          currentUserId={currentUserId}
+          onCountChange={handleCountChange}
+        />
+      )}
     </div>
   );
 };
 
-// Icons
 function HeartIcon({ size, fill }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill={fill ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
