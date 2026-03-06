@@ -72,4 +72,12 @@ export const postApi = {
   });
   return response.data;
 },
+
+
+getFeed: async (pageNumber = 1, pageSize = 10): Promise<PostsListResponse> => {
+  const response = await axios.get<PostsListResponse>('/posts/feed', {
+    params: { pageNumber, pageSize },
+  });
+  return response.data;
+},
 };

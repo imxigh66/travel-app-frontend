@@ -10,6 +10,7 @@ import { PlaceDetailPage } from '../../pages/PlaceDetailPage'
 import { SavedPlacesPage } from '../../pages/SavedPlacesPage'
 import { FollowersPage } from '../../pages/FollowersPage/FollowersPage'
 import { FollowingPage } from '../../pages/FollowingPage/FollowingPage'
+import FeedPage from '../../pages/FeedPage';
 export const router = createBrowserRouter([
   // Публичные страницы (без сайдбара)
   {
@@ -57,7 +58,7 @@ export const router = createBrowserRouter([
   { path: '/users/:id', element: <ProfilePage /> },
       {
         path: '/feed',
-        element: <div style={{color: 'white'}}>Лента (TODO)</div>,
+        element: <FeedPage />,
       },
       {
         path: '/messages',
