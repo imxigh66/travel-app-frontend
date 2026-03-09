@@ -11,6 +11,7 @@ import { SavedPlacesPage } from '../../pages/SavedPlacesPage'
 import { FollowersPage } from '../../pages/FollowersPage/FollowersPage'
 import { FollowingPage } from '../../pages/FollowingPage/FollowingPage'
 import FeedPage from '../../pages/FeedPage';
+import TripsPage from '../../pages/TripsPage';
 export const router = createBrowserRouter([
   // Публичные страницы (без сайдбара)
   {
@@ -64,10 +65,7 @@ export const router = createBrowserRouter([
         path: '/messages',
         element: <div style={{color: 'white'}}>Сообщения (TODO)</div>,
       },
-      {
-        path: '/trips',
-        element: <div style={{color: 'white'}}>Маршруты (TODO)</div>,
-      },
+      { path: '/trips', element: <TripsPage /> },
       {
         path: '/wishlist',
         element: <div style={{color: 'white'}}>Вишлист (TODO)</div>,
