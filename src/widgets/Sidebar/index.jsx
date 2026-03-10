@@ -43,7 +43,6 @@ export default function Sidebar({ collapsed, setCollapsed }) {
     { icon: <FeedIcon />, label: 'Лента', path: '/feed' },
     { icon: <MessageIcon />, label: 'Сообщения', path: '/messages' },
     { icon: <MapIcon />, label: 'Маршруты', path: '/trips' },
-    { icon: <HeartIcon />, label: 'Вишлист', path: '/wishlist' },
     { icon: <BookmarkIcon />, label: 'Сохранённые', path: '/saved' },
     { icon: <SettingsIcon />, label: 'Настройки', path: '/settings' },
   ];

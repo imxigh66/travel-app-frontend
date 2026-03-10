@@ -18,8 +18,8 @@ export const tripApi = {
     api.delete(`/trips/${id}`),
 
   // Места
-  addPlace: (tripId, placeId, notes) =>
-    api.post(`/trips/${tripId}/places`, { placeId, notes }).then(r => r.data.data),
+  addPlace: (tripId, data) =>
+  api.post(`/trips/${tripId}/places`, data).then(r => r.data.data),
 
   removePlace: (tripId, placeId) =>
     api.delete(`/trips/${tripId}/places/${placeId}`),

@@ -6,6 +6,7 @@ import { PlacePosts } from '../../widgets/PlacePosts/PlacePosts'
 import { getCategoryLabel } from '../../entities/place/model/place.helpers'
 import styles from './PlaceDetailPage.module.css'
 import { useSavePlace } from '../../features/save-place/useSavePlace'
+import { AddToTripModal } from '../../features/trip/ui/AddToTripModal';
 
 const CATEGORY_GRADIENT = {
   0: 'linear-gradient(145deg, #fef3c7, #fde68a)',
@@ -156,6 +157,7 @@ export function PlaceDetailPage() {
   const [initialSaved, setInitialSaved] = useState(undefined)
   const [lightbox, setLightbox] = useState(null)
   const { isSaved: saved, toggle: toggleSave } = useSavePlace(Number(id), initialSaved)
+  const [tripModal, setTripModal] = useState(false);
 
   useEffect(() => {
     if (!id) return
@@ -278,13 +280,13 @@ export function PlaceDetailPage() {
             </div>
             <div className={styles.headerRow}>
               <h1 className={styles.placeName}>{place.name}</h1>
-              <button className={styles.routeBtn}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
-                  <circle cx="12" cy="10" r="3"/>
-                </svg>
-                Маршрут
-              </button>
+              <button className={styles.routeBtn} onClick={() => setTripModal(true)}>
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+    <circle cx="12" cy="10" r="3"/>
+  </svg>
+  В маршрут
+</button>
             </div>
             <div className={styles.placeAddress}>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -435,6 +437,14 @@ export function PlaceDetailPage() {
 
             </div>
           )}
+
+          {tripModal && (
+  <AddToTripModal
+    placeId={place.placeId}
+    placeName={place.name}
+    onClose={() => setTripModal(false)}
+  />
+)}
 
         </div>
       </div>
