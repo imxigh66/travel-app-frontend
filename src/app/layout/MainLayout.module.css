@@ -7,21 +7,33 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  margin-left: calc(var(--sidebar-w) + 16px);
+  margin-left: var(--sidebar-w);
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   min-width: 0;
 }
 .mainArea.collapsed {
-  margin-left: calc(var(--sidebar-w-collapsed) + 16px);
+  margin-left: var(--sidebar-w-collapsed);
 }
 
+/* Единый контейнер для всех страниц */
 .content {
   flex: 1;
-  padding: 28px 32px;
-  padding-top: 68px;
+  padding-top: 76px;        /* высота TopNavbar */
+  padding-left: 40px;       /* единый отступ слева */
+  padding-right: 40px;      /* единый отступ справа */
+  padding-bottom: 60px;
+  max-width: 1240px;        /* ограничиваем ширину */
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 @media (max-width: 768px) {
   .mainArea, .mainArea.collapsed { margin-left: 0; }
-  .content { padding: 16px 16px 88px; padding-top: 64px; }
+  .content {
+    padding-top: 64px;
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-bottom: 80px;
+  }
 }

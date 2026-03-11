@@ -1,87 +1,87 @@
 .page {
-  background: #fff;
-  min-height: 100vh;
-  color: #1a1a2e;
-  font-family: 'Trebuchet MS', 'Lucida Grande', sans-serif;
-  padding-bottom: 80px;
+  max-width: 1000px;
+  width: 100%;
+  margin: 0 auto;
+  padding-bottom: 60px;
 }
 
 /* ── HERO ── */
 .hero {
-  padding: 40px 40px 32px;
+  padding: 32px 0 28px;
 }
 
 .eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.68rem;
+  font-size: 10px;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: #6366f1;
-  background: rgba(99,102,241,0.08);
-  border: 1px solid rgba(99,102,241,0.2);
-  padding: 5px 14px;
+  color: var(--salmon);
+  background: rgba(253,179,164,0.12);
+  border: 1px solid rgba(253,179,164,0.25);
+  padding: 5px 13px;
   border-radius: 999px;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
+  font-weight: 600;
 }
 
 .heading {
-  font-size: clamp(2rem, 3.5vw, 2.8rem);
+  font-size: clamp(2rem, 3.2vw, 2.6rem);
   font-weight: 800;
-  line-height: 1.2;
-  letter-spacing: -1px;
-  margin-bottom: 10px;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+  color: var(--text-dark);
+  margin: 0 0 10px;
+  font-family: var(--font-main);
 }
-
 .heading em {
   font-style: italic;
-  color: #6366f1;
-  font-weight: 500;
+  color: var(--salmon);
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.1em;
 }
 
 .sub {
-  color: #6b7280;
-  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-size: 14px;
   line-height: 1.6;
-  max-width: 400px;
-  margin-bottom: 20px;
+  max-width: 440px;
+  margin: 0;
 }
 
 /* ── SECTIONS ── */
 .section {
-  padding: 0 40px;
-  margin-bottom: 32px;
+  margin-bottom: 36px;
 }
 
 .sectionHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .sectionTitle {
-  font-size: 1rem;
+  font-size: 15px;
   font-weight: 700;
-  color: #1a1a2e;
+  color: var(--text-dark);
 }
 
-/* ── GO BUTTON ── */
 .goBtn {
   padding: 7px 16px;
   border-radius: 999px;
-  background: #6366f1;
+  background: var(--salmon);
   color: white;
   border: none;
-  font-size: 0.8rem;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  font-family: inherit;
+  font-family: var(--font-main);
   transition: opacity 0.2s;
   animation: fadeIn 0.2s ease;
 }
-
 .goBtn:hover { opacity: 0.85; }
 
 @keyframes fadeIn {
@@ -89,10 +89,9 @@
   to   { opacity: 1; transform: scale(1); }
 }
 
-/* ── SELECTED HINT ── */
 .selectedHint {
-  font-size: 0.78rem;
-  color: #6366f1;
+  font-size: 12px;
+  color: var(--salmon);
   margin-bottom: 10px;
   font-weight: 500;
 }
@@ -100,126 +99,83 @@
 /* ── MOOD GRID ── */
 .moodGrid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(9, 1fr);
   gap: 10px;
-  max-width: 860px;
 }
 
 .moodCard {
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 14px 8px;
-  border: 1.5px solid #e5e7eb;
-  background: #fff;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
   cursor: pointer;
   transition: all 0.18s;
   text-align: center;
   user-select: none;
 }
-
 .moodCard:hover {
-  border-color: #6366f1;
-  background: rgba(99,102,241,0.04);
-  transform: translateY(-1px);
+  border-color: var(--salmon);
+  background: rgba(253,179,164,0.06);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(253,179,164,0.15);
 }
-
 .moodActive {
-  border-color: #6366f1;
-  background: rgba(99,102,241,0.08);
+  border-color: var(--salmon);
+  background: rgba(253,179,164,0.1);
+  box-shadow: 0 2px 8px rgba(253,179,164,0.2);
 }
-
-.moodEmoji {
-  display: block;
-  font-size: 1.4rem;
-  margin-bottom: 5px;
-}
-
 .moodLabel {
-  font-size: 0.68rem;
-  color: #6b7280;
+  font-size: 12px;
+  color: var(--text-muted);
   line-height: 1.3;
+  font-weight: 500;
+  display: block;
 }
-
 .moodActive .moodLabel {
-  color: #6366f1;
-  font-weight: 600;
+  color: var(--salmon);
+  font-weight: 700;
 }
 
 /* ── INTEREST CHIPS ── */
 .chips {
   display: flex;
   gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-  scrollbar-width: none;
-  max-width: 860px;
+  flex-wrap: wrap;
 }
-
-.chips::-webkit-scrollbar { display: none; }
 
 .chip {
-  flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 9px 16px;
+  gap: 7px;
+  padding: 9px 18px;
   border-radius: 999px;
-  border: 1.5px solid #e5e7eb;
-  background: #fff;
-  font-size: 0.82rem;
-  color: #6b7280;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
   cursor: pointer;
-  transition: all 0.2s;
-  font-family: inherit;
+  transition: all 0.18s;
+  font-family: var(--font-main);
   white-space: nowrap;
 }
-
 .chip:hover {
-  border-color: #6366f1;
-  color: #6366f1;
-  background: rgba(99,102,241,0.05);
+  border-color: var(--mint-dark);
+  color: var(--text-dark);
+  background: var(--mint-tag);
+  transform: translateY(-1px);
 }
 
-/* ── MOBILE ── */
+/* ── DIVIDER ── */
+.divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: 8px 0 36px;
+}
+
 @media (max-width: 768px) {
-  .hero {
-    padding: 24px 16px 24px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .heading { font-size: 1.85rem; }
-
-  .sub {
-    font-size: 0.82rem;
-    max-width: 100%;
-    margin-bottom: 16px;
-  }
-
-  .section {
-    padding: 0 16px;
-    margin-bottom: 24px;
-  }
-
-  /* Mood — 4 в ряд на мобилке */
-  .moodGrid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-  }
-
-  .moodCard {
-    padding: 10px 6px;
-    border-radius: 10px;
-  }
-
-  .moodEmoji { font-size: 1.2rem; margin-bottom: 4px; }
-  .moodLabel { font-size: 0.6rem; }
-
-  .chip {
-    padding: 7px 13px;
-    font-size: 0.76rem;
-  }
-
-  .sectionTitle { font-size: 0.92rem; }
+  .moodGrid { grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .moodCard { padding: 10px 4px; }
+  .moodEmoji { font-size: 1.2rem; }
+  .moodLabel { font-size: 9px; }
 }

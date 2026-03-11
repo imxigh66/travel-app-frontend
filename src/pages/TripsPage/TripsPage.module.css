@@ -1,7 +1,7 @@
 .page {
-  max-width: 900px;
+  max-width: 960px;
   margin: 0 auto;
-  padding: 0 0 80px;
+  padding-bottom: 80px;
 }
 
 /* Header */
@@ -14,40 +14,41 @@
 }
 
 .title {
-  font-size: 1.75rem;
+  font-size: 26px;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--text-dark);
   margin: 0 0 4px;
   letter-spacing: -0.5px;
+  font-family: var(--font-main);
 }
 
 .subtitle {
-  font-size: 0.875rem;
-  color: #94a3b8;
+  font-size: 13px;
+  color: var(--text-muted);
   margin: 0;
 }
 
 .createBtn {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
+  gap: 7px;
+  padding: 10px 18px;
   border-radius: 12px;
-  background: #0f172a;
+  background: var(--salmon);
   color: white;
-  font-size: 0.875rem;
+  font-size: 13px;
   font-weight: 600;
   border: none;
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.2s;
   flex-shrink: 0;
+  font-family: var(--font-main);
 }
-
 .createBtn:hover {
-  background: #1e293b;
+  background: var(--salmon-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+  box-shadow: 0 4px 14px rgba(253,179,164,0.4);
 }
 
 /* Stats */
@@ -55,8 +56,9 @@
   display: flex;
   align-items: center;
   gap: 20px;
-  background: #f8fafc;
-  border-radius: 14px;
+  background: var(--mint-soft);
+  border: 1px solid rgba(184,206,194,0.25);
+  border-radius: 16px;
   padding: 16px 24px;
   margin-bottom: 20px;
 }
@@ -65,27 +67,28 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 3px;
 }
 
 .statNum {
-  font-size: 1.5rem;
+  font-size: 22px;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--text-dark);
   line-height: 1;
+  font-family: var(--font-main);
 }
 
 .statLabel {
-  font-size: 0.7rem;
-  color: #94a3b8;
+  font-size: 10px;
+  color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.7px;
 }
 
 .statDivider {
   width: 1px;
-  height: 32px;
-  background: #e2e8f0;
+  height: 30px;
+  background: rgba(184,206,194,0.4);
 }
 
 /* Filters */
@@ -99,23 +102,22 @@
 .filterBtn {
   padding: 6px 16px;
   border-radius: 20px;
-  border: 1.5px solid #e2e8f0;
-  background: white;
-  font-size: 0.8rem;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: 12px;
   font-weight: 500;
-  color: #64748b;
+  color: var(--text-muted);
   cursor: pointer;
   transition: all 0.15s;
+  font-family: var(--font-main);
 }
-
 .filterBtn:hover {
-  border-color: #cbd5e1;
-  color: #0f172a;
+  border-color: var(--mint-dark);
+  color: var(--text-dark);
 }
-
 .filterBtnActive {
-  background: #0f172a;
-  border-color: #0f172a;
+  background: var(--mint-dark);
+  border-color: var(--mint-dark);
   color: white;
 }
 
@@ -128,15 +130,14 @@
 
 /* Skeleton */
 .skeleton {
-  height: 280px;
-  border-radius: 16px;
-  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  height: 270px;
+  border-radius: 18px;
+  background: linear-gradient(90deg, var(--mint-tag) 25%, rgba(209,219,205,0.2) 50%, var(--mint-tag) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.4s infinite;
 }
-
 @keyframes shimmer {
-  0% { background-position: 200% 0; }
+  0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
 
@@ -146,34 +147,22 @@
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  padding: 60px 20px;
+  padding: 64px 20px;
   text-align: center;
 }
-
-.emptyIcon {
-  font-size: 3rem;
-}
-
-.emptyTitle {
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0;
-}
-
-.emptyText {
-  font-size: 0.875rem;
-  color: #94a3b8;
-  margin: 0;
-  max-width: 300px;
-}
+.emptyIcon  { font-size: 3rem; }
+.emptyTitle { font-size: 17px; font-weight: 700; color: var(--text-dark); margin: 0; }
+.emptyText  { font-size: 13px; color: var(--text-muted); margin: 0; max-width: 300px; line-height: 1.6; }
 
 .retryBtn {
   padding: 8px 20px;
   border-radius: 10px;
-  border: 1.5px solid #e2e8f0;
-  background: white;
-  font-size: 0.875rem;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: 13px;
   cursor: pointer;
-  color: #374151;
+  color: var(--text-muted);
+  font-family: var(--font-main);
+  transition: border-color 0.15s;
 }
+.retryBtn:hover { border-color: var(--mint-dark); color: var(--text-dark); }

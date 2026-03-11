@@ -1,9 +1,7 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PlacesCarousel } from '../..//widgets/PlacesCarousel'
+import { PlacesCarousel } from '../../widgets/PlacesCarousel'
 import { categoryTagApi } from '../../entities/place/model/categoryTag.api'
-
-import { SearchInput } from '../../shared/ui/SearchInput'
 import styles from './ExplorePage.module.css'
 
 const MOODS = [
@@ -19,7 +17,7 @@ const MOODS = [
 ]
 
 const INTERESTS = [
-  { value: null, emoji: '🌍', label: 'Все' },
+  { value: null, emoji: '🌍', label: 'Все места' },
   { value: 0,    emoji: '🍜', label: 'Еда' },
   { value: 3,    emoji: '🏔️', label: 'Природа' },
   { value: 2,    emoji: '🏛️', label: 'Культура' },
@@ -30,33 +28,23 @@ const INTERESTS = [
 
 export function ExplorePage() {
   const navigate = useNavigate()
-  const [search, setSearch] = useState('')
-  const [selectedMoods, setSelectedMoods] = useState([])  // мульти-выбор
+  const [selectedMoods, setSelectedMoods] = useState([])
   const [tags, setTags] = useState([])
 
   useEffect(() => {
     categoryTagApi.getAll().then(setTags).catch(() => {})
   }, [])
 
-  // Мульти-выбор настроений
   const toggleMood = (key) => {
     setSelectedMoods(prev =>
-      prev.includes(key)
-        ? prev.filter(m => m !== key)
-        : [...prev, key]
+      prev.includes(key) ? prev.filter(m => m !== key) : [...prev, key]
     )
   }
 
-  const handleSearch = () => {
-    if (!search.trim()) return
-    navigate(`/places?search=${encodeURIComponent(search)}`)
-  }
-
   const handleMoodSearch = () => {
-  if (!selectedMoods.length) return
-  // Передаём все выбранные через запятую
-  navigate(`/places?moods=${selectedMoods.join(',')}`)
-}
+    if (!selectedMoods.length) return
+    navigate(`/places?moods=${selectedMoods.join(',')}`)
+  }
 
   const handleInterest = (value) => {
     if (value == null) navigate('/places')
@@ -70,30 +58,24 @@ export function ExplorePage() {
   return (
     <div className={styles.page}>
 
-      {/* ── 1. HERO + SEARCH ── */}
+      {/* ── HERO ── */}
       <section className={styles.hero}>
         <div className={styles.eyebrow}>✦ Открывай мир</div>
         <h1 className={styles.heading}>
-          Куда<br />отправимся<br /><em>сегодня?</em>
+          Куда отправимся <em>сегодня?</em>
         </h1>
         <p className={styles.sub}>
-          Находи места по настроению, интересам и стилю
+          Находи места по настроению, интересам и стилю путешествия
         </p>
-        <SearchInput
-          value={search}
-          onChange={setSearch}
-          onSearch={handleSearch}
-          placeholder="Страна, город, место…"
-        />
       </section>
 
-      {/* ── 2. НАСТРОЕНИЯ — мульти-выбор ── */}
+      {/* ── НАСТРОЕНИЯ ── */}
       <section className={styles.section}>
         <div className={styles.sectionHeader}>
           <div className={styles.sectionTitle}>Какое настроение?</div>
           {selectedMoods.length > 0 && (
             <button className={styles.goBtn} onClick={handleMoodSearch}>
-              Найти →
+              Найти места →
             </button>
           )}
         </div>
@@ -111,31 +93,29 @@ export function ExplorePage() {
               className={`${styles.moodCard} ${selectedMoods.includes(item.key) ? styles.moodActive : ''}`}
               onClick={() => toggleMood(item.key)}
             >
-              <span className={styles.moodEmoji}>{item.emoji}</span>
               <span className={styles.moodLabel}>{item.label}</span>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ── 3. ИНТЕРЕСЫ (PlaceCategory) ── */}
+      <div className={styles.divider} />
+
+      {/* ── ИНТЕРЕСЫ ── */}
       <section className={styles.section}>
-        <div className={styles.sectionTitle}>По интересам</div>
+        <div className={styles.sectionTitle} style={{ marginBottom: 14 }}>По интересам</div>
         <div className={styles.chips}>
           {INTERESTS.map((item, i) => (
-            <button
-              key={i}
-              className={styles.chip}
-              onClick={() => handleInterest(item.value)}
-            >
-              <span>{item.emoji}</span>
-              <span>{item.label}</span>
+            <button key={i} className={styles.chip} onClick={() => handleInterest(item.value)}>
+              {item.label}
             </button>
           ))}
         </div>
       </section>
 
-      {/* ── 4. КАТЕГОРИИ МОДЕРАТОРА — карусели ── */}
+      <div className={styles.divider} />
+
+      {/* ── КАРУСЕЛИ ПО ТЕГАМ ── */}
       {tags.map(tag => (
         <section key={tag.categoryTagId} className={styles.section}>
           <PlacesCarousel

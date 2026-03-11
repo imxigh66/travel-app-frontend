@@ -1,1 +1,1 @@
-export { default as SavedPlacesPage } from './SavedPlacesPage'
+export { default as SavedPlacesPage } from './SavedPlacesPage';

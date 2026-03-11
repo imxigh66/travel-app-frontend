@@ -1,9 +1,7 @@
-/* widgets/PlacesCarousel/PlacesCarousel.module.css */
-
 .wrap {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
 }
 
 .header {
@@ -13,73 +11,48 @@
 }
 
 .title {
-  font-size: 1rem;
+  font-size: 15px;
   font-weight: 700;
-  color: #1a1a2e;
+  color: var(--text-dark);
 }
 
 .seeAll {
-  font-size: 0.75rem;
-  color: #6366f1;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--salmon);
   background: none;
   border: none;
   cursor: pointer;
-  font-family: inherit;
+  font-family: var(--font-main);
   transition: opacity 0.2s;
 }
-
 .seeAll:hover { opacity: 0.7; }
 
 .list {
   display: flex;
-  gap: 12px;
+  gap: 14px;
   overflow-x: auto;
   padding-bottom: 6px;
   scrollbar-width: none;
 }
-
 .list::-webkit-scrollbar { display: none; }
 
+/* Skeleton — в цветах палитры */
 .skeleton {
   flex-shrink: 0;
-  width: 160px;
-  height: 180px;
-  border-radius: 14px;
-  background: linear-gradient(90deg, #f5f5f7 25%, #ebebed 50%, #f5f5f7 75%);
+  width: 180px;
+  height: 200px;
+  border-radius: 18px;
+  background: linear-gradient(90deg, var(--mint-tag) 25%, rgba(209,219,205,0.35) 50%, var(--mint-tag) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.4s infinite;
 }
-
 .skeletonWide {
-  width: 240px;
-  height: 200px;
+  width: 260px;
+  height: 226px;
 }
 
 @keyframes shimmer {
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
-}
-
-.error,
-.empty {
-  font-size: 0.82rem;
-  color: #9ca3af;
-  padding: 20px 0;
-}
-
-@media (max-width: 768px) {
-  .skeleton {
-    width: 130px;
-    height: 155px;
-  }
-  .skeletonWide {
-    width: 180px;
-    height: 175px;
-  }
-  .title {
-    font-size: 0.92rem;
-  }
-  .list {
-    gap: 10px;
-  }
 }
