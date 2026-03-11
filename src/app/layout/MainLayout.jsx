@@ -8,20 +8,14 @@ export default function MainLayout() {
   const [collapsed, setCollapsed] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
 
-  const handleUserLoad = (user) => {
-    setCurrentUser(user);
-  };
-
   return (
     <div className={styles.layout}>
       <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
-      
-      <div className={styles.mainArea}>
-        <TopNavbar 
-          collapsed={collapsed} 
-          onUserLoad={handleUserLoad}
-        />
-        
+
+    
+      <div className={`${styles.mainArea} ${collapsed ? styles.collapsed : ''}`}>
+        <TopNavbar collapsed={collapsed} onUserLoad={setCurrentUser} />
+
         <main className={styles.content}>
           <Outlet context={{ currentUser }} />
         </main>

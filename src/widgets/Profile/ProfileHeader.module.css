@@ -1,41 +1,47 @@
 .header {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
-/* Incomplete Warning */
+/* Кнопки для чужого профиля */
+.actionRow {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  align-items: center;
+}
+
+.messageBtn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 20px;
+  background: white;
+  border: 1.5px solid var(--color-border);
+  border-radius: 20px;
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--font-main);
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.messageBtn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+/* Warning */
 .incompleteWarning {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  padding: 16px;
-  background: #fef3c7;
-  border: 1px solid #fbbf24;
-  border-radius: 12px;
-  margin-top: 16px;
+  padding: 14px 16px;
+  background: rgba(251,191,36,0.08);
+  border: 1px solid rgba(251,191,36,0.3);
+  border-radius: var(--radius-md);
+  margin-top: 14px;
   color: #92400e;
 }
-
-.incompleteWarning svg {
-  flex-shrink: 0;
-  margin-top: 2px;
-  color: #f59e0b;
-}
-
-.incompleteWarning strong {
-  display: block;
-  margin-bottom: 4px;
-  font-weight: 600;
-}
-
-.missingFields {
-  font-size: 13px;
-  margin: 0;
-  opacity: 0.9;
-  line-height: 1.4;
-}
-
-.followRow {
-  display: flex;
-  gap: 10px;
-  margin-top: 16px;
-}
+.incompleteWarning svg { flex-shrink: 0; margin-top: 2px; color: #f59e0b; }
+.incompleteWarning strong { display: block; margin-bottom: 3px; font-weight: 600; }
+.missingFields { font-size: 13px; margin: 0; opacity: 0.85; line-height: 1.4; }

@@ -1,101 +1,67 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap');
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Caveat:wght@500;600;700&display=swap');
 
 :root {
-  /* ── Палитра ── */
-  --color-bg:          #F5F2EE;
-  --color-surface:     #FFFFFF;
-  --color-accent:      #E8927C;
-  --color-accent-hover:#D97E68;
-  --color-accent-soft: rgba(232, 146, 124, 0.12);
+  --mint-dark:   #B8CEC2;
+  --mint-medium: #C8D8CC;
+  --mint-light:  #D1DBCD;
+  --mint-soft:   rgba(184,206,194,0.15);
+  --mint-tag:    rgba(184,206,194,0.22);
 
-  --color-text:        #2D2D2D;
-  --color-text-secondary: #8A8A8A;
-  --color-text-muted:  #B0A99F;
+  --peach:   #F8E6CE;
+  --tan:     #EBC8B4;
+  --salmon:  #FDB3A4;
+  --salmon-hover: #f0a090;
 
-  --color-border:      rgba(0, 0, 0, 0.07);
-  --color-border-soft: rgba(0, 0, 0, 0.04);
+  --text-dark:   #5C544F;
+  --text-muted:  #9E9690;
+  --text-light:  #B5ADA8;
 
-  /* ── Sidebar ── */
-  --sidebar-bg:        #FFFFFF;
-  --sidebar-width:     240px;
-  --sidebar-collapsed: 68px;
+  --color-bg:      #F5F2EE;
+  --color-surface: #FFFFFF;
+  --color-border:  rgba(0,0,0,0.07);
 
-  /* ── Радиусы ── */
-  --radius-sm:   8px;
-  --radius-md:   12px;
-  --radius-lg:   16px;
-  --radius-xl:   20px;
+  --color-accent:       var(--salmon);
+  --color-accent-hover: var(--salmon-hover);
+  --color-accent-soft:  rgba(253,179,164,0.12);
+  --color-text:         var(--text-dark);
+  --color-text-secondary: var(--text-muted);
+  --color-text-muted:   var(--text-light);
 
-  /* ── Тени ── */
-  --shadow-sm:   0 1px 3px rgba(0,0,0,0.06);
-  --shadow-md:   0 4px 16px rgba(0,0,0,0.08);
-  --shadow-lg:   0 8px 32px rgba(0,0,0,0.1);
+  --font-main:    'Quicksand', sans-serif;
+  --font-display: 'Caveat', cursive;
 
-  /* ── Шрифты ── */
-  --font-main:   'Inter', -apple-system, sans-serif;
-  --font-display:'Playfair Display', Georgia, serif;
+  --radius-sm:  8px;
+  --radius-md:  12px;
+  --radius-lg:  18px;
+  --radius-xl:  24px;
+
+  --shadow-sm: 0 2px 10px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 20px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.10);
+
+  --sidebar-w:           244px;  /* ширина sidebarWrap */
+  --sidebar-w-collapsed:  72px;  /* ширина collapsed */
 }
 
-html, body {
-  font-family: var(--font-main);
-  font-size: 15px;
-  color: var(--color-text);
-  background-color: var(--color-bg);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
-}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* Blob background на body */
 body {
+  font-family: var(--font-main);
+  color: var(--text-dark);
   background-color: var(--color-bg);
   background-image:
-    radial-gradient(ellipse at 20% 20%, rgba(209, 210, 184, 0.45) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 80%, rgba(253, 196, 180, 0.4) 0%, transparent 50%),
-    radial-gradient(ellipse at 60% 10%, rgba(248, 220, 210, 0.35) 0%, transparent 45%);
+    radial-gradient(ellipse at 15% 20%, rgba(209,219,205,0.5)  0%, transparent 52%),
+    radial-gradient(ellipse at 85% 80%, rgba(253,179,164,0.35) 0%, transparent 50%),
+    radial-gradient(ellipse at 65% 8%,  rgba(235,200,180,0.30) 0%, transparent 46%);
   background-attachment: fixed;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
 
-#root {
-  width: 100%;
-}
+a { color: inherit; text-decoration: none; }
+button, input, textarea, select { font-family: var(--font-main); }
 
-/* ── Reset кнопок ── */
-button {
-  font-family: var(--font-main);
-  cursor: pointer;
-}
-
-button:focus,
-button:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-}
-
-/* ── Ссылки ── */
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-/* ── Скроллбар ── */
-::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(0,0,0,0.12);
-  border-radius: 10px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(0,0,0,0.2);
-}
+::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: var(--mint-light); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--mint-dark); }

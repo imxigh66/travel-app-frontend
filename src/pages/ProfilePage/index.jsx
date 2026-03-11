@@ -77,15 +77,15 @@ else setError(userResult.error ?? 'Не удалось загрузить про
  return (
   <div className={styles.page}>
     <ProfileHeader
-      user={user}                    // ← было currentUser
-      onUserUpdate={handleUserUpdate} // ← не передавался
+      user={user}                   
+      onUserUpdate={handleUserUpdate} 
       isOwnProfile={isOwnProfile}
-      isFollowing={isFollowing}      // ← не передавался
+      isFollowing={isFollowing}   
     />
     <ProfileTabs
       currentUser={user}
-      userId={user?.userId}          // ← не передавался
-      isOwnProfile={isOwnProfile}    // ← не передавался
+      userId={user?.userId}          
+      isOwnProfile={isOwnProfile}    
     />
   </div>
 );

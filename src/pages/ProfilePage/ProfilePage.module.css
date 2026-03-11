@@ -1,50 +1,36 @@
 .page {
-  max-width: 1500px;
+  max-width: 1300px;
+  width: 100%;
   margin: 0 auto;
 }
 
-/* Loading */
 .loading {
-  min-height: 60vh;
+  min-height: 50vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  color: #64748b;
-  font-size: 15px;
+  gap: 14px;
+  color: var(--text-muted);
+  font-size: 14px;
 }
-
 .spinner {
-  width: 36px;
-  height: 36px;
-  border: 3px solid #e2e8f0;
-  border-top-color: #38d2eb;
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--mint-dark);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Error */
 .error {
-  min-height: 60vh;
+  min-height: 50vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 8px;
 }
-
-.error h2 {
-  font-size: 20px;
-  color: #ef4444;
-  font-weight: 600;
-}
-
-.error p {
-  color: #64748b;
-  font-size: 15px;
-}
+.error h2 { font-size: 18px; color: #e05555; font-weight: 600; }
+.error p  { color: var(--text-muted); font-size: 14px; }

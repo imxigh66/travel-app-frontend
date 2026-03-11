@@ -1,14 +1,14 @@
 .sidebarWrap {
   position: fixed;
-  left: 12px;
-  top: 12px;
-  bottom: 12px;
+  left: 0;
+  top: 0;
+  bottom: 0;
   z-index: 100;
-  width: 220px;
+  width: var(--sidebar-w);
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .sidebarWrap.collapsed {
-  width: 64px;
+  width: var(--sidebar-w-collapsed);
 }
 
 .sidebar {
@@ -20,7 +20,7 @@
   box-shadow: 0 4px 24px rgba(0,0,0,0.07);
   display: flex;
   flex-direction: column;
-  padding: 20px 12px;
+  padding: 20px 12px; margin: 12px; height: calc(100% - 24px); border-radius: 20px;
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -41,7 +41,7 @@
   overflow: hidden;
 }
 .logoIcon {
-  color: var(--color-accent);
+  color: var(--mint-dark);
   display: flex;
   align-items: center;
   flex-shrink: 0;
@@ -51,7 +51,7 @@
   font-size: 19px;
   font-weight: 700;
   font-style: italic;
-  color: var(--color-accent);
+  color: var(--mint-dark);
   white-space: nowrap;
 }
 
@@ -69,8 +69,8 @@
   flex-shrink: 0;
 }
 .collapseBtn:hover {
-  color: var(--color-accent);
-  background: var(--color-accent-soft);
+  color: var(--mint-dark);
+  background: var(--mint-soft);
 }
 .sidebarWrap.collapsed .collapseBtn {
   margin: 0 auto;
@@ -109,7 +109,7 @@
   overflow: hidden;
   font-family: var(--font-main);
 }
-.navItem:hover { background: var(--color-accent-soft); }
+.navItem:hover { background: var(--mint-soft); }
 
 .sidebarWrap.collapsed .navItem {
   justify-content: center;
@@ -134,12 +134,12 @@
 }
 
 .navItem:hover .icon,
-.navItem:hover .label { color: var(--color-accent); }
+.navItem:hover .label { color: var(--mint-dark); }
 
-.active { background: var(--color-accent-soft) !important; }
+.active { background: var(--mint-soft) !important; }
 .active .icon,
 .active .label {
-  color: var(--color-accent) !important;
+  color: var(--mint-dark) !important;
   font-weight: 600;
 }
 
@@ -221,7 +221,7 @@
     flex: 1;
   }
   .bottomItem:hover,
-  .bottomItem.active { color: var(--color-accent); }
+  .bottomItem.active { color: var(--mint-dark); }
 
   .bottomIcon {
     display: flex;
