@@ -7,17 +7,25 @@ export default function LoginPage() {
 
   return (
     <div className={styles.page}>
-      <button className={styles.backButton} onClick={() => navigate('/')}>
-        ← Back to Home
+      <button className={styles.backBtn} onClick={() => navigate('/')}>
+        ← На главную
       </button>
 
-      <div className={styles.container}>
-        <h1 className={styles.title}>Welcome Back</h1>
+      <div className={styles.card}>
+        {/* Logo */}
+        <div className={styles.logo}>
+          <span className={styles.logoIcon}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+            </svg>
+          </span>
+          <span className={styles.logoText}>TravelFlow</span>
+        </div>
+
+        <h1 className={styles.title}>Welcome back</h1>
         <p className={styles.subtitle}>Sign in to continue your journey</p>
 
-        <div className={styles.formContainer}>
-          <LoginForm />
-        </div>
+        <LoginForm />
       </div>
     </div>
   );

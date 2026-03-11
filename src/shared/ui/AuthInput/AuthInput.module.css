@@ -8,35 +8,35 @@
 .label {
   font-size: 13px;
   font-weight: 500;
-  color: rgba(178, 200, 220, 0.7);
-  letter-spacing: 0.3px;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.2px;
 }
 
 .input {
   width: 100%;
-  padding: 14px 16px;
-  background: rgba(10, 18, 35, 0.5);
-  border: 1px solid rgba(56, 210, 235, 0.12);
+  padding: 12px 14px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
   border-radius: 10px;
-  font-size: 15px;
-  color: #e2e8f0;
-  transition: all 0.3s ease;
+  font-size: 14px;
+  color: var(--color-text);
+  font-family: var(--font-main);
+  transition: all 0.2s;
   outline: none;
-  backdrop-filter: blur(8px);
 }
 
 .input::placeholder {
-  color: rgba(148, 163, 184, 0.4);
+  color: var(--color-text-muted);
 }
 
 .input:focus {
-  border-color: rgba(94, 231, 255, 0.4);
-  box-shadow: 0 0 0 3px rgba(94, 231, 255, 0.08), 0 0 20px rgba(94, 231, 255, 0.05);
-  background: rgba(10, 18, 35, 0.6);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-soft);
+  background: #fff;
 }
 
 .input.error {
-  border-color: rgba(239, 68, 68, 0.4);
+  border-color: rgba(239, 68, 68, 0.5);
 }
 
 .input.error:focus {
@@ -45,6 +45,6 @@
 
 .errorText {
   font-size: 12px;
-  color: #f87171;
+  color: #e05555;
   margin-top: 2px;
 }
