@@ -4,7 +4,7 @@ import { lazy, Suspense } from 'react'
 import MainLayout from '../layout/MainLayout'
 import ModeratorLayout from '../layout/ModeratorLayout'
 import ModeratorRoute from '../../shared/ui/ModeratorRoute'
-
+import EmailConfirmedPage  from '../../pages/EmailConfirmedPage/EmailConfirmedPage'
 import InitPage from '../../pages/InitPage'
 import RegisterPage from '../../pages/RegisterPage'
 import LoginPage from '../../pages/LoginPage'
@@ -34,6 +34,7 @@ export const router = createBrowserRouter([
   { path: '/',         element: <InitPage /> },
   { path: '/register', element: <RegisterPage /> },
   { path: '/login',    element: <LoginPage /> },
+  { path: '/email-confirmed',  element: <EmailConfirmedPage /> },
 
   // ── Основное приложение (с MainLayout) ──
   {

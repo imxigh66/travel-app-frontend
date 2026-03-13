@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentUser } from '../../entities/user/api/userApi';
 import { placeApi } from '../../entities/place/index';
+import api from '../../shared/api/axios';
 import styles from './TopNavbar.module.css';
 
 const LANGUAGES = [
@@ -17,7 +18,7 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
 
   // Search
   const [query, setQuery]             = useState('');
-  const [searchResults, setSearchResults] = useState(null); // { places, users }
+  const [searchResults, setSearchResults] = useState(null);
   const [searching, setSearching]     = useState(false);
   const searchRef                     = useRef(null);
   const searchTimer                   = useRef(null);
@@ -58,16 +59,17 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
     setSearching(true);
     try {
       const [placesRes, usersRes] = await Promise.allSettled([
-        placeApi.getPlaces({ search: q, page: 1, pageSize: 4 }),
-        import('../../shared/api/axios').then(m =>
-          m.default.get('/users', { params: { search: q, pageNumber: 1, pageSize: 4 } })
-        ).then(r => r.data?.data?.items ?? r.data?.items ?? []),
+        // ✅ правильный метод
+        placeApi.getAll({ search: q, pageNumber: 1, pageSize: 4 }),
+        // ✅ прямой вызов axios — search поддерживается через query handler модератора
+        api.get('/users', { params: { search: q, pageNumber: 1, pageSize: 4 } })
+          .then(r => r.data?.items ?? r.data?.data?.items ?? []),
       ]);
       setSearchResults({
         places: placesRes.status === 'fulfilled' ? (placesRes.value?.items ?? []).slice(0, 4) : [],
-        users:  usersRes.status  === 'fulfilled' ? (usersRes.value ?? []).slice(0, 4) : [],
+        users:  usersRes.status  === 'fulfilled' ? (usersRes.value  ?? []).slice(0, 4) : [],
       });
-    } catch (_) {
+    } catch {
       setSearchResults({ places: [], users: [] });
     }
     setSearching(false);
@@ -83,14 +85,19 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
 
   const toggle = (name) => setOpenDrop(prev => prev === name ? null : name);
   const getInitials = () => currentUser?.username?.slice(0, 2).toUpperCase() ?? '?';
-  const handleLogout = () => { localStorage.removeItem('token'); setOpenDrop(null); navigate('/login'); };
+  const handleLogout = () => {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('refreshToken');
+    setOpenDrop(null);
+    navigate('/login');
+  };
 
   const hasResults = searchResults && (searchResults.places.length > 0 || searchResults.users.length > 0);
 
   return (
     <header className={`${styles.navbar} ${collapsed ? styles.collapsed : ''}`}>
 
-      {/* ── Search по центру ── */}
+      {/* ── Search ── */}
       <div className={styles.searchWrap} ref={searchRef}>
         <span className={styles.searchIcon}><SearchIcon /></span>
         <input
@@ -103,7 +110,6 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
           onFocus={() => query.trim() && doSearch(query.trim())}
         />
 
-        {/* Результаты */}
         {searchResults && (
           <div className={styles.searchResults}>
             {!hasResults ? (
@@ -129,7 +135,7 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
                         </div>
                         <div>
                           <div className={styles.resultName}>{place.name}</div>
-                          <div className={styles.resultSub}>{place.city ?? place.country ?? ''}</div>
+                          <div className={styles.resultSub}>{place.city ?? ''}</div>
                         </div>
                       </button>
                     ))}
@@ -176,8 +182,13 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
           <MessageIcon />
         </button>
 
+        {/* Уведомления */}
         <div className={styles.dropdownWrap}>
-          <button className={`${styles.iconBtn} ${openDrop === 'notif' ? styles.open : ''}`} onClick={() => toggle('notif')} title="Уведомления">
+          <button
+            className={`${styles.iconBtn} ${openDrop === 'notif' ? styles.open : ''}`}
+            onClick={() => toggle('notif')}
+            title="Уведомления"
+          >
             <BellIcon />
           </button>
           {openDrop === 'notif' && (
@@ -186,23 +197,34 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
                 <span className={styles.notifTitle}>Уведомления</span>
                 <button className={styles.notifMarkAll}>Прочитать все</button>
               </div>
-              <div className={styles.notifEmpty}><span className={styles.notifEmptyIcon}>🔔</span>Пока нет уведомлений</div>
+              <div className={styles.notifEmpty}>
+                <span className={styles.notifEmptyIcon}>🔔</span>
+                Пока нет уведомлений
+              </div>
             </div>
           )}
         </div>
 
         <div className={styles.divider} />
 
+        {/* Язык */}
         <div className={styles.dropdownWrap}>
-          <button className={`${styles.langBtn} ${openDrop === 'lang' ? styles.open : ''}`} onClick={() => toggle('lang')}>
+          <button
+            className={`${styles.langBtn} ${openDrop === 'lang' ? styles.open : ''}`}
+            onClick={() => toggle('lang')}
+          >
             <span className={styles.langFlag}>{LANGUAGES.find(l => l.code === lang)?.flag}</span>
-            {lang}<ChevronIcon />
+            {lang}
+            <ChevronIcon />
           </button>
           {openDrop === 'lang' && (
             <div className={`${styles.dropdown} ${styles.langDropdown}`}>
               {LANGUAGES.map(l => (
-                <button key={l.code} className={`${styles.langOption} ${lang === l.code ? styles.selected : ''}`}
-                  onClick={() => { setLang(l.code); setOpenDrop(null); }}>
+                <button
+                  key={l.code}
+                  className={`${styles.langOption} ${lang === l.code ? styles.selected : ''}`}
+                  onClick={() => { setLang(l.code); setOpenDrop(null); }}
+                >
                   <span className={styles.langFlag}>{l.flag}</span>{l.label}
                 </button>
               ))}
@@ -212,10 +234,16 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
 
         <div className={styles.divider} />
 
+        {/* Аватар */}
         <div className={styles.dropdownWrap}>
-          {isLoading ? <div className={styles.avatarSkeleton} /> : (
+          {isLoading ? (
+            <div className={styles.avatarSkeleton} />
+          ) : (
             <>
-              <button className={`${styles.avatarBtn} ${openDrop === 'avatar' ? styles.open : ''}`} onClick={() => toggle('avatar')}>
+              <button
+                className={`${styles.avatarBtn} ${openDrop === 'avatar' ? styles.open : ''}`}
+                onClick={() => toggle('avatar')}
+              >
                 {currentUser?.profilePicture
                   ? <img src={currentUser.profilePicture} alt="" className={styles.avatar} />
                   : <div className={styles.avatarFallback}>{getInitials()}</div>
@@ -228,17 +256,22 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
                     <div className={styles.dropdownName}>{currentUser?.name || currentUser?.username}</div>
                     <div className={styles.dropdownUsername}>@{currentUser?.username}</div>
                   </div>
-                  <button className={styles.dropdownItem} onClick={() => { navigate('/profile'); setOpenDrop(null); }}><ProfileIcon /> Профиль</button>
-                  <button className={styles.dropdownItem} onClick={() => { navigate('/settings'); setOpenDrop(null); }}><SettingsIcon /> Настройки</button>
+                  <button className={styles.dropdownItem} onClick={() => { navigate('/profile'); setOpenDrop(null); }}>
+                    <ProfileIcon /> Профиль
+                  </button>
+                  <button className={styles.dropdownItem} onClick={() => { navigate('/settings'); setOpenDrop(null); }}>
+                    <SettingsIcon /> Настройки
+                  </button>
                   <div className={styles.dropdownSep} />
-                  <button className={`${styles.dropdownItem} ${styles.dropdownItemDanger}`} onClick={handleLogout}><LogoutIcon /> Выйти</button>
+                  <button className={`${styles.dropdownItem} ${styles.dropdownItemDanger}`} onClick={handleLogout}>
+                    <LogoutIcon /> Выйти
+                  </button>
                 </div>
               )}
             </>
           )}
         </div>
       </div>
-
     </header>
   );
 }

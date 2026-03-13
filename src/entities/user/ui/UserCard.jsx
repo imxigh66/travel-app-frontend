@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UploadAvatarModal from '../../../features/edit-profile/ui/UploadAvatarModal';
-import UploadBannerModal from '../../../features/edit-profile/ui/Uploadbannermodal';
+import BannerModal from '../../../features/edit-profile/ui/BannerModal';
 import styles from './UserCard.module.css';
 
 const TravelInterestLabel = {
@@ -34,7 +34,16 @@ export default function UserCard({
   const isPersonal  = user?.accountType === 0;
 
   const handleAvatarSuccess = (url) => onUserUpdate?.({ ...user, profilePicture: url });
-  const handleBannerSuccess = (url) => onUserUpdate?.({ ...user, bannerImage: url });
+  const handleBannerSuccess = (result) => {
+    // result может быть: строка url, объект { preset, css }, или null
+    if (!result) {
+      onUserUpdate?.({ ...user, bannerImage: null, bannerPreset: null });
+    } else if (typeof result === 'string') {
+      onUserUpdate?.({ ...user, bannerImage: result, bannerPreset: null });
+    } else if (result.preset) {
+      onUserUpdate?.({ ...user, bannerImage: null, bannerPreset: result.preset, bannerCss: result.css });
+    }
+  };
 
   const tags = [];
   if (isPersonal) {
@@ -46,12 +55,14 @@ export default function UserCard({
     <div className={styles.card}>
 
       {/* ── Banner ── */}
-      <div
+       <div
         className={`${styles.banner} ${isOwnProfile ? styles.clickableBanner : ''}`}
         onClick={() => isOwnProfile && setIsUploadBannerOpen(true)}
       >
         {user?.bannerImage
           ? <img src={user.bannerImage} alt="Banner" className={styles.bannerImage} />
+          : user?.bannerCss
+          ? <div className={styles.bannerImage} style={{ background: user.bannerCss }} />
           : <div className={styles.defaultBanner} />}
         {isOwnProfile && (
           <div className={styles.bannerOverlay}>
@@ -154,8 +165,9 @@ export default function UserCard({
       {isOwnProfile && (
         <>
           <UploadAvatarModal isOpen={isUploadAvatarOpen} onClose={() => setIsUploadAvatarOpen(false)} onSuccess={handleAvatarSuccess} />
-          <UploadBannerModal isOpen={isUploadBannerOpen} onClose={() => setIsUploadBannerOpen(false)} onSuccess={handleBannerSuccess} />
+          <BannerModal isOpen={isUploadBannerOpen} onClose={() => setIsUploadBannerOpen(false)} onSuccess={handleBannerSuccess} currentBanner={user?.bannerImage} />
         </>
+
       )}
     </div>
   );

@@ -31,9 +31,12 @@ export default function ProfileTabs({ currentUser, userId, isOwnProfile = true }
     }
   };
 
+  // FIX: свой профиль → getMyTrips, чужой → getUserTrips(userId)
   const fetchTrips = async () => {
     try {
-      const res = await tripApi.getMyTrips();
+      const res = isOwnProfile
+        ? await tripApi.getMyTrips()
+        : await tripApi.getUserTrips(userId);
       setTrips(res ?? []);
     } catch (e) {
       console.error(e);
@@ -45,8 +48,8 @@ export default function ProfileTabs({ currentUser, userId, isOwnProfile = true }
     if (activeTab === 'travel') fetchTrips();
   }, [activeTab]);
 
-  // Для сайдбара — все поездки
-  useEffect(() => { fetchTrips(); }, []);
+  // Для сайдбара — грузим при маунте и при смене профиля
+  useEffect(() => { fetchTrips(); }, [userId, isOwnProfile]);
 
   const tabs = [
     { id: 'posts',  label: 'Posts' },
@@ -55,7 +58,7 @@ export default function ProfileTabs({ currentUser, userId, isOwnProfile = true }
   ];
 
   const allPhotos = posts.flatMap(p => p.imageUrls || []);
-  const activeTrips = trips.slice(0, 3); // показываем max 3
+  const activeTrips = trips.slice(0, 3);
 
   return (
     <div className={styles.wrapper}>
@@ -109,11 +112,19 @@ export default function ProfileTabs({ currentUser, userId, isOwnProfile = true }
 
           {activeTab === 'travel' && (
             trips.length === 0
-              ? <EmptyState title="Путешествий пока нет" text="Создайте свой первый маршрут" />
-              : (
+              ? (
+                <EmptyState
+                  title={isOwnProfile ? 'Путешествий пока нет' : 'Нет публичных путешествий'}
+                  text={isOwnProfile ? 'Создайте свой первый маршрут' : 'Пользователь не добавил публичных поездок'}
+                />
+              ) : (
                 <div className={styles.postsList}>
                   {trips.map(trip => (
-                    <TripCard key={trip.id} trip={trip} onClick={() => navigate(`/trips/${trip.id}`)} />
+                    <TripCard
+                      key={trip.tripId}
+                      trip={trip}
+                      onClick={() => navigate(`/trips/${trip.tripId}`)}
+                    />
                   ))}
                 </div>
               )
@@ -131,13 +142,13 @@ export default function ProfileTabs({ currentUser, userId, isOwnProfile = true }
           ) : (
             activeTrips.map(trip => (
               <div
-                key={trip.id}
+                key={trip.tripId}
                 className={styles.tripItem}
-                onClick={() => navigate(`/trips/${trip.id}`)}
+                onClick={() => navigate(`/trips/${trip.tripId}`)}
               >
                 <div className={styles.tripIcon}>
-                  {trip.coverImage
-                    ? <img src={trip.coverImage} alt="" />
+                  {trip.coverImageUrl
+                    ? <img src={trip.coverImageUrl} alt="" />
                     : '✈️'}
                 </div>
                 <div className={styles.tripInfo}>
@@ -196,20 +207,24 @@ function LoadingState() {
 }
 
 function TripCard({ trip, onClick }) {
-  const STATUS_LABEL = { 0: 'planned', 1: 'inprogress', 2: 'completed' };
-  const STATUS_TEXT  = { 0: '→ PLANNED', 1: '✈ IN PROGRESS', 2: '✓ DONE' };
+  const label = STATUS_LABEL[trip.status] ?? 'planned';
+  const text  = STATUS_TEXT[trip.status]  ?? '→ PLANNED';
   return (
-    <div onClick={onClick} style={{ background:'#fff', borderRadius:16, border:'1px solid var(--color-border)', overflow:'hidden', cursor:'pointer', transition:'box-shadow 0.18s' }}
-      onMouseEnter={e => e.currentTarget.style.boxShadow='var(--shadow-md)'}
-      onMouseLeave={e => e.currentTarget.style.boxShadow='none'}
-    >
-      {trip.coverImage && <img src={trip.coverImage} alt="" style={{ width:'100%', height:120, objectFit:'cover', display:'block' }} />}
-      <div style={{ padding:'12px 16px' }}>
-        <div className={`${styles.tripStatus} ${styles[STATUS_LABEL[trip.status] ?? 'planned']}`} style={{ marginBottom:4 }}>
-          {STATUS_TEXT[trip.status] ?? '→ PLANNED'}
-        </div>
-        <div style={{ fontWeight:700, fontSize:15, color:'var(--text-dark)' }}>{trip.title}</div>
-        {trip.description && <div style={{ fontSize:13, color:'var(--text-muted)', marginTop:4 }}>{trip.description}</div>}
+    <div className={styles.tripCard} onClick={onClick}>
+      {trip.coverImageUrl && (
+        <img src={trip.coverImageUrl} alt="" className={styles.tripCardCover} />
+      )}
+      <div className={styles.tripCardBody}>
+        <div className={`${styles.tripStatus} ${styles[label]}`}>{text}</div>
+        <div className={styles.tripCardTitle}>{trip.title}</div>
+        {trip.description && (
+          <div className={styles.tripCardDesc}>{trip.description}</div>
+        )}
+        {(trip.city || trip.countryCode) && (
+          <div className={styles.tripCardMeta}>
+            📍 {[trip.city, trip.countryCode?.toUpperCase()].filter(Boolean).join(', ')}
+          </div>
+        )}
       </div>
     </div>
   );

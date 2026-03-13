@@ -77,7 +77,7 @@ export function ResultsPage() {
         ...(categoryTagId    && { categoryTagId }),
         ...(city.trim()      && { city: city.trim() }),
         ...(country.trim()   && { countryCode: country.trim() }),
-        ...(searchQ          && { search: searchQ }),
+        ...(searchQ?.trim()   && { search: searchQ.trim() })
       }
       const res = await placeApi.getAll(params)
       if (pageNum === 1) setPlaces(res.items ?? [])

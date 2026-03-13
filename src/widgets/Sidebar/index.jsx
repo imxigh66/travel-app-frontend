@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './Sidebar.module.css';
 import LogoutButton from '../../features/auth/logout/ui/LogoutButton';
+import SuggestPlaceModal from '../../features/suggest-place/ui/SuggestPlaceModal';
 
 const SECTIONS = [
   {
@@ -28,6 +30,7 @@ const BOTTOM_ITEMS = [
 ];
 
 export default function Sidebar({ collapsed, setCollapsed }) {
+  const [isSuggestOpen, setIsSuggestOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -80,9 +83,21 @@ export default function Sidebar({ collapsed, setCollapsed }) {
 
           <div className={styles.spacer} />
 
+          {/* Suggest Place button */}
+          <button
+            className={styles.suggestBtn}
+            onClick={() => setIsSuggestOpen(true)}
+            title={collapsed ? 'Предложить место' : ''}
+          >
+            <span className={styles.icon}><PinPlusIcon /></span>
+            {!collapsed && <span className={styles.suggestLabel}>Предложить место</span>}
+          </button>
+
           <div className={styles.logoutWrap} title={collapsed ? 'Выйти' : ''}>
             <LogoutButton className={styles.logoutBtn} collapsed={collapsed} />
           </div>
+
+          <SuggestPlaceModal isOpen={isSuggestOpen} onClose={() => setIsSuggestOpen(false)} />
 
         </aside>
       </div>
@@ -125,4 +140,7 @@ function BookmarkIcon() {
 }
 function ProfileIcon() {
   return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
+}
+function PinPlusIcon() {
+  return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/><line x1="12" y1="5" x2="12" y2="8"/><line x1="12" y1="12" x2="12" y2="15"/><line x1="9" y1="10" x2="15" y2="10"/></svg>;
 }
