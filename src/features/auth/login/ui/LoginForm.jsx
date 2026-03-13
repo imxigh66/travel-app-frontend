@@ -5,64 +5,54 @@ import Button from '../../../../shared/ui/Button';
 import { loginUser } from '../api/loginApi';
 import styles from './LoginForm.module.css';
 
-/**
- * @typedef {import('../../../../entities/auth/model/types').LoginCredentials} LoginCredentials
- * @typedef {import('../../../../entities/auth/model/types').AuthResponse} AuthResponse
- */
+// Декодирует JWT и возвращает роль
+function getRoleFromToken(token) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return (
+      payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ??
+      payload.role ??
+      'User'
+    );
+  } catch {
+    return 'User';
+  }
+}
 
 export default function LoginForm() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  
-  /** @type {[Record<string, string>, (errors: Record<string, string>) => void]} */
   const [errors, setErrors] = useState({});
-  
-  /** @type {[LoginCredentials, (data: LoginCredentials) => void]} */
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
+  const [formData, setFormData] = useState({ email: '', password: '' });
 
-  /**
-   * @param {React.ChangeEvent<HTMLInputElement>} e
-   */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
-    }
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
-  /**
-   * @param {React.FormEvent<HTMLFormElement>} e
-   */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Валидация
-    /** @type {Record<string, string>} */
+
     const newErrors = {};
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    }
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    }
-    
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-    
+    if (!formData.email.trim()) newErrors.email = 'Email is required';
+    if (!formData.password)     newErrors.password = 'Password is required';
+    if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return; }
+
     setLoading(true);
-    
     const result = await loginUser(formData);
-    
     setLoading(false);
-    
+
     if (result.success) {
-      navigate('/profile'); 
+      // Читаем роль из токена и редиректим соответственно
+      const token = localStorage.getItem('authToken');
+      const role  = getRoleFromToken(token);
+
+      if (role === 'Moderator') {
+        navigate('/moderator');
+      } else {
+        navigate('/profile');
+      }
     } else {
       setErrors({ submit: result.error || 'Login failed' });
     }
@@ -98,11 +88,7 @@ export default function LoginForm() {
         <span className={styles.link}>Forgot password?</span>
       </div>
 
-      <Button 
-        variant="auth" 
-        type="submit"
-        disabled={loading}
-      >
+      <Button variant="auth" type="submit" disabled={loading}>
         {loading ? 'Signing in...' : 'Sign In'}
       </Button>
 
