@@ -252,6 +252,27 @@
   letter-spacing: 0.5px;
 }
 
+.businessInfo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.businessItem {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.businessItem:hover {
+  color: var(--text-dark);
+}
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .banner { height: 150px; }

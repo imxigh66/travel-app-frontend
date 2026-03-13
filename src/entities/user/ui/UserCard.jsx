@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import UploadAvatarModal from '../../../features/edit-profile/ui/UploadAvatarModal';
 import BannerModal from '../../../features/edit-profile/ui/BannerModal';
 import styles from './UserCard.module.css';
+import { BANNER_PRESETS } from '../../../shared/constants/bannerPresets';
 
 const TravelInterestLabel = {
   0: '🌿 Природа', 1: '🍜 Еда', 2: '🧗 Приключения',
@@ -19,7 +20,7 @@ export default function UserCard({
   isOwnProfile = true,
   onEditClick,
   onMessageClick,
-  followButton,          // ReactNode — кнопка подписки (передаётся из ProfileHeader)
+  followButton,          
   stats = { countries: 0, trips: 0, followers: 0, following: 0 }
 }) {
   const navigate = useNavigate();
@@ -35,7 +36,6 @@ export default function UserCard({
 
   const handleAvatarSuccess = (url) => onUserUpdate?.({ ...user, profilePicture: url });
   const handleBannerSuccess = (result) => {
-    // result может быть: строка url, объект { preset, css }, или null
     if (!result) {
       onUserUpdate?.({ ...user, bannerImage: null, bannerPreset: null });
     } else if (typeof result === 'string') {
@@ -44,6 +44,8 @@ export default function UserCard({
       onUserUpdate?.({ ...user, bannerImage: null, bannerPreset: result.preset, bannerCss: result.css });
     }
   };
+  const bannerCss = user?.bannerCss 
+  ?? (user?.bannerPreset ? BANNER_PRESETS.find(p => p.id === user.bannerPreset)?.css : null);
 
   const tags = [];
   if (isPersonal) {
@@ -55,14 +57,14 @@ export default function UserCard({
     <div className={styles.card}>
 
       {/* ── Banner ── */}
-       <div
+      <div
         className={`${styles.banner} ${isOwnProfile ? styles.clickableBanner : ''}`}
         onClick={() => isOwnProfile && setIsUploadBannerOpen(true)}
       >
         {user?.bannerImage
           ? <img src={user.bannerImage} alt="Banner" className={styles.bannerImage} />
-          : user?.bannerCss
-          ? <div className={styles.bannerImage} style={{ background: user.bannerCss }} />
+          : bannerCss
+          ? <div className={styles.bannerImage} style={{ background: bannerCss }} />
           : <div className={styles.defaultBanner} />}
         {isOwnProfile && (
           <div className={styles.bannerOverlay}>
@@ -103,13 +105,11 @@ export default function UserCard({
             </div>
 
             <div className={styles.actionButtons}>
-              {/* Своя страница — редактировать */}
               {isOwnProfile && onEditClick && (
                 <button className={styles.editBtn} onClick={onEditClick}>
                   <EditIcon /> Редактировать
                 </button>
               )}
-              {/* Чужая страница — сообщение + подписка */}
               {!isOwnProfile && (
                 <>
                   <button className={styles.messageBtn} onClick={onMessageClick}>
@@ -134,6 +134,32 @@ export default function UserCard({
           </div>
         )}
 
+        {/* Business info */}
+        {isBusiness && (user?.businessAddress || user?.businessPhone || user?.businessWebsite) && (
+          <div className={styles.businessInfo}>
+            {user.businessAddress && (
+              <span className={styles.businessItem}>
+                <LocationIcon /> {user.businessAddress}
+              </span>
+            )}
+            {user.businessPhone && (
+              <span className={styles.businessItem}>
+                <PhoneIcon /> {user.businessPhone}
+              </span>
+            )}
+            {user.businessWebsite && (
+              <a
+                href={user.businessWebsite.startsWith('http') ? user.businessWebsite : `https://${user.businessWebsite}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.businessItem}
+              >
+                <WebIcon /> {user.businessWebsite}
+              </a>
+            )}
+          </div>
+        )}
+
         {/* Stats */}
         <div className={styles.statsDivider} />
         <div className={styles.stats}>
@@ -145,14 +171,16 @@ export default function UserCard({
             <span className={styles.statValue}>{stats.trips}</span>
             <span className={styles.statLabel}>Trips</span>
           </div>
-          <div className={styles.stat}
+          <div
+            className={styles.stat}
             onClick={() => navigate(`/users/${user?.userId}/followers`)}
             style={{ cursor: 'pointer' }}
           >
             <span className={styles.statValue}>{stats.followers}</span>
             <span className={styles.statLabel}>Followers</span>
           </div>
-          <div className={styles.stat}
+          <div
+            className={styles.stat}
             onClick={() => navigate(`/users/${user?.userId}/following`)}
             style={{ cursor: 'pointer' }}
           >
@@ -164,10 +192,19 @@ export default function UserCard({
 
       {isOwnProfile && (
         <>
-          <UploadAvatarModal isOpen={isUploadAvatarOpen} onClose={() => setIsUploadAvatarOpen(false)} onSuccess={handleAvatarSuccess} />
-          <BannerModal isOpen={isUploadBannerOpen} onClose={() => setIsUploadBannerOpen(false)} onSuccess={handleBannerSuccess} currentBanner={user?.bannerImage} />
+          <UploadAvatarModal
+            isOpen={isUploadAvatarOpen}
+            onClose={() => setIsUploadAvatarOpen(false)}
+            onSuccess={handleAvatarSuccess}
+          />
+          <BannerModal
+            isOpen={isUploadBannerOpen}
+            onClose={() => setIsUploadBannerOpen(false)}
+            onSuccess={handleBannerSuccess}
+            currentBanner={user?.bannerImage ?? user?.bannerPreset ?? null}
+            accountType={user?.accountType}
+          />
         </>
-
       )}
     </div>
   );
@@ -177,3 +214,13 @@ function CameraIcon()        { return <svg width="20" height="20" viewBox="0 0 2
 function EditIcon()          { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>; }
 function BusinessBadgeIcon() { return <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>; }
 function MessageIcon()       { return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>; }
+
+function LocationIcon() {
+  return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>;
+}
+function PhoneIcon() {
+  return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>;
+}
+function WebIcon() {
+  return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>;
+}
