@@ -4,6 +4,10 @@ export interface Post {
   username: string;
   userProfilePicture: string | null;
   placeId?: number;
+  placeName?: string;
+placeCity?: string;
+placeCountryCode?: string;
+placeCoverImageUrl?: string;
   title?: string;
   content: string;
   imageUrls: string[];

@@ -108,6 +108,46 @@
 .actionBtnLiked  { color: var(--salmon); }
 .actionBtnLiked:hover { background: rgba(253,179,164,0.1); color: var(--salmon); }
 .actionBtnBookmark { margin-left: auto; }
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+ 
+.metaDot {
+  font-size: 11px;
+  color: var(--text-light);
+  line-height: 1;
+}
+ 
+/* ── Place inline link ── */
+.placeLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-main);
+  color: var(--salmon, #f08878);
+  cursor: pointer;
+  transition: opacity 0.15s;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+}
+.placeLink:hover {
+  opacity: 0.75;
+}
+.placeLink svg {
+  flex-shrink: 0;
+  opacity: 0.8;
+}
 
 @media (max-width: 640px) {
   .card { border-radius: 14px; }

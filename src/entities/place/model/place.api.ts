@@ -55,4 +55,8 @@ save: async (placeId: number): Promise<void> => {
     return data.data  // ApiResponse<bool> → data.data
   },
   
+  getMy: async (pageNumber = 1, pageSize = 10): Promise<PaginatedList<PlaceDto>> => {
+    const { data } = await api.get('/places/my', { params: { pageNumber, pageSize } })
+    return data
+  },
 }

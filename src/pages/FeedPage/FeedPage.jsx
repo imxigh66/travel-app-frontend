@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { postApi } from '../../entities/post/api/postApi';
 import { PostCard } from '../../entities/post/ui/PostCard';
-import { CreatePostModal } from '../../features/post/ui/CreatePostModal';
+import { CreatePostCard } from '../../features/post/ui/CreatePostCard';
 import { getCurrentUser } from '../../entities/user/api/userApi';
 import styles from './FeedPage.module.css';
 
@@ -15,11 +15,9 @@ export default function FeedPage() {
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
-  const [tab, setTab] = useState('following'); // 'following' | 'all'
+  const [tab, setTab] = useState('following');
 
-  // Загрузка текущего юзера
   useEffect(() => {
     getCurrentUser().then((res) => {
       if (res.success) setCurrentUser(res.data);
@@ -50,7 +48,6 @@ export default function FeedPage() {
     [tab]
   );
 
-  // При смене таба — перезагрузить
   useEffect(() => {
     setPosts([]);
     setPage(1);
@@ -58,7 +55,6 @@ export default function FeedPage() {
     fetchPosts(1, true);
   }, [tab]);
 
-  // Infinite scroll
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -80,16 +76,13 @@ export default function FeedPage() {
 
   return (
     <div className={styles.page}>
+
       {/* ── Header ── */}
       <div className={styles.header}>
         <div className={styles.headerLeft}>
           <h1 className={styles.title}>Лента</h1>
           <p className={styles.subtitle}>Посты людей, на которых вы подписаны</p>
         </div>
-        <button className={styles.createBtn} onClick={() => setIsCreateOpen(true)}>
-          <PlusIcon />
-          <span>Написать</span>
-        </button>
       </div>
 
       {/* ── Табы ── */}
@@ -110,6 +103,12 @@ export default function FeedPage() {
 
       {/* ── Контент ── */}
       <div className={styles.feed}>
+
+        {/* Инлайн-форма создания поста */}
+        {currentUser && (
+          <CreatePostCard currentUser={currentUser} onSuccess={handlePostCreated} />
+        )}
+
         {/* Skeleton при первой загрузке */}
         {isLoading &&
           Array.from({ length: 3 }).map((_, i) => (
@@ -152,9 +151,6 @@ export default function FeedPage() {
             <div className={styles.emptyIcon}>📭</div>
             <h2 className={styles.emptyTitle}>Постов пока нет</h2>
             <p className={styles.emptyText}>Будьте первым, кто поделится впечатлениями</p>
-            <button className={styles.exploreBtn} onClick={() => setIsCreateOpen(true)}>
-              Написать пост
-            </button>
           </div>
         )}
 
@@ -175,29 +171,6 @@ export default function FeedPage() {
           </div>
         )}
       </div>
-
-      {/* ── Модалка создания поста ── */}
-      <CreatePostModal
-        isOpen={isCreateOpen}
-        onClose={() => setIsCreateOpen(false)}
-        onSuccess={handlePostCreated}
-        currentUser={currentUser}
-      />
-
-      {/* ── FAB ── */}
-      <button className={styles.fab} onClick={() => setIsCreateOpen(true)} title="Написать пост">
-        <PlusIcon size={24} />
-      </button>
     </div>
-  );
-}
-
-function PlusIcon({ size = 18 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="12" y1="5" x2="12" y2="19" />
-      <line x1="5" y1="12" x2="19" y2="12" />
-    </svg>
   );
 }

@@ -1,8 +1,6 @@
-import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './Sidebar.module.css';
 import LogoutButton from '../../features/auth/logout/ui/LogoutButton';
-import SuggestPlaceModal from '../../features/suggest-place/ui/SuggestPlaceModal';
 
 const SECTIONS = [
   {
@@ -17,6 +15,7 @@ const SECTIONS = [
     label: 'COLLECTIONS',
     items: [
       { icon: <BookmarkIcon />, label: 'Сохранённые', path: '/saved' },
+      { icon: <PinPlusIcon />,  label: 'Мои места',   path: '/my-places' },
     ],
   },
 ];
@@ -30,7 +29,6 @@ const BOTTOM_ITEMS = [
 ];
 
 export default function Sidebar({ collapsed, setCollapsed }) {
-  const [isSuggestOpen, setIsSuggestOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -83,21 +81,9 @@ export default function Sidebar({ collapsed, setCollapsed }) {
 
           <div className={styles.spacer} />
 
-          {/* Suggest Place button */}
-          <button
-            className={styles.suggestBtn}
-            onClick={() => setIsSuggestOpen(true)}
-            title={collapsed ? 'Предложить место' : ''}
-          >
-            <span className={styles.icon}><PinPlusIcon /></span>
-            {!collapsed && <span className={styles.suggestLabel}>Предложить место</span>}
-          </button>
-
           <div className={styles.logoutWrap} title={collapsed ? 'Выйти' : ''}>
             <LogoutButton className={styles.logoutBtn} collapsed={collapsed} />
           </div>
-
-          <SuggestPlaceModal isOpen={isSuggestOpen} onClose={() => setIsSuggestOpen(false)} />
 
         </aside>
       </div>

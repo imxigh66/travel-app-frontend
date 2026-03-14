@@ -250,6 +250,163 @@
 }
 .floatingBtn:hover { background: var(--salmon-hover); transform: translateY(-3px); }
 
+/* ── Photo overlay (hover hint) ── */
+.photoOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.18s;
+  border-radius: var(--radius-md);
+}
+.photoItem:hover .photoOverlay { opacity: 1; }
+
+/* ── Lightbox ── */
+.lightboxOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: lbFadeIn 0.2s ease;
+}
+@keyframes lbFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.lightboxImgWrap {
+  max-width: min(90vw, 1100px);
+  max-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lightboxImg {
+  max-width: 100%;
+  max-height: 80vh;
+  width: auto;
+  height: auto;
+  border-radius: 10px;
+  object-fit: contain;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+  animation: lbImgIn 0.22s ease;
+}
+@keyframes lbImgIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.lightboxClose {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+  z-index: 1001;
+}
+.lightboxClose:hover {
+  background: rgba(255, 255, 255, 0.22);
+  transform: scale(1.08);
+}
+
+.lightboxCounter {
+  position: fixed;
+  top: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 0.5px;
+  pointer-events: none;
+  z-index: 1001;
+}
+
+.lightboxNav {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+  z-index: 1001;
+}
+.lightboxNav:hover {
+  background: rgba(255, 255, 255, 0.22);
+  transform: translateY(-50%) scale(1.08);
+}
+.lightboxPrev { left: 20px; }
+.lightboxNext { right: 20px; }
+
+/* ── Thumbnails strip ── */
+.lightboxStrip {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 40px;
+  max-width: 90vw;
+  overflow-x: auto;
+  scrollbar-width: none;
+  z-index: 1001;
+}
+.lightboxStrip::-webkit-scrollbar { display: none; }
+
+.lightboxThumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+  opacity: 0.55;
+  transition: opacity 0.15s, border-color 0.15s, transform 0.15s;
+}
+.lightboxThumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.lightboxThumb:hover { opacity: 0.85; transform: scale(1.05); }
+.lightboxThumbActive {
+  border-color: var(--salmon, #fdb3a4);
+  opacity: 1;
+  transform: scale(1.08);
+}
+
+@media (max-width: 600px) {
+  .lightboxPrev { left: 8px; }
+  .lightboxNext { right: 8px; }
+  .lightboxNav  { width: 36px; height: 36px; }
+  .lightboxThumb { width: 36px; height: 36px; }
+}
+
 /* ── Responsive ── */
 @media (max-width: 900px) {
   .contentRow { grid-template-columns: 1fr; }
@@ -260,3 +417,111 @@
   .photoGrid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
   .floatingBtn { bottom: 80px; right: 20px; }
 }
+
+/* ── Main column (wrapper вокруг CreatePostCard + лента) ── */
+.mainCol {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+ 
+/* ── Photo hover overlay ── */
+.photoOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.32);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.18s;
+  border-radius: var(--radius-md);
+}
+.photoItem:hover .photoOverlay { opacity: 1; }
+ 
+/* ── Lightbox ── */
+.lightboxOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0,0,0,0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: lbFadeIn 0.18s ease;
+}
+@keyframes lbFadeIn { from { opacity: 0 } to { opacity: 1 } }
+ 
+.lightboxImgWrap {
+  max-width: min(88vw, 1100px);
+  max-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lightboxImg {
+  max-width: 100%;
+  max-height: 80vh;
+  width: auto;
+  height: auto;
+  border-radius: 10px;
+  object-fit: contain;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+  animation: lbImgIn 0.2s ease;
+}
+@keyframes lbImgIn { from { opacity: 0; transform: scale(0.96) } to { opacity: 1; transform: scale(1) } }
+ 
+.lightboxClose {
+  position: fixed; top: 18px; right: 18px;
+  width: 38px; height: 38px; border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: #fff; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background 0.15s, transform 0.15s; z-index: 1001;
+}
+.lightboxClose:hover { background: rgba(255,255,255,0.22); transform: scale(1.08); }
+ 
+.lightboxCounter {
+  position: fixed; top: 22px; left: 50%; transform: translateX(-50%);
+  font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.65);
+  letter-spacing: 0.5px; pointer-events: none; z-index: 1001;
+}
+ 
+.lightboxNav {
+  position: fixed; top: 50%; transform: translateY(-50%);
+  width: 42px; height: 42px; border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: #fff; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background 0.15s, transform 0.15s; z-index: 1001;
+}
+.lightboxNav:hover { background: rgba(255,255,255,0.22); }
+.lightboxPrev { left: 18px; }
+.lightboxPrev:hover { transform: translateY(-50%) scale(1.08); }
+.lightboxNext { right: 18px; }
+.lightboxNext:hover { transform: translateY(-50%) scale(1.08); }
+ 
+.lightboxStrip {
+  position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 6px; padding: 7px 12px;
+  background: rgba(0,0,0,0.5); border-radius: 40px;
+  max-width: 90vw; overflow-x: auto; scrollbar-width: none; z-index: 1001;
+}
+.lightboxStrip::-webkit-scrollbar { display: none; }
+ 
+.lightboxThumb {
+  width: 42px; height: 42px; border-radius: 6px; overflow: hidden;
+  border: 2px solid transparent; padding: 0; cursor: pointer; flex-shrink: 0;
+  opacity: 0.5; transition: opacity 0.15s, border-color 0.15s, transform 0.15s;
+}
+.lightboxThumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.lightboxThumb:hover { opacity: 0.85; transform: scale(1.05); }
+.lightboxThumbActive { border-color: var(--salmon, #fdb3a4); opacity: 1; transform: scale(1.08); }
+ 
+@media (max-width: 600px) {
+  .lightboxPrev { left: 6px; }
+  .lightboxNext { right: 6px; }
+  .lightboxNav  { width: 34px; height: 34px; }
+  .lightboxThumb { width: 34px; height: 34px; }
+}
+ 

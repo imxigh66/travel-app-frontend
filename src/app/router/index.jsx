@@ -18,6 +18,7 @@ import { FollowingPage }   from '../../pages/FollowingPage/FollowingPage'
 import FeedPage            from '../../pages/FeedPage'
 import  TripsPage        from '../../pages/TripsPage'
 import  TripDetailPage   from '../../pages/TripDetailPage'
+import MyPlacesPage        from '../../pages/MyPlacesPage/MyPlacesPage' 
 
 // Moderator pages — lazy load (не грузим обычным пользователям)
 const PlacesQueuePage  = lazy(() => import('../../pages/moderator/PlacesQueuePage/PlacesQueuePage'))
@@ -47,6 +48,7 @@ export const router = createBrowserRouter([
       { path: '/explore',                element: <ExplorePage /> },
       { path: '/places',                 element: <ResultsPage /> },
       { path: '/places/:id',             element: <PlaceDetailPage /> },
+       { path: '/my-places',              element: <MyPlacesPage /> }, 
       { path: '/feed',                   element: <FeedPage /> },
       { path: '/saved',                  element: <SavedPlacesPage /> },
       { path: '/trips',                  element: <TripsPage /> },
