@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { moderatorPlaceApi, moderatorTagApi } from '../../../entities/moderator/api/moderatorApi'
+import SuggestPlaceModal from '../../../features/suggest-place/ui/SuggestPlaceModal'
 import styles from './AllPlacesPage.module.css'
 
 const CATEGORIES = [
@@ -39,6 +40,7 @@ export default function AllPlacesPage() {
   const [selectedTags, setSelectedTags] = useState([])
   const [assignLoading, setAssignLoading] = useState(false)
   const [toast, setToast] = useState(null)
+  const [isCreateOpen, setIsCreateOpen] = useState(false)
 
   const showToast = (msg, type = 'success') => {
     setToast({ msg, type })
@@ -101,6 +103,9 @@ export default function AllPlacesPage() {
       <div className={styles.header}>
         <h1 className={styles.title}>Все места</h1>
         <p className={styles.subtitle}>{totalCount} мест в базе</p>
+         <button className={styles.createBtn} onClick={() => setIsCreateOpen(true)}>
+    + Создать место
+  </button>
       </div>
 
       {/* Filters */}
@@ -211,6 +216,13 @@ export default function AllPlacesPage() {
       )}
 
       {toast && <div className={`${styles.toast} ${styles[toast.type]}`}>{toast.msg}</div>}
+      <SuggestPlaceModal
+  isOpen={isCreateOpen}
+  onClose={() => {
+    setIsCreateOpen(false)
+    load(1)   // перезагрузить список после создания
+  }}
+/>
     </div>
   )
 }

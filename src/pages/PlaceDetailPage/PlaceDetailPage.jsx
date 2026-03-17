@@ -5,17 +5,22 @@ import { getCategoryLabel } from '../../entities/place/model/place.helpers'
 import { useSavePlace } from '../../features/save-place/useSavePlace'
 import { PlacePosts } from '../../widgets/PlacePosts/PlacePosts'
 import styles from './PlaceDetailPage.module.css'
+import { PlaceDetailMap } from '../../widgets/PlacesMap/PlaceDetailMap'
 
 const MOOD_LABELS = {
-  WithCompany:  'С компанией',
-  Solo:         'Один',
-  WithFamily:   'С семьёй',
-  RomanticDate: 'Вдвоём',
-  Special:      'Особенное',
-  Calm:         'Спокойно',
-  Active:       'Активно',
-  NightOut:     'Вечером',
-  Surprise:     'Удиви меня',
+  0:  'С компанией',
+  1:  'Один',
+  2:  'С семьёй',
+  3:  'Вдвоём',
+  4:  'Корпоратив',
+  10: 'Особенное',
+  11: 'Спокойно',
+  12: 'Удиви меня',
+  13: 'Активно',
+  14: 'Культурно',
+  15: 'Вкусно поесть',
+  16: 'Вечер',
+  17: 'Природа',
 }
 
 const CATEGORY_GRADIENT = {
@@ -291,7 +296,21 @@ export function PlaceDetailPage() {
               </div>
             </div>
           )}
-
+ {/* Автор */}
+          {place.creatorUsername && (
+            <div className={styles.section}>
+              <div className={styles.sectionTitle}>Добавил</div>
+              <div className={styles.creatorRow} onClick={() => navigate(`/users/${place.createdBy}`)}>
+                {place.creatorProfilePicture
+                  ? <img src={place.creatorProfilePicture} alt="" className={styles.creatorAvatar} />
+                  : <div className={styles.creatorAvatarFallback}>
+                      {place.creatorUsername.slice(0, 2).toUpperCase()}
+                    </div>
+                }
+                <span className={styles.creatorName}>@{place.creatorUsername}</span>
+              </div>
+            </div>
+          )}
           {/* Подборки */}
           {place.categoryTags?.length > 0 && (
             <div className={styles.section}>
@@ -328,11 +347,7 @@ export function PlaceDetailPage() {
         <div className={styles.sideCol}>
 
           {/* Карта */}
-          <div className={styles.mapBox}>
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--mint-dark)" strokeWidth="1.5" opacity=".7"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            <div className={styles.mapLoading}>Карта</div>
-            <div className={styles.mapAddr}>{place.address}, {place.city}</div>
-          </div>
+          <PlaceDetailMap place={place} />
 
           {/* Быстрая информация */}
           {info && (

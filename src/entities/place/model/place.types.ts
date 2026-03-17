@@ -165,6 +165,11 @@ export interface PlaceDto {
   coverImageUrl?: string
   additionalInfo?: PlaceAdditionalInfo
   createdAt: string
+  createdBy: number
+  username?: string
+  profilePictureUrl?: string
+    
+  
 }
 
 // ── Запрос для списка ──

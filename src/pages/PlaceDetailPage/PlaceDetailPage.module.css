@@ -380,6 +380,51 @@
 }
 .addTripBtn:hover { background: var(--mint-medium); border-color: var(--mint-dark); }
 
+/* ── Creator block ── */
+.creatorRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  padding: 6px 10px 6px 6px;
+  border-radius: 99px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.creatorRow:hover {
+  border-color: rgba(253,179,164,0.4);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.creatorAvatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.creatorAvatarFallback {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--mint-tag);
+  color: var(--text-dark);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.creatorName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
 /* ── MOBILE ── */
 @media (max-width: 768px) {
   .twoCol { grid-template-columns: 1fr; }

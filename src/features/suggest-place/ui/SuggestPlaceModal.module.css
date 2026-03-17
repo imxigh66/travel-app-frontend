@@ -200,6 +200,51 @@
   font-family: var(--font-main);
 }
 
+/* Добавить в конец SuggestPlaceModal.module.css */
+
+/* ── Координаты подсказка ── */
+.coordsHint {
+  font-size: 12px;
+  color: var(--text-muted);
+  background: var(--mint-soft, #e8f5f1);
+  border-radius: 10px;
+  padding: 9px 12px;
+  line-height: 1.5;
+  margin-top: 2px;
+}
+
+/* ── Bool-поля (Да/Нет/Не указано) ── */
+.boolGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.boolBtn {
+  padding: 6px 14px;
+  border-radius: 99px;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-main);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.boolBtn:hover { border-color: var(--mint-dark); color: var(--text-dark); }
+
+.boolBtnOn {
+  background: rgba(74, 197, 148, 0.12);
+  border-color: rgba(74, 197, 148, 0.5);
+  color: #15803d;
+}
+.boolBtnOff {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #b91c1c;
+}
+
 @media (max-width: 480px) {
   .categoryGrid { grid-template-columns: repeat(2, 1fr); }
   .imagePreviewGrid { grid-template-columns: repeat(3, 1fr); }

@@ -61,3 +61,31 @@
 .toast.success { background: #B8CEC2; color: #fff; }
 .toast.error { background: #ef4444; color: #fff; }
 @keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+/* ── Header with create button ── */
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.createBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: 10px;
+  background: var(--salmon, #fdb3a4);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: var(--font-main);
+  transition: opacity 0.15s, transform 0.15s;
+  box-shadow: 0 2px 8px rgba(253,179,164,0.35);
+  flex-shrink: 0;
+}
+.createBtn:hover { opacity: 0.88; transform: translateY(-1px); }

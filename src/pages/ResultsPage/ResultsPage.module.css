@@ -1,5 +1,5 @@
 .page {
-  max-width: 900px;
+  max-width: 1400px;
   width: 100%;
   margin: 0 auto;
   padding-bottom: 80px;
@@ -409,6 +409,42 @@
 .mapCardInfo { padding: 8px 10px; }
 .mapCardName { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mapCardRating { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+/* ── SPLIT LAYOUT (список + карта) ── */
+.splitLayout {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 16px;
+  align-items: start;
+  margin-top: 8px;
+}
+
+.listCol {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+}
+
+.mapCol {
+  /* sticky внутри PlacesMap */
+}
+
+/* Подсветка активной карточки (при ховере синхронизируется с маркером) */
+.cardActive {
+  border-color: var(--salmon) !important;
+  box-shadow: 0 4px 16px rgba(253,179,164,0.25) !important;
+}
+
+@media (max-width: 900px) {
+  .splitLayout {
+    grid-template-columns: 1fr;
+  }
+  .mapCol {
+    height: 340px;
+    order: -1; /* карта сверху на мобиле */
+  }
+}
 
 /* ── MOBILE ── */
 @media (max-width: 768px) {

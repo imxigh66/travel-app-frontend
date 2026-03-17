@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { tripApi } from '../../entities/trip/api/tripApi';
 import styles from './TripRoute.module.css';
+import { TripRouteMap } from './TripRouteMap'
 
 export function TripRoute({ places, isOwner, tripId, onPlacesChange }) {
   const [reordering, setReordering] = useState(false);
@@ -50,6 +51,7 @@ export function TripRoute({ places, isOwner, tripId, onPlacesChange }) {
 
   return (
     <div className={styles.wrapper}>
+      <TripRouteMap places={localPlaces} />
       <div className={styles.topRow}>
         <p className={styles.hint}>
           {isOwner

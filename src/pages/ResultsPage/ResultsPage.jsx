@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom'
 import { placeApi } from '../../entities/place/model/place.api'
 import { getCategoryLabel } from '../../entities/place/model/place.helpers'
 import { useSavePlace } from '../../features/save-place/useSavePlace'
+import { PlacesMap } from '../../widgets/PlacesMap/PlacesMap'
 import styles from './ResultsPage.module.css'
 
 const MOOD_META = {
@@ -35,7 +36,7 @@ const SORTS = [
 ]
 
 export function ResultsPage() {
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const navigate = useNavigate()
 
   const moodsParam    = searchParams.get('moods')
@@ -54,13 +55,14 @@ export function ResultsPage() {
   const [sortBy, setSortBy]       = useState('newest')
   const [page, setPage]           = useState(1)
   const [hasMore, setHasMore]     = useState(true)
-  const [view, setView]           = useState('list')
+  const [activeId, setActiveId]   = useState(null)  // hover/selected place
+
   const [activeCategory, setActiveCategory] = useState(
     categoryParam != null ? Number(categoryParam) : null
   )
   const [showLocationFilter, setShowLocationFilter] = useState(false)
-  const [city, setCity]           = useState(searchParams.get('city') ?? '')
-  const [country, setCountry]     = useState(searchParams.get('country') ?? '')
+  const [city, setCity]     = useState(searchParams.get('city') ?? '')
+  const [country, setCountry] = useState(searchParams.get('country') ?? '')
 
   const loaderRef = useRef(null)
 
@@ -77,7 +79,7 @@ export function ResultsPage() {
         ...(categoryTagId    && { categoryTagId }),
         ...(city.trim()      && { city: city.trim() }),
         ...(country.trim()   && { countryCode: country.trim() }),
-        ...(searchQ?.trim()   && { search: searchQ.trim() })
+        ...(searchQ?.trim()  && { search: searchQ.trim() })
       }
       const res = await placeApi.getAll(params)
       if (pageNum === 1) setPlaces(res.items ?? [])
@@ -123,7 +125,6 @@ export function ResultsPage() {
     fetchPlaces(1, sortBy)
   }
 
-  // Banner title
   const bannerTitle = searchQ
     ? `«${searchQ}»`
     : moods.length > 0
@@ -137,17 +138,7 @@ export function ResultsPage() {
 
       {/* ── TOP BAR ── */}
       <div className={styles.topBar}>
-        <button className={styles.back} onClick={() => navigate(-1)}>
-          ← Назад
-        </button>
-        <div className={styles.viewToggle}>
-          <button className={`${styles.viewBtn} ${view === 'list' ? styles.viewActive : ''}`} onClick={() => setView('list')}>
-            <ListIcon /> Список
-          </button>
-          <button className={`${styles.viewBtn} ${view === 'map' ? styles.viewActive : ''}`} onClick={() => setView('map')}>
-            <MapIcon /> Карта
-          </button>
-        </div>
+        <button className={styles.back} onClick={() => navigate(-1)}>← Назад</button>
       </div>
 
       {/* ── BANNER ── */}
@@ -160,9 +151,7 @@ export function ResultsPage() {
           {moods.length > 1 && (
             <div className={styles.moodTags}>
               {moods.map(m => (
-                <span key={m} className={styles.moodTag}>
-                  {MOOD_META[m]?.label ?? m}
-                </span>
+                <span key={m} className={styles.moodTag}>{MOOD_META[m]?.label ?? m}</span>
               ))}
             </div>
           )}
@@ -199,8 +188,7 @@ export function ResultsPage() {
             className={`${styles.locationBtn} ${(city || country) ? styles.locationBtnActive : ''}`}
             onClick={() => setShowLocationFilter(v => !v)}
           >
-            <PinIcon />
-            {city || country || 'Все города'}
+            <PinIcon /> {city || country || 'Все города'}
           </button>
         </div>
         <div className={styles.sorts}>
@@ -230,20 +218,27 @@ export function ResultsPage() {
         </div>
       )}
 
-      {/* ── CONTENT ── */}
-      {view === 'list' ? (
-        <div className={styles.list}>
+      {/* ── SPLIT LAYOUT: список + карта ── */}
+      <div className={styles.splitLayout}>
+
+        {/* Левая колонка — список */}
+        <div className={styles.listCol}>
           {loading && places.length === 0 &&
             Array.from({ length: 5 }).map((_, i) => <div key={i} className={styles.skeleton} />)
           }
+
           {places.map((place, i) => (
             <PlaceListCard
               key={place.placeId}
               place={place}
               index={i}
+              active={place.placeId === activeId}
+              onMouseEnter={() => setActiveId(place.placeId)}
+              onMouseLeave={() => setActiveId(null)}
               onClick={() => navigate(`/places/${place.placeId}`)}
             />
           ))}
+
           {!loading && places.length === 0 && (
             <div className={styles.empty}>
               <span>🔍</span>
@@ -251,6 +246,7 @@ export function ResultsPage() {
               <p>Попробуй изменить фильтры</p>
             </div>
           )}
+
           <div ref={loaderRef} className={styles.loaderTrigger}>
             {loading && places.length > 0 && (
               <div className={styles.loadingMore}>
@@ -259,53 +255,48 @@ export function ResultsPage() {
             )}
           </div>
         </div>
-      ) : (
-        <div className={styles.mapView}>
-          <div className={styles.mapPlaceholder}>
-            <MapBigIcon />
-            <p>Карта</p>
-            <span>Подключи MapLibre или Google Maps</span>
-          </div>
-          <div className={styles.mapCards}>
-            {places.slice(0, 6).map(place => (
-              <div key={place.placeId} className={styles.mapCard} onClick={() => navigate(`/places/${place.placeId}`)}>
-                <div className={styles.mapCardThumb}>
-                  {(place.coverImageUrl ?? place.imageUrls?.[0])
-                    ? <img src={place.coverImageUrl ?? place.imageUrls?.[0]} alt={place.name} />
-                    : null
-                  }
-                </div>
-                <div className={styles.mapCardInfo}>
-                  <div className={styles.mapCardName}>{place.name}</div>
-                  <div className={styles.mapCardRating}>★ {place.averageRating.toFixed(1)}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+
+        {/* Правая колонка — карта */}
+        <div className={styles.mapCol}>
+          <PlacesMap
+            places={places}
+            activeId={activeId}
+            onMarkerClick={(place) => {
+              setActiveId(place.placeId)
+              navigate(`/places/${place.placeId}`)
+            }}
+          />
         </div>
-      )}
+      </div>
     </div>
   )
 }
 
-// ── Карточка списка ──
-function PlaceListCard({ place, index, onClick }) {
+// ── PlaceListCard ──────────────────────────────────────────────────────────────
+function PlaceListCard({ place, index, active, onMouseEnter, onMouseLeave, onClick }) {
   const { isSaved: saved, toggle } = useSavePlace(place.placeId)
   const thumbnail = place.coverImageUrl ?? place.imageUrls?.[0]
 
   return (
-    <div className={styles.card} onClick={onClick} style={{ animationDelay: `${index * 0.04}s` }}>
+    <div
+      className={`${styles.card} ${active ? styles.cardActive : ''}`}
+      onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      style={{ animationDelay: `${index * 0.04}s` }}
+    >
       <div className={styles.cardThumb}>
         {thumbnail
           ? <img src={thumbnail} alt={place.name} className={styles.thumbImg} />
           : <div className={styles.thumbPlaceholder} />
         }
-        {index === 0 && <span className={styles.topBadge}>ТОП</span>}
       </div>
 
       <div className={styles.cardBody}>
         <div className={styles.cardName}>{place.name}</div>
-        <div className={styles.cardLoc}>{[place.city, place.country].filter(Boolean).join(' • ')}</div>
+        <div className={styles.cardLoc}>
+          {[place.city, place.countryCode].filter(Boolean).join(' • ')}
+        </div>
         {place.description && <div className={styles.cardDesc}>{place.description}</div>}
         {place.averageRating > 0 && (
           <div className={styles.cardRating}>
@@ -329,7 +320,6 @@ function PlaceListCard({ place, index, onClick }) {
   )
 }
 
-function ListIcon() { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> }
-function MapIcon()  { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg> }
-function PinIcon()  { return <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> }
-function MapBigIcon(){ return <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" opacity=".4"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg> }
+function PinIcon() {
+  return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+}

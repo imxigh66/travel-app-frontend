@@ -1,0 +1,38 @@
+.mapWrap {
+  position: sticky;
+  top: 76px;
+  height: calc(100vh - 100px);
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+}
+
+.map {
+  width: 100%;
+  height: 100%;
+}
+
+.mapLoading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--color-bg);
+  z-index: 10;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.mapSpinner {
+  width: 28px;
+  height: 28px;
+  border: 2.5px solid var(--color-border);
+  border-top-color: var(--mint-dark);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
