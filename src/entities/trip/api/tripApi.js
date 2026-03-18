@@ -39,4 +39,25 @@ export const tripApi = {
 
   deleteNote: (tripId, noteId) =>
     api.delete(`/trips/${tripId}/notes/${noteId}`),
+
+
+   getBudget: (tripId) =>
+    api.get(`/trips/${tripId}/budget`).then(r => r.data),
+ 
+  createOrUpdateBudget: (tripId, data) =>
+    api.post(`/trips/${tripId}/budget`, data).then(r => r.data),
+ 
+  addExpense: (tripId, data) =>
+    api.post(`/trips/${tripId}/budget/expenses`, data).then(r => r.data),
+ 
+  deleteExpense: (tripId, expenseId) =>
+    api.delete(`/trips/${tripId}/budget/expenses/${expenseId}`),
+
+   // Пункты назначения
+  upsertDestinations: (tripId, destinations) =>
+    api.put(`/trips/${tripId}/destinations`, { destinations }).then(r => r.data.data),
+ 
+  // Назначить день / город месту
+  setPlaceDay: (tripId, placeId, data) =>
+    api.patch(`/trips/${tripId}/places/${placeId}/day`, data),
 };

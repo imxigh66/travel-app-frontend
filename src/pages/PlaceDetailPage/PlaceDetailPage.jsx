@@ -6,6 +6,7 @@ import { useSavePlace } from '../../features/save-place/useSavePlace'
 import { PlacePosts } from '../../widgets/PlacePosts/PlacePosts'
 import styles from './PlaceDetailPage.module.css'
 import { PlaceDetailMap } from '../../widgets/PlacesMap/PlaceDetailMap'
+import { AddToTripModal } from '../../features/trip/ui/AddToTripModal'
 
 const MOOD_LABELS = {
   0:  'С компанией',
@@ -31,6 +32,7 @@ const CATEGORY_GRADIENT = {
   4: 'linear-gradient(135deg, var(--peach), var(--salmon))',
   5: 'linear-gradient(135deg, #f8e8d4, var(--tan))',
 }
+
 
 // ══════════════════════════════════════
 // GalleryGrid
@@ -145,6 +147,8 @@ export function PlaceDetailPage() {
   const [initialSaved, setInitialSaved] = useState(undefined)
   const [lightbox, setLightbox]     = useState(null)
   const { isSaved: saved, toggle: toggleSave } = useSavePlace(Number(id), initialSaved)
+  const [addToTripOpen, setAddToTripOpen] = useState(false)
+
 
   useEffect(() => {
     if (!id) return
@@ -254,10 +258,21 @@ export function PlaceDetailPage() {
             </div>
             <div className={styles.headerRow}>
               <h1 className={styles.placeName}>{place.name}</h1>
-              <button className={styles.routeBtn}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                Маршрут
-              </button>
+              <button className={styles.routeBtn} onClick={() => setAddToTripOpen(true)}>
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+    <circle cx="12" cy="10" r="3"/>
+  </svg>
+  Маршрут
+</button>
+ 
+{addToTripOpen && (
+  <AddToTripModal
+    placeId={place.placeId}
+    placeName={place.name}
+    onClose={() => setAddToTripOpen(false)}
+  />
+)}
             </div>
             {place.address && (
               <div className={styles.placeAddress}>
@@ -435,11 +450,7 @@ export function PlaceDetailPage() {
             </div>
           )}
 
-          {/* Кнопка AddToTrip */}
-          <button className={styles.addTripBtn}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{marginRight: 6, verticalAlign: 'middle'}}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Добавить в поездку
-          </button>
+          
 
         </div>
       </div>

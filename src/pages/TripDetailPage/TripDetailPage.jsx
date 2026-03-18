@@ -6,15 +6,18 @@ import { TripOverview } from '../../widgets/TripDetail/TripOverview';
 import { TripRoute } from '../../widgets/TripDetail/TripRoute';
 import { TripNotes } from '../../widgets/TripDetail/TripNotes';
 import styles from './TripDetailPage.module.css';
+import { TripBudget } from '../../widgets/TripDetail/TripBudget'
+import { TripDestinations } from '../../widgets/TripDetail/TripDestinations'
 
 const STATUS_LABEL = { 0: 'Запланировано', 1: 'В процессе', 2: 'Завершено' };
 const STATUS_CLASS = { 0: 'planned', 1: 'inprogress', 2: 'completed' };
 
 const TABS = [
   { id: 'overview', label: 'Обзор' },
-  { id: 'route', label: 'Маршрут' },
-  { id: 'notes', label: 'Заметки' },
-];
+  { id: 'route',    label: 'Маршрут' },
+  { id: 'notes',    label: 'Заметки' },
+  { id: 'budget',   label: 'Бюджет' },  
+]
 
 export default function TripDetailPage() {
   const { id } = useParams();
@@ -43,6 +46,10 @@ export default function TripDetailPage() {
   const handlePlacesChange = (newPlaces) => {
     setTrip(prev => ({ ...prev, places: newPlaces, placesCount: newPlaces.length }));
   };
+
+  const handleDestinationsChange = (newDestinations) => {
+  setTrip(prev => ({ ...prev, destinations: newDestinations }))
+}
 
   if (loading) return (
     <div className={styles.page}>
@@ -85,10 +92,11 @@ export default function TripDetailPage() {
                 day: 'numeric', month: 'long', year: 'numeric',
               })}
             </span>
-            <span className={styles.metaItem}>
-              <MapPinIcon />
-              {trip.city}, {trip.countryCode}
-            </span>
+          <TripDestinations
+  trip={trip}
+  isOwner={isOwner}
+  onUpdate={handleDestinationsChange}
+/>
             <span className={styles.metaItem}>
               <PlaceIcon />
               {trip.placesCount} {pluralizePlaces(trip.placesCount)}
@@ -125,7 +133,7 @@ export default function TripDetailPage() {
 
       {/* Tabs */}
       <div className={styles.tabs}>
-        {TABS.filter(t => isOwner || t.id !== 'notes').map(tab => (
+        {TABS.filter(t => isOwner || t.id !== 'notes' && t.id !== 'budget').map(tab => (
           <button
             key={tab.id}
             className={`${styles.tab} ${activeTab === tab.id ? styles.tabActive : ''}`}
@@ -149,16 +157,20 @@ export default function TripDetailPage() {
           />
         )}
         {activeTab === 'route' && (
-          <TripRoute
-            places={trip.places ?? []}
-            isOwner={isOwner}
-            tripId={trip.tripId}
-            onPlacesChange={handlePlacesChange}
-          />
+        <TripRoute
+  places={trip.places ?? []}
+  destinations={trip.destinations ?? []}
+  isOwner={isOwner}
+  tripId={trip.tripId}
+  onPlacesChange={handlePlacesChange}
+/>
         )}
         {activeTab === 'notes' && isOwner && (
           <TripNotes tripId={trip.tripId} />
         )}
+        {activeTab === 'budget' && isOwner && (
+  <TripBudget tripId={trip.tripId} isOwner={isOwner} />
+)}
       </div>
     </div>
   );
