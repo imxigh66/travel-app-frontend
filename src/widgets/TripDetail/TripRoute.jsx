@@ -70,20 +70,31 @@ export function TripRoute({ places, destinations = [], isOwner, tripId, onPlaces
   const hasMultiDestinations = destinations.length > 1
   const hasAnyDays = localPlaces.some(p => p.dayNumber)
 
-  // Группируем по городам если есть destinations, иначе по дням
-  const grouped = buildGroups(localPlaces, destinations)
+  // Доступные дни для фильтра
+  const availableDays = [...new Set(localPlaces.map(p => p.dayNumber).filter(Boolean))].sort((a,b) => a-b)
+
+  // Фильтрация по дню (0 = без дня)
+  const [dayFilter, setDayFilter] = useState(null)
+  const filteredPlaces = dayFilter === null
+    ? localPlaces
+    : dayFilter === 0
+      ? localPlaces.filter(p => !p.dayNumber)
+      : localPlaces.filter(p => p.dayNumber === dayFilter)
+
+  // Группируем отфильтрованные места
+  const grouped = buildGroups(filteredPlaces, destinations)
 
   return (
     <div className={styles.wrapper}>
 
-      {/* Карта */}
+      {/* Карта — всегда показываем все места */}
       <TripRouteMap places={localPlaces} />
 
       {/* Топ-панель */}
       <div className={styles.topRow}>
         <p className={styles.hint}>
           {isOwner
-            ? 'Перетащите или используйте стрелки для изменения порядка'
+            ? 'Используйте стрелки для изменения порядка'
             : 'Порядок посещения мест'}
         </p>
         {isOwner && (
@@ -92,6 +103,38 @@ export function TripRoute({ places, destinations = [], isOwner, tripId, onPlaces
           </button>
         )}
       </div>
+
+      {/* Фильтр по дням — показываем только если есть назначенные дни */}
+      {availableDays.length > 0 && (
+        <div className={styles.dayFilters}>
+          <button
+            className={`${styles.dayFilterChip} ${dayFilter === null ? styles.dayFilterActive : ''}`}
+            onClick={() => setDayFilter(null)}
+          >
+            Все дни
+          </button>
+          {availableDays.map(day => (
+            <button
+              key={day}
+              className={`${styles.dayFilterChip} ${dayFilter === day ? styles.dayFilterActive : ''}`}
+              onClick={() => setDayFilter(dayFilter === day ? null : day)}
+            >
+              День {day}
+              <span className={styles.dayFilterCount}>
+                {localPlaces.filter(p => p.dayNumber === day).length}
+              </span>
+            </button>
+          ))}
+          {localPlaces.some(p => !p.dayNumber) && (
+            <button
+              className={`${styles.dayFilterChip} ${dayFilter === 0 ? styles.dayFilterActive : ''}`}
+              onClick={() => setDayFilter(dayFilter === 0 ? null : 0)}
+            >
+              Без дня
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Маршрут с группировкой */}
       {grouped.map((group, gi) => (

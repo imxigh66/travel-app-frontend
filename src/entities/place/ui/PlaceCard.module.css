@@ -1,7 +1,7 @@
 /* ── BASE CARD ── */
 .card {
   flex-shrink: 0;
-  width: 180px;
+  width: 220px;
   border-radius: 18px;
   overflow: hidden;
   background: var(--color-surface);
@@ -16,17 +16,17 @@
 }
 
 /* ── WIDE ── */
-.cardWide { width: 260px; }
+.cardWide { width: 300px; }
 
 /* ── THUMBNAIL ── */
 .thumb {
   width: 100%;
-  height: 130px;
+  height: 165px;
   position: relative;
   overflow: hidden;
   background: var(--color-bg);
 }
-.cardWide .thumb { height: 160px; }
+.cardWide .thumb { height: 195px; }
 
 .img {
   width: 100%;

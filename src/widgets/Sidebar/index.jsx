@@ -6,7 +6,7 @@ const SECTIONS = [
   {
     label: 'MENU',
     items: [
-      { icon: <HomeIcon />,     label: 'Explore',     path: '/explore' },
+      { icon: <HomeIcon />,     label: 'Каталог',     path: '/explore' },
       { icon: <FeedIcon />,     label: 'Лента',       path: '/feed' },
       { icon: <MapIcon />,      label: 'Маршруты',    path: '/trips' },
     ],
@@ -21,7 +21,7 @@ const SECTIONS = [
 ];
 
 const BOTTOM_ITEMS = [
-  { icon: <HomeIcon />,     label: 'Explore',  path: '/explore' },
+  { icon: <HomeIcon />,     label: 'Каталог',  path: '/explore' },
   { icon: <FeedIcon />,     label: 'Лента',    path: '/feed' },
   { icon: <MapIcon />,      label: 'Маршруты', path: '/trips' },
   { icon: <BookmarkIcon />, label: 'Сохранено',path: '/saved' },

@@ -40,16 +40,16 @@
 /* Skeleton — в цветах палитры */
 .skeleton {
   flex-shrink: 0;
-  width: 180px;
-  height: 200px;
+  width: 220px;
+  height: 240px;
   border-radius: 18px;
   background: linear-gradient(90deg, var(--mint-tag) 25%, rgba(209,219,205,0.35) 50%, var(--mint-tag) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.4s infinite;
 }
 .skeletonWide {
-  width: 260px;
-  height: 226px;
+  width: 300px;
+  height: 270px;
 }
 
 @keyframes shimmer {

@@ -17,6 +17,10 @@ export const moderatorPlaceApi = {
 
   assignTags: (placeId, tagIds) =>
     api.put(`/category-tags/places/${placeId}`, tagIds).then(r => r.data),
+  update: (placeId, formData) =>
+    api.put(`/places/${placeId}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    }).then(r => r.data),
 }
 
 // ── Category Tags ──

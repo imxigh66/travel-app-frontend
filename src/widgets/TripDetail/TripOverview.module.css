@@ -1,143 +1,206 @@
-.list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+/* ── Two-column layout ── */
+.overviewLayout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+  align-items: start;
 }
 
-.placeItem {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  background: var(--color-surface);
+@media (max-width: 900px) {
+  .overviewLayout { grid-template-columns: 1fr; }
+}
+
+/* ── Left column ── */
+.leftCol { display: flex; flex-direction: column; gap: 12px; }
+.rightCol { display: flex; flex-direction: column; gap: 12px; }
+
+/* ── City filter chips ── */
+.cityChips {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 4px;
+}
+.cityChip {
+  padding: 5px 14px; border-radius: 99px;
   border: 1.5px solid var(--color-border);
-  border-radius: 16px;
-  padding: 12px;
-  transition: box-shadow 0.2s, border-color 0.2s;
+  background: var(--color-surface);
+  font-size: 12px; font-weight: 600; color: var(--text-muted);
+  font-family: var(--font-main); cursor: pointer; transition: all 0.15s;
+}
+.cityChip:hover { border-color: var(--mint-dark); color: var(--text-dark); }
+.cityChipActive {
+  background: var(--mint-tag);
+  border-color: var(--mint-dark);
+  color: var(--text-dark);
+}
+
+/* ── Place list (existing places in trip) ── */
+.list { display: flex; flex-direction: column; gap: 8px; }
+
+.placeItem {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 14px; padding: 10px 12px;
+  transition: border-color 0.18s, box-shadow 0.18s;
 }
 .placeItem:hover {
-  box-shadow: 0 4px 16px rgba(184,206,194,0.2);
-  border-color: var(--mint-dark);
+  border-color: rgba(184,206,194,0.5);
+  box-shadow: 0 3px 12px rgba(184,206,194,0.15);
 }
 
 .indexBadge {
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  background: var(--mint-dark);
-  color: white;
-  font-size: 11px;
-  font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--mint-dark); color: #fff;
+  font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   font-family: var(--font-main);
 }
 
 .cover {
-  width: 70px; height: 70px;
-  border-radius: 12px;
-  overflow: hidden;
-  flex-shrink: 0;
-  background: var(--color-bg);
+  width: 52px; height: 52px;
+  border-radius: 10px; overflow: hidden; flex-shrink: 0;
+  background: var(--color-bg); cursor: pointer;
 }
 .coverImg { width: 100%; height: 100%; object-fit: cover; }
 .coverFallback {
   width: 100%; height: 100%;
   display: flex; align-items: center; justify-content: center;
   background: linear-gradient(135deg, var(--mint-medium), var(--peach));
+  color: var(--color-surface);
 }
 
-.info {
-  flex: 1;
-  cursor: pointer;
-  min-width: 0;
-}
-.info:hover .placeName { text-decoration: underline; }
+.info { flex: 1; min-width: 0; cursor: pointer; }
+.info:hover .placeName { color: var(--salmon); }
 
 .placeName {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text-dark);
-  margin: 0 0 3px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-family: var(--font-main);
+  font-size: 13px; font-weight: 700; color: var(--text-dark);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  margin-bottom: 2px; transition: color 0.15s;
 }
 .placeAddress {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin: 0 0 4px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: 11px; color: var(--text-muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .placeNotes {
-  font-size: 12px;
-  color: var(--text-light);
-  margin: 0;
-  font-style: italic;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: 11px; color: var(--text-light);
+  font-style: italic; margin-top: 2px;
 }
 
 .removeBtn {
-  width: 30px; height: 30px;
-  border-radius: 8px;
-  border: none;
-  background: rgba(239,68,68,0.07);
-  color: #ef4444;
-  cursor: pointer;
+  width: 28px; height: 28px; border-radius: 8px;
+  border: none; background: rgba(239,68,68,0.07);
+  color: #ef4444; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-  transition: background 0.15s;
+  flex-shrink: 0; transition: background 0.15s;
 }
 .removeBtn:hover { background: rgba(239,68,68,0.14); }
 
-.addMoreBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 12px;
-  border: 2px dashed rgba(184,206,194,0.5);
-  border-radius: 16px;
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.18s;
-  font-family: var(--font-main);
+/* ── Empty ── */
+.empty {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 8px; padding: 40px 20px; text-align: center;
 }
-.addMoreBtn:hover {
-  border-color: var(--mint-dark);
-  color: var(--text-dark);
-  background: var(--mint-soft);
+.emptyIcon { font-size: 2rem; }
+.emptyTitle { font-size: 15px; font-weight: 700; color: var(--text-dark); margin: 0; }
+.emptyText  { font-size: 13px; color: var(--text-muted); margin: 0; }
+
+/* ── Right column cards ── */
+.searchCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 14px; padding: 14px;
+  display: flex; flex-direction: column; gap: 10px;
 }
 
-/* Empty */
-.empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  padding: 60px 20px;
-  text-align: center;
+.searchRow { display: flex; gap: 8px; }
+.searchWrap {
+  flex: 1; display: flex; align-items: center; gap: 6px;
+  background: var(--color-bg); border: 1px solid var(--color-border);
+  border-radius: 99px; padding: 7px 12px;
+  transition: border-color 0.15s;
 }
-.emptyIcon  { font-size: 2.5rem; }
-.emptyTitle { font-size: 15px; font-weight: 700; color: var(--text-dark); margin: 0; font-family: var(--font-main); }
-.emptyText  { font-size: 13px; color: var(--text-muted); margin: 0; max-width: 280px; line-height: 1.6; }
-.exploreBtn {
-  padding: 10px 24px;
-  border-radius: 12px;
-  border: none;
-  background: var(--salmon);
-  color: white;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 4px;
-  font-family: var(--font-main);
-  transition: background 0.2s;
+.searchWrap:focus-within { border-color: var(--mint-dark); }
+.searchInput {
+  flex: 1; border: none; background: none; outline: none;
+  font-size: 13px; font-family: var(--font-main); color: var(--text-dark);
 }
-.exploreBtn:hover { background: var(--salmon-hover); }
+.searchInput::placeholder { color: var(--text-light); }
+.clearBtn {
+  border: none; background: none; color: var(--text-light);
+  font-size: 16px; cursor: pointer; line-height: 1;
+  padding: 0 2px;
+}
+.clearBtn:hover { color: var(--text-dark); }
+
+.catChips {
+  display: flex; flex-wrap: wrap; gap: 5px;
+}
+.catChip {
+  padding: 4px 10px; border-radius: 99px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  font-size: 11px; font-weight: 600; color: var(--text-muted);
+  font-family: var(--font-main); cursor: pointer; transition: all 0.15s;
+}
+.catChip:hover { border-color: var(--mint-dark); color: var(--text-dark); }
+.catChipActive {
+  background: var(--mint-tag); border-color: var(--mint-dark); color: var(--text-dark);
+}
+
+/* ── Results / Recommendations card ── */
+.resultsCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 14px; padding: 14px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.cardTitle {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
+  text-transform: uppercase; color: var(--text-light);
+  margin-bottom: 4px;
+}
+.noResults { font-size: 13px; color: var(--text-light); text-align: center; padding: 12px 0; }
+
+/* ── Place row ── */
+.placeRow {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0; border-bottom: 1px solid var(--color-border);
+}
+.placeRow:last-child { border-bottom: none; }
+
+.placeRowThumb {
+  width: 38px; height: 38px; border-radius: 8px;
+  overflow: hidden; flex-shrink: 0; cursor: pointer;
+  background: var(--color-bg);
+}
+.placeRowThumb img { width: 100%; height: 100%; object-fit: cover; }
+.placeRowThumbFallback {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, var(--mint-medium), var(--peach));
+  color: var(--color-surface);
+}
+
+.placeRowInfo { flex: 1; min-width: 0; cursor: pointer; }
+.placeRowName {
+  font-size: 12px; font-weight: 700; color: var(--text-dark);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.placeRowMeta  { font-size: 11px; color: var(--text-muted); }
+.placeRowRating { font-size: 11px; color: #f59e0b; margin-top: 1px; }
+
+.addBtn {
+  width: 28px; height: 28px; border-radius: 8px;
+  border: 1.5px solid var(--color-border); background: var(--color-bg);
+  color: var(--text-muted); cursor: pointer; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.addBtn:hover:not(:disabled) { border-color: var(--salmon); color: var(--salmon); }
+.addBtnDone { border-color: var(--mint-dark); color: var(--mint-dark); cursor: default; }
+
+.spin {
+  display: inline-block; width: 12px; height: 12px;
+  border: 2px solid var(--color-border); border-top-color: var(--mint-dark);
+  border-radius: 50%; animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg) } }

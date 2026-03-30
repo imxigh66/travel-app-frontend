@@ -13,6 +13,18 @@ const CATEGORIES = [
   { value: 'Shopping', label: '🛍️ Шопинг' },
 ]
 
+const PLACE_TYPES = [
+  { value: 'Restaurant', label: 'Ресторан' },
+  { value: 'Cafe', label: 'Кафе' },
+  { value: 'Hotel', label: 'Отель' },
+  { value: 'Museum', label: 'Музей' },
+  { value: 'Park', label: 'Парк' },
+  { value: 'Attraction', label: 'Достопримечательность' },
+  { value: 'Shop', label: 'Магазин' },
+  { value: 'Bar', label: 'Бар' },
+  { value: 'Other', label: 'Другое' },
+]
+
 const SORT_OPTIONS = [
   { value: '', label: 'По умолчанию' },
   { value: 'rating', label: 'По рейтингу' },
@@ -21,7 +33,7 @@ const SORT_OPTIONS = [
 ]
 
 const STATUS_LABEL = { 0: 'На проверке', 1: 'Одобрено', 2: 'Отклонено' }
-const STATUS_CLASS  = { 0: 'pending', 1: 'approved', 2: 'rejected' }
+const STATUS_CLASS  = { 0: 'pending',     1: 'approved', 2: 'rejected' }
 
 export default function AllPlacesPage() {
   const [places, setPlaces]         = useState([])
@@ -36,10 +48,18 @@ export default function AllPlacesPage() {
   const [tagId, setTagId]       = useState('')
   const [sortBy, setSortBy]     = useState('')
 
-  const [assignModal, setAssignModal]   = useState(null)
-  const [selectedTags, setSelectedTags] = useState([])
+  const [assignModal, setAssignModal]     = useState(null)
+  const [selectedTags, setSelectedTags]   = useState([])
   const [assignLoading, setAssignLoading] = useState(false)
-  const [toast, setToast] = useState(null)
+
+  const [editModal, setEditModal]     = useState(null)
+  const [editForm, setEditForm]       = useState({})
+  const [editSaving, setEditSaving]   = useState(false)
+  const [newImages, setNewImages]     = useState([])       // File[]
+  const [imagePreviews, setImagePreviews] = useState([])   // base64 previews
+  const [deleteImageIds, setDeleteImageIds] = useState([]) // ids to delete
+
+  const [toast, setToast]           = useState(null)
   const [isCreateOpen, setIsCreateOpen] = useState(false)
 
   const showToast = (msg, type = 'success') => {
@@ -74,14 +94,13 @@ export default function AllPlacesPage() {
       .catch(() => {})
   }, [])
 
+  // ── Assign tags ──────────────────────────────────────────────
   const openAssign = (place) => {
     setAssignModal(place)
     setSelectedTags(place.categoryTags?.map(t => t.categoryTagId) ?? [])
   }
-
   const toggleTag = (id) =>
     setSelectedTags(prev => prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id])
-
   const handleAssign = async () => {
     setAssignLoading(true)
     try {
@@ -96,6 +115,89 @@ export default function AllPlacesPage() {
     }
   }
 
+  // ── Edit place ───────────────────────────────────────────────
+  const CATEGORY_MAP = { 0:'Food', 1:'Accommodation', 2:'Culture', 3:'Nature', 4:'Entertainment', 5:'Shopping', 6:'Transport', 7:'Services' }
+  const PLACE_TYPE_MAP = { 0:'Restaurant', 1:'Hotel', 2:'Museum', 3:'Park', 4:'Attraction', 5:'Shop', 6:'Bar', 7:'Cafe', 8:'Other' }
+
+  const openEdit = (place) => {
+    setEditModal(place)
+    setEditForm({
+      name:        place.name        ?? '',
+      description: place.description ?? '',
+      city:        place.city        ?? '',
+      countryCode: place.countryCode ?? '',
+      address:     place.address     ?? '',
+      category:    CATEGORY_MAP[place.category]  ?? CATEGORIES.find(c => c.value)?.value ?? '',
+      placeType:   PLACE_TYPE_MAP[place.placeType] ?? '',
+      latitude:    place.latitude    ?? '',
+      longitude:   place.longitude   ?? '',
+    })
+    setNewImages([])
+    setImagePreviews([])
+    setDeleteImageIds([])
+  }
+
+  const handleImageSelect = (e) => {
+    const files = Array.from(e.target.files)
+    if (!files.length) return
+    setNewImages(prev => [...prev, ...files])
+    files.forEach(file => {
+      const reader = new FileReader()
+      reader.onload = ev => setImagePreviews(prev => [...prev, ev.target.result])
+      reader.readAsDataURL(file)
+    })
+    e.target.value = ''
+  }
+
+  const removeNewImage = (idx) => {
+    setNewImages(prev => prev.filter((_, i) => i !== idx))
+    setImagePreviews(prev => prev.filter((_, i) => i !== idx))
+  }
+
+  const toggleDeleteImage = (imageId) => {
+    setDeleteImageIds(prev =>
+      prev.includes(imageId) ? prev.filter(id => id !== imageId) : [...prev, imageId]
+    )
+  }
+
+  const handleEditSave = async () => {
+    if (!editForm.name.trim()) return
+    setEditSaving(true)
+    try {
+      const fd = new FormData()
+
+      // Явно маппим поля с правильными именами (PascalCase как ожидает бэк)
+      if (editForm.name.trim())        fd.append('Name',        editForm.name.trim())
+      if (editForm.description.trim()) fd.append('Description', editForm.description.trim())
+      if (editForm.city.trim())        fd.append('City',        editForm.city.trim())
+      if (editForm.countryCode.trim()) fd.append('CountryCode', editForm.countryCode.trim().toUpperCase())
+      if (editForm.address.trim())     fd.append('Address',     editForm.address.trim())
+      if (editForm.category)           fd.append('Category',    editForm.category)
+      if (editForm.placeType)          fd.append('PlaceType',   editForm.placeType)
+
+      // Координаты — только если валидные числа
+      const lat = parseFloat(String(editForm.latitude))
+      const lng = parseFloat(String(editForm.longitude))
+      if (!isNaN(lat)) fd.append('Latitude',  lat.toString().replace(',', '.'))
+      if (!isNaN(lng)) fd.append('Longitude', lng.toString().replace(',', '.'))
+
+      // Новые фото
+      newImages.forEach(file => fd.append('NewImages', file))
+      // Удаляемые фото
+      deleteImageIds.forEach(id => fd.append('DeleteImageIds', id))
+
+      await moderatorPlaceApi.update(editModal.placeId, fd)
+      showToast('Место обновлено')
+      setEditModal(null)
+      load(page)
+    } catch (e) {
+      console.error('Update error:', e?.response?.data ?? e)
+      showToast(e?.response?.data?.error ?? e?.response?.data?.message ?? 'Ошибка сохранения', 'error')
+    } finally {
+      setEditSaving(false)
+    }
+  }
+
   const handleSearch = () => load(1)
 
   return (
@@ -103,9 +205,9 @@ export default function AllPlacesPage() {
       <div className={styles.header}>
         <h1 className={styles.title}>Все места</h1>
         <p className={styles.subtitle}>{totalCount} мест в базе</p>
-         <button className={styles.createBtn} onClick={() => setIsCreateOpen(true)}>
-    + Создать место
-  </button>
+        <button className={styles.createBtn} onClick={() => setIsCreateOpen(true)}>
+          + Создать место
+        </button>
       </div>
 
       {/* Filters */}
@@ -113,7 +215,13 @@ export default function AllPlacesPage() {
         <select className={styles.select} value={category} onChange={e => setCategory(e.target.value)}>
           {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
         </select>
-        <input className={styles.input} placeholder="Город..." value={city} onChange={e => setCity(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSearch()} />
+        <input
+          className={styles.input}
+          placeholder="Город..."
+          value={city}
+          onChange={e => setCity(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && handleSearch()}
+        />
         <select className={styles.select} value={tagId} onChange={e => setTagId(e.target.value)}>
           <option value="">Все подборки</option>
           {tags.map(t => <option key={t.categoryTagId} value={t.categoryTagId}>{t.icon} {t.name}</option>)}
@@ -129,7 +237,8 @@ export default function AllPlacesPage() {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>Место</th><th>Город</th><th>Статус</th><th>Рейтинг</th><th>Подборки</th><th></th>
+              <th>Место</th><th>Город</th><th>Статус</th>
+              <th>Рейтинг</th><th>Подборки</th><th>Действия</th>
             </tr>
           </thead>
           <tbody>
@@ -144,7 +253,10 @@ export default function AllPlacesPage() {
                       <td>
                         <div className={styles.placeCell}>
                           <div className={styles.thumb}>
-                            {place.coverImageUrl ? <img src={place.coverImageUrl} alt="" /> : <span>📍</span>}
+                            {place.coverImageUrl
+                              ? <img src={place.coverImageUrl} alt="" />
+                              : <span>📍</span>
+                            }
                           </div>
                           <span className={styles.placeName}>{place.name}</span>
                         </div>
@@ -167,7 +279,10 @@ export default function AllPlacesPage() {
                         </div>
                       </td>
                       <td>
-                        <button className={styles.assignBtn} onClick={() => openAssign(place)}>Подборки</button>
+                        <div className={styles.actionBtns}>
+                          <button className={styles.editBtn}   onClick={() => openEdit(place)}>✏️ Изменить</button>
+                          <button className={styles.assignBtn} onClick={() => openAssign(place)}>Подборки</button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -185,7 +300,158 @@ export default function AllPlacesPage() {
         </div>
       )}
 
-      {/* Assign tags modal */}
+      {/* ── Edit modal ── */}
+      {editModal && (
+        <div className={styles.overlay} onClick={() => setEditModal(null)}>
+          <div className={`${styles.modal} ${styles.editModalWide}`} onClick={e => e.stopPropagation()}>
+            <h3 className={styles.modalTitle}>Редактировать место</h3>
+            <p className={styles.modalSub}>ID: {editModal.placeId}</p>
+
+            <div className={styles.editGrid}>
+              <div className={styles.editField}>
+                <label>Название *</label>
+                <input
+                  className={styles.editInput}
+                  value={editForm.name}
+                  onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))}
+                />
+              </div>
+              <div className={styles.editField}>
+                <label>Категория</label>
+                <select
+                  className={styles.editInput}
+                  value={editForm.category}
+                  onChange={e => setEditForm(f => ({ ...f, category: e.target.value }))}
+                >
+                  {CATEGORIES.filter(c => c.value).map(c => (
+                    <option key={c.value} value={c.value}>{c.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div className={styles.editField}>
+                <label>Город</label>
+                <input
+                  className={styles.editInput}
+                  value={editForm.city}
+                  onChange={e => setEditForm(f => ({ ...f, city: e.target.value }))}
+                />
+              </div>
+              <div className={styles.editField}>
+                <label>Код страны</label>
+                <input
+                  className={styles.editInput}
+                  value={editForm.countryCode}
+                  onChange={e => setEditForm(f => ({ ...f, countryCode: e.target.value.toUpperCase().slice(0, 2) }))}
+                  maxLength={2}
+                />
+              </div>
+              <div className={`${styles.editField} ${styles.editFieldFull}`}>
+                <label>Адрес</label>
+                <input
+                  className={styles.editInput}
+                  value={editForm.address}
+                  onChange={e => setEditForm(f => ({ ...f, address: e.target.value }))}
+                />
+              </div>
+              <div className={styles.editField}>
+                <label>Широта</label>
+                <input
+                  className={styles.editInput}
+                  type="number"
+                  step="0.000001"
+                  value={editForm.latitude}
+                  onChange={e => setEditForm(f => ({ ...f, latitude: e.target.value }))}
+                />
+              </div>
+              <div className={styles.editField}>
+                <label>Долгота</label>
+                <input
+                  className={styles.editInput}
+                  type="number"
+                  step="0.000001"
+                  value={editForm.longitude}
+                  onChange={e => setEditForm(f => ({ ...f, longitude: e.target.value }))}
+                />
+              </div>
+              <div className={`${styles.editField} ${styles.editFieldFull}`}>
+                <label>Описание</label>
+                <textarea
+                  className={`${styles.editInput} ${styles.editTextarea}`}
+                  value={editForm.description}
+                  onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))}
+                  rows={4}
+                />
+              </div>
+
+              {/* Существующие фото */}
+              {editModal.imageUrls?.length > 0 && (
+                <div className={`${styles.editField} ${styles.editFieldFull}`}>
+                  <label>Текущие фото (нажми чтобы удалить)</label>
+                  <div className={styles.photoGrid}>
+                    {editModal.imageUrls.map((url, i) => {
+                      const imgId = editModal.imageIds?.[i]
+                      const marked = deleteImageIds.includes(imgId)
+                      return (
+                        <div
+                          key={i}
+                          className={`${styles.photoThumb} ${marked ? styles.photoMarkedDelete : ''}`}
+                          onClick={() => imgId && toggleDeleteImage(imgId)}
+                          title={marked ? 'Отменить удаление' : 'Пометить на удаление'}
+                        >
+                          <img src={url} alt="" />
+                          {marked && <div className={styles.photoDeleteOverlay}>✕</div>}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Новые фото */}
+              <div className={`${styles.editField} ${styles.editFieldFull}`}>
+                <label>Добавить фото</label>
+                <label className={styles.uploadBtn}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  Выбрать фото
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    style={{ display: 'none' }}
+                    onChange={handleImageSelect}
+                  />
+                </label>
+                {imagePreviews.length > 0 && (
+                  <div className={styles.photoGrid}>
+                    {imagePreviews.map((src, i) => (
+                      <div key={i} className={styles.photoThumb}>
+                        <img src={src} alt="" />
+                        <button
+                          className={styles.photoRemove}
+                          onClick={() => removeNewImage(i)}
+                        >×</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className={styles.modalActions}>
+              <button className={styles.cancelBtn} onClick={() => setEditModal(null)}>Отмена</button>
+              <button
+                className={styles.saveBtn}
+                onClick={handleEditSave}
+                disabled={editSaving || !editForm.name.trim()}
+              >
+                {editSaving ? 'Сохраняем...' : 'Сохранить изменения'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Assign tags modal ── */}
       {assignModal && (
         <div className={styles.overlay} onClick={() => setAssignModal(null)}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
@@ -216,13 +482,11 @@ export default function AllPlacesPage() {
       )}
 
       {toast && <div className={`${styles.toast} ${styles[toast.type]}`}>{toast.msg}</div>}
+
       <SuggestPlaceModal
-  isOpen={isCreateOpen}
-  onClose={() => {
-    setIsCreateOpen(false)
-    load(1)   // перезагрузить список после создания
-  }}
-/>
+        isOpen={isCreateOpen}
+        onClose={() => { setIsCreateOpen(false); load(1) }}
+      />
     </div>
   )
 }

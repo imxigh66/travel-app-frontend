@@ -39,4 +39,28 @@ export const getUserById = async (userId: string): Promise<{ success: boolean; d
   }
 };
 
+export const getVisitedCountries = async (userId: number) => {
+  const { data } = await api.get(`/users/${userId}/countries`)
+  return data.data ?? []
+}
+
+export const addVisitedCountry = async (payload: {
+  countryCode: string
+  city?: string | null
+  visitedAt?: string | null
+  note?: string | null
+}) => {
+  const { data } = await api.post('/users/countries', payload)
+  return data.data
+}
+
+export const removeVisitedCountry = async (countryCode: string) => {
+  await api.delete(`/users/countries/${countryCode}`)
+}
+
+export const syncCountriesFromTrips = async () => {
+  const { data } = await api.post('/users/countries/sync-from-trips')
+  return data
+}
+
 

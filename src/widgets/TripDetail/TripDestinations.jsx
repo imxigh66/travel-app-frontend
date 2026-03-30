@@ -1,17 +1,22 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { tripApi } from '../../entities/trip/api/tripApi'
 import styles from './TripDestinations.module.css'
 
 export function TripDestinations({ trip, isOwner, onUpdate }) {
   const [editing, setEditing]   = useState(false)
   const [saving,  setSaving]    = useState(false)
-  const [dests,   setDests]     = useState(
-    trip.destinations?.length > 0
-      ? [...trip.destinations].sort((a, b) => a.sortOrder - b.sortOrder)
-      : [{ id: null, city: trip.city, countryCode: trip.countryCode, sortOrder: 1, dateFrom: null, dateTo: null }]
-  )
+  const [dests,   setDests]     = useState([])
   const [newCity, setNewCity]   = useState('')
   const [newCC,   setNewCC]     = useState('')
+
+  // Синхронизируем dests с props
+  useEffect(() => {
+    setDests(
+      trip.destinations?.length > 0
+        ? [...trip.destinations].sort((a, b) => a.sortOrder - b.sortOrder)
+        : [{ id: null, city: trip.city, countryCode: trip.countryCode, sortOrder: 1, dateFrom: null, dateTo: null }]
+    )
+  }, [trip.destinations, trip.city, trip.countryCode])
 
   const addDest = () => {
     if (newCity.trim().length < 2 || newCC.trim().length !== 2) return
@@ -36,9 +41,28 @@ export function TripDestinations({ trip, isOwner, onUpdate }) {
   }
 
   const handleSave = async () => {
+    // Если есть незакоммиченный новый город — добавляем его автоматически
+    let finalDests = [...dests]
+    if (newCity.trim().length >= 2 && newCC.trim().length === 2) {
+      finalDests = [...dests, {
+        id: null,
+        city: newCity.trim(),
+        countryCode: newCC.toUpperCase(),
+        sortOrder: dests.length + 1,
+        dateFrom: null,
+        dateTo: null,
+      }]
+      setDests(finalDests)
+      setNewCity('')
+      setNewCC('')
+    }
+
+    if (finalDests.length === 0) return
+
     setSaving(true)
     try {
-      const result = await tripApi.upsertDestinations(trip.tripId, dests)
+      const result = await tripApi.upsertDestinations(trip.tripId, finalDests)
+      setDests([...result].sort((a, b) => a.sortOrder - b.sortOrder))
       onUpdate(result)
       setEditing(false)
     } catch (e) {

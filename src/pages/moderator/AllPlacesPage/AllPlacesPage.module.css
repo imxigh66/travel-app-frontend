@@ -89,3 +89,243 @@
   flex-shrink: 0;
 }
 .createBtn:hover { opacity: 0.88; transform: translateY(-1px); }
+
+.actionBtns {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+ 
+.editBtn {
+  padding: 5px 10px;
+  border-radius: 7px;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-bg);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-family: var(--font-main);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.editBtn:hover {
+  border-color: var(--mint-dark);
+  color: var(--text-dark);
+  background: var(--mint-tag);
+}
+ 
+/* Широкая модалка редактирования */
+.editModalWide {
+  max-width: 680px !important;
+  width: 95vw;
+}
+ 
+/* Сетка полей редактирования */
+.editGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 16px 0;
+}
+ 
+.editField {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+ 
+.editFieldFull {
+  grid-column: 1 / -1;
+}
+ 
+.editField label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--text-muted);
+}
+ 
+.editInput {
+  padding: 8px 12px;
+  border: 1.5px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: var(--font-main);
+  color: var(--text-dark);
+  background: var(--color-bg);
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+}
+.editInput:focus {
+  border-color: var(--mint-dark);
+  background: var(--color-surface);
+}
+ 
+.editTextarea {
+  resize: vertical;
+  min-height: 80px;
+}
+ actionBtns {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+ 
+.editBtn {
+  padding: 5px 10px;
+  border-radius: 7px;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-bg);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-family: var(--font-main);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.editBtn:hover {
+  border-color: var(--mint-dark);
+  color: var(--text-dark);
+  background: var(--mint-tag);
+}
+ 
+/* Широкая модалка редактирования */
+.editModalWide {
+  max-width: 680px !important;
+  width: 95vw;
+}
+ 
+/* Сетка полей редактирования */
+.editGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 16px 0;
+}
+ 
+.editField {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+ 
+.editFieldFull {
+  grid-column: 1 / -1;
+}
+ 
+.editField label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--text-muted);
+}
+ 
+.editInput {
+  padding: 8px 12px;
+  border: 1.5px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: var(--font-main);
+  color: var(--text-dark);
+  background: var(--color-bg);
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+}
+.editInput:focus {
+  border-color: var(--mint-dark);
+  background: var(--color-surface);
+}
+ 
+.editTextarea {
+  resize: vertical;
+  min-height: 80px;
+}
+ 
+/* Photo grid in edit modal */
+.photoGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+ 
+.photoThumb {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.15s;
+}
+.photoThumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.photoThumb:hover { border-color: var(--salmon); }
+ 
+.photoMarkedDelete {
+  border-color: #ef4444 !important;
+  opacity: 0.6;
+}
+ 
+.photoDeleteOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(239,68,68,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+}
+ 
+.photoRemove {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+ 
+.uploadBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1.5px dashed var(--color-border);
+  background: var(--color-bg);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  width: fit-content;
+}
+.uploadBtn:hover {
+  border-color: var(--mint-dark);
+  color: var(--text-dark);
+  background: var(--mint-tag);
+}

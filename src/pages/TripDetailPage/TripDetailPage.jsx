@@ -48,7 +48,7 @@ export default function TripDetailPage() {
   };
 
   const handleDestinationsChange = (newDestinations) => {
-  setTrip(prev => ({ ...prev, destinations: newDestinations }))
+  setTrip(prev => ({ ...prev, destinations: newDestinations ?? [] }))
 }
 
   if (loading) return (
