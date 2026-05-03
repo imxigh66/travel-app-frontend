@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { postApi } from '../../entities/post/api/postApi';
 import { PostCard } from '../../entities/post/ui/PostCard';
 import { CreatePostCard } from '../../features/post/ui/CreatePostCard';
+import { CommentSection } from '../../features/comment/CommentSection';
 import { getCurrentUser } from '../../entities/user/api/userApi';
 import styles from './FeedPage.module.css';
 
@@ -128,7 +129,14 @@ export default function FeedPage() {
         {/* Посты */}
         {!isLoading &&
           posts.map((post) => (
-            <PostCard key={post.postId} post={post} onLikeChange={() => {}} />
+            <PostCard
+              key={post.postId}
+              post={post}
+              onLikeChange={() => {}}
+              renderComments={(postId, onCountChange) => (
+                <CommentSection postId={postId} onCountChange={onCountChange} />
+              )}
+            />
           ))}
 
         {/* Пустое состояние — подписки */}

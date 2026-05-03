@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { tripApi } from '../../entities/trip/api/tripApi'
 import { placeApi } from '../../entities/place/model/place.api'
@@ -14,19 +14,45 @@ const CATEGORIES = [
   { value: 'Shopping',      label: '🛍️ Шопинг' },
 ]
 
-export function TripOverview({ trip, isOwner, onPlacesChange }) {
+export function TripOverview({ trip, isOwner, onPlacesChange, initialAiSuggestions }) {
   const navigate = useNavigate()
   const places       = trip.places ?? []
   const destinations = trip.destinations ?? []
 
   // ── Фильтры ──
-  const [cityFilter,     setCityFilter]     = useState(null)  // null = все
+  const [cityFilter,     setCityFilter]     = useState(null)
   const [categoryFilter, setCategoryFilter] = useState(null)
   const [searchQuery,    setSearchQuery]    = useState('')
   const [searchResults,  setSearchResults]  = useState([])
   const [searching,      setSearching]      = useState(false)
   const [recommendations, setRecommendations] = useState([])
-  const [addingPlace,    setAddingPlace]    = useState(null)  // placeId
+  const [addingPlace,    setAddingPlace]    = useState(null)
+
+  // ── AI (modal — центральная колонка) ──
+  const [modalSuggestions, setModalSuggestions] = useState(
+    initialAiSuggestions?.places ?? []
+  )
+
+  // ── AI (inline — правая колонка) ──
+  const [aiPrompt,  setAiPrompt]  = useState('')
+  const [aiResult,  setAiResult]  = useState(null)
+  const [aiLoading, setAiLoading] = useState(false)
+
+  const handleAiSuggest = async () => {
+    if (!aiPrompt.trim()) return
+    setAiLoading(true)
+    setAiResult(null)
+    try {
+      const result = await tripApi.aiSuggest(trip.tripId, aiPrompt)
+      console.log('AI result:', result)
+      setAiResult(result)
+    } catch (e) {
+      console.error('AI error:', e)
+      setAiResult({ places: [], message: 'Ошибка при запросе к AI' })
+    } finally {
+      setAiLoading(false)
+    }
+  }
 
   // Текущий город для поиска
   const activeCityName = cityFilter
@@ -48,12 +74,11 @@ export function TripOverview({ trip, isOwner, onPlacesChange }) {
       .catch(() => {})
   }, [cityFilter, trip.city, places.length])
 
-  // Поиск с дебаунсом — срабатывает при изменении запроса ИЛИ категории
+  // Поиск с дебаунсом
   useEffect(() => {
-    const hasQuery   = searchQuery.trim().length > 0
-    const hasCat     = categoryFilter !== null
+    const hasQuery = searchQuery.trim().length > 0
+    const hasCat   = categoryFilter !== null
 
-    // Показываем результаты если есть хоть что-то
     if (!hasQuery && !hasCat) {
       setSearchResults([])
       return
@@ -62,18 +87,14 @@ export function TripOverview({ trip, isOwner, onPlacesChange }) {
     const timer = setTimeout(async () => {
       setSearching(true)
       try {
-        // Берём город активного фильтра или первый город поездки
         const city = cityFilter
           ? destinations.find(d => d.id === cityFilter)?.city
           : (destinations.length > 0 ? destinations[0].city : trip.city)
 
-        const params = {
-          pageSize: 8,
-          sortBy: 'rating',
-        }
-        if (hasQuery)  params.search   = searchQuery.trim()
-        if (hasCat)    params.category = categoryFilter
-        if (city)      params.city     = city
+        const params = { pageSize: 8, sortBy: 'rating' }
+        if (hasQuery) params.search   = searchQuery.trim()
+        if (hasCat)   params.category = categoryFilter
+        if (city)     params.city     = city
 
         const data = await placeApi.getAll(params)
         setSearchResults(data.items ?? [])
@@ -101,13 +122,13 @@ export function TripOverview({ trip, isOwner, onPlacesChange }) {
       onPlacesChange([...places, added])
       setSearchResults(prev => prev.filter(p => p.placeId !== placeId))
       setRecommendations(prev => prev.filter(p => p.placeId !== placeId))
+      setModalSuggestions(prev => prev.filter(p => p.placeId !== placeId))
     } catch (e) {
       const msg = e?.response?.data?.error ?? ''
       if (!msg.toLowerCase().includes('already')) alert('Не удалось добавить')
     } finally { setAddingPlace(null) }
   }
 
-  // Фильтруем список мест поездки по выбранному городу
   const filteredPlaces = cityFilter
     ? places.filter(p => p.destinationId === cityFilter)
     : places
@@ -120,7 +141,6 @@ export function TripOverview({ trip, isOwner, onPlacesChange }) {
       {/* ── ЛЕВАЯ КОЛОНКА — места поездки ── */}
       <div className={styles.leftCol}>
 
-        {/* Фильтр по городам */}
         {destinations.length > 1 && (
           <div className={styles.cityChips}>
             <button
@@ -141,7 +161,40 @@ export function TripOverview({ trip, isOwner, onPlacesChange }) {
           </div>
         )}
 
-        {/* Список мест */}
+        {/* ── AI-предложения из создания ── */}
+        {modalSuggestions.length > 0 && (
+          <div className={styles.modalAiPanel}>
+            <div className={styles.modalAiHeader}>
+              <span className={styles.modalAiTitle}>✨ AI подобрал места — выберите нужные</span>
+              <button className={styles.modalAiDismiss} onClick={() => setModalSuggestions([])}>×</button>
+            </div>
+            <div className={styles.modalAiList}>
+              {modalSuggestions.map(p => (
+                <div key={p.placeId} className={styles.modalAiCard}>
+                  {p.coverImageUrl
+                    ? <img src={p.coverImageUrl} alt={p.name} className={styles.modalAiCardImg} onClick={() => navigate(`/places/${p.placeId}`)} />
+                    : <div className={styles.modalAiCardImgFallback} onClick={() => navigate(`/places/${p.placeId}`)}><PinIcon /></div>
+                  }
+                  <div className={styles.modalAiCardInfo} onClick={() => navigate(`/places/${p.placeId}`)}>
+                    <div className={styles.modalAiCardName}>{p.name}</div>
+                    <div className={styles.modalAiCardMeta}>
+                      {p.category}{p.averageRating > 0 && <span> · ⭐ {p.averageRating.toFixed(1)}</span>}
+                    </div>
+                    {p.address && <div className={styles.modalAiCardAddr}>{p.address}</div>}
+                  </div>
+                  <button
+                    className={`${styles.modalAiCardBtn} ${existingIds.has(p.placeId) ? styles.modalAiCardBtnDone : ''}`}
+                    disabled={addingPlace === p.placeId || existingIds.has(p.placeId)}
+                    onClick={() => handleAddPlace(p.placeId)}
+                  >
+                    {addingPlace === p.placeId ? <SpinIcon /> : existingIds.has(p.placeId) ? '✓' : '+'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {filteredPlaces.length === 0 ? (
           <div className={styles.empty}>
             <span className={styles.emptyIcon}>📍</span>
@@ -179,8 +232,53 @@ export function TripOverview({ trip, isOwner, onPlacesChange }) {
         )}
       </div>
 
-      {/* ── ПРАВАЯ КОЛОНКА — поиск и рекомендации ── */}
+      {/* ── ПРАВАЯ КОЛОНКА — AI + поиск + рекомендации ── */}
       <div className={styles.rightCol}>
+
+        {/* AI-панель (только owner) */}
+        {isOwner && (
+          <div className={styles.aiPanel}>
+            <div className={styles.aiRow}>
+              <input
+                className={styles.aiInput}
+                placeholder="✨ Например: рестораны с хорошим рейтингом"
+                value={aiPrompt}
+                onChange={e => setAiPrompt(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleAiSuggest()}
+              />
+              <button
+                className={styles.aiBtn}
+                onClick={handleAiSuggest}
+                disabled={aiLoading || !aiPrompt.trim()}
+              >
+                {aiLoading ? '...' : '✨ Найти'}
+              </button>
+            </div>
+
+            {aiResult?.message && (
+              <p className={styles.aiMessage}>✨ {aiResult.message}</p>
+            )}
+
+            {aiResult?.places?.map(p => (
+              <div key={p.placeId} className={styles.aiCard}>
+                {p.coverImageUrl && (
+                  <img src={p.coverImageUrl} className={styles.aiCardImg} alt={p.name} />
+                )}
+                <div className={styles.aiCardBody}>
+                  <div className={styles.aiCardName}>{p.name}</div>
+                  <div className={styles.aiCardMeta}>{p.category} · ⭐ {p.averageRating?.toFixed(1)}</div>
+                </div>
+                <button
+                  className={styles.aiCardBtn}
+                  disabled={p.alreadyInTrip || existingIds.has(p.placeId) || addingPlace === p.placeId}
+                  onClick={() => handleAddPlace(p.placeId)}
+                >
+                  {p.alreadyInTrip || existingIds.has(p.placeId) ? '✓' : '+'}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Поиск */}
         <div className={styles.searchCard}>
@@ -199,7 +297,6 @@ export function TripOverview({ trip, isOwner, onPlacesChange }) {
             </div>
           </div>
 
-          {/* Категории */}
           <div className={styles.catChips}>
             {CATEGORIES.map(c => (
               <button
@@ -217,10 +314,7 @@ export function TripOverview({ trip, isOwner, onPlacesChange }) {
         {(searchQuery || categoryFilter) && (
           <div className={styles.resultsCard}>
             <div className={styles.cardTitle}>
-              {searching
-                ? 'Поиск...'
-                : `Найдено ${searchResults.length} мест`
-              }
+              {searching ? 'Поиск...' : `Найдено ${searchResults.length} мест`}
             </div>
             {searchResults.length === 0 && !searching && (
               <div className={styles.noResults}>Ничего не найдено — попробуйте другой запрос</div>
@@ -243,7 +337,7 @@ export function TripOverview({ trip, isOwner, onPlacesChange }) {
         {!searchQuery && recommendations.length > 0 && (
           <div className={styles.resultsCard}>
             <div className={styles.cardTitle}>
-              Рекомендации {cityFilter ? `· ${destinations.find(d=>d.id===cityFilter)?.city}` : ''}
+              Рекомендации {cityFilter ? `· ${destinations.find(d => d.id === cityFilter)?.city}` : ''}
             </div>
             {recommendations.slice(0, 4).map(p => (
               <PlaceRow
@@ -264,7 +358,7 @@ export function TripOverview({ trip, isOwner, onPlacesChange }) {
   )
 }
 
-// ── PlaceRow ─────────────────────────────────────────────────────────────────
+// ── PlaceRow ──────────────────────────────────────────────────────────────────
 function PlaceRow({ place, isAdded, loading, isOwner, onAdd, onOpen }) {
   return (
     <div className={styles.placeRow}>
@@ -295,9 +389,9 @@ function PlaceRow({ place, isAdded, loading, isOwner, onAdd, onOpen }) {
 }
 
 // Icons
-function PinIcon()   { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> }
-function TrashIcon() { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg> }
-function SearchIcon(){ return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> }
-function PlusIcon()  { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> }
-function CheckIcon() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg> }
-function SpinIcon()  { return <span className={styles.spin} /> }
+function PinIcon()    { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> }
+function TrashIcon()  { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg> }
+function SearchIcon() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> }
+function PlusIcon()   { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> }
+function CheckIcon()  { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg> }
+function SpinIcon()   { return <span className={styles.spin} /> }

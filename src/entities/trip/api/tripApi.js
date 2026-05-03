@@ -53,6 +53,10 @@ export const tripApi = {
   deleteExpense: (tripId, expenseId) =>
     api.delete(`/trips/${tripId}/budget/expenses/${expenseId}`),
 
+  // AI
+  aiSuggest: (tripId, prompt) =>
+    api.post(`/trips/${tripId}/ai/suggest`, { prompt }).then(r => r.data.data),
+
    // Пункты назначения
   upsertDestinations: (tripId, destinations) =>
     api.put(`/trips/${tripId}/destinations`, { destinations }).then(r => r.data.data),

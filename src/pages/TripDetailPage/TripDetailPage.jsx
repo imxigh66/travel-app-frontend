@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { tripApi } from '../../entities/trip/api/tripApi';
 import { getCurrentUser } from '../../entities/user/api/userApi';
 import { TripOverview } from '../../widgets/TripDetail/TripOverview';
@@ -22,6 +22,8 @@ const TABS = [
 export default function TripDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [aiSuggestions] = useState(location.state?.aiSuggestions ?? null)
 
   const [trip, setTrip] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
@@ -154,6 +156,8 @@ export default function TripDetailPage() {
             trip={trip}
             isOwner={isOwner}
             onPlacesChange={handlePlacesChange}
+            initialAiSuggestions={aiSuggestions}
+            tripId={trip.tripId}
           />
         )}
         {activeTab === 'route' && (

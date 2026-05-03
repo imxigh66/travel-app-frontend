@@ -3,9 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { postApi } from '../api/postApi';
 import { formatDistanceToNow } from '../../../shared/utils/dateUtils';
 import styles from './PostCard.module.css';
-import { CommentSection } from '../../../features/comment/CommentSection';
 
-export const PostCard = ({ post, onLikeChange, currentUserId }) => {
+export const PostCard = ({ post, onLikeChange, currentUserId, renderComments }) => {
   const navigate = useNavigate();
   const [isLiked, setIsLiked] = useState(post.isLikedByCurrentUser || false);
   const [likesCount, setLikesCount] = useState(post.likesCount);
@@ -146,9 +145,7 @@ export const PostCard = ({ post, onLikeChange, currentUserId }) => {
       </div>
 
       {/* ── Comments ── */}
-      {showComments && (
-        <CommentSection postId={post.postId} onCountChange={handleCountChange} />
-      )}
+      {showComments && renderComments?.(post.postId, handleCountChange)}
     </div>
   );
 };

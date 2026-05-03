@@ -204,3 +204,143 @@
   border-radius: 50%; animation: spin 0.7s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg) } }
+
+/* ── Modal AI suggestions (left col) ── */
+.modalAiPanel {
+  background: linear-gradient(135deg, rgba(184,206,194,0.13), rgba(255,200,170,0.08));
+  border: 1.5px solid var(--mint-dark);
+  border-radius: 16px; padding: 14px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+
+.modalAiHeader {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modalAiTitle {
+  font-size: 13px; font-weight: 700; color: var(--text-dark);
+}
+.modalAiDismiss {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: none; background: var(--color-border);
+  color: var(--text-muted); font-size: 15px; line-height: 1;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: background 0.15s;
+}
+.modalAiDismiss:hover { background: rgba(239,68,68,0.12); color: #ef4444; }
+
+.modalAiList { display: flex; flex-direction: column; gap: 6px; }
+
+.modalAiCard {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px; overflow: hidden;
+  transition: box-shadow 0.15s;
+  cursor: default;
+}
+.modalAiCard:hover { box-shadow: 0 3px 10px rgba(184,206,194,0.2); }
+
+.modalAiCardImg {
+  width: 56px; height: 56px; object-fit: cover;
+  flex-shrink: 0; cursor: pointer;
+}
+.modalAiCardImgFallback {
+  width: 56px; height: 56px; flex-shrink: 0; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, var(--mint-medium), var(--peach));
+  color: var(--color-surface);
+}
+
+.modalAiCardInfo { flex: 1; min-width: 0; padding: 8px 4px 8px 0; cursor: pointer; }
+.modalAiCardInfo:hover .modalAiCardName { color: var(--salmon); }
+
+.modalAiCardName {
+  font-size: 13px; font-weight: 700; color: var(--text-dark);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  transition: color 0.15s;
+}
+.modalAiCardMeta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.modalAiCardAddr {
+  font-size: 11px; color: var(--text-light);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  margin-top: 1px;
+}
+
+.modalAiCardBtn {
+  flex-shrink: 0; width: 32px; height: 32px; margin-right: 10px;
+  border-radius: 10px; border: 1.5px solid var(--color-border);
+  background: var(--color-bg); color: var(--text-muted);
+  font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.modalAiCardBtn:not(:disabled):hover { border-color: var(--mint-dark); color: var(--mint-dark); }
+.modalAiCardBtnDone { border-color: var(--mint-dark); color: var(--mint-dark); cursor: default; }
+.modalAiCardBtn:disabled:not(.modalAiCardBtnDone) { opacity: 0.5; }
+
+/* ── AI Panel ── */
+.aiPanel {
+  background: var(--color-surface);
+  border: 1.5px dashed var(--mint-dark);
+  border-radius: 14px; padding: 12px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+
+.aiRow { display: flex; gap: 6px; }
+
+.aiInput {
+  flex: 1; border: 1px solid var(--color-border); border-radius: 10px;
+  background: var(--color-bg); padding: 8px 12px;
+  font-size: 12px; font-family: var(--font-main); color: var(--text-dark);
+  outline: none; transition: border-color 0.15s;
+}
+.aiInput:focus { border-color: var(--mint-dark); }
+.aiInput::placeholder { color: var(--text-light); }
+
+.aiBtn {
+  padding: 8px 14px; border-radius: 99px; border: none;
+  background: linear-gradient(90deg, var(--mint-tag), rgba(255,200,170,0.4));
+  color: var(--text-dark); font-size: 12px; font-weight: 700;
+  font-family: var(--font-main); cursor: pointer; white-space: nowrap;
+  transition: opacity 0.15s;
+}
+.aiBtn:disabled { opacity: 0.45; cursor: default; }
+.aiBtn:not(:disabled):hover { opacity: 0.85; }
+
+.aiMessage {
+  font-size: 12px; color: var(--text-muted);
+  margin: 0; padding: 4px 2px;
+}
+
+/* ── AI Card (inline list in panel) ── */
+.aiCard {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px; overflow: hidden;
+  transition: box-shadow 0.15s;
+}
+.aiCard:hover { box-shadow: 0 2px 8px rgba(184,206,194,0.2); }
+
+.aiCardImg {
+  width: 44px; height: 44px; object-fit: cover;
+  flex-shrink: 0;
+}
+
+.aiCardBody { flex: 1; min-width: 0; padding: 6px 4px 6px 0; }
+.aiCardName {
+  font-size: 12px; font-weight: 700; color: var(--text-dark);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.aiCardMeta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+.aiCardBtn {
+  flex-shrink: 0; width: 28px; height: 28px; margin-right: 8px;
+  border-radius: 8px; border: 1.5px solid var(--color-border);
+  background: var(--color-bg); color: var(--text-muted);
+  font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.aiCardBtn:not(:disabled):hover { border-color: var(--salmon); color: var(--salmon); }
+.aiCardBtn:disabled { opacity: 0.5; cursor: default; }

@@ -5,16 +5,17 @@ import styles from './CreateTripModal.module.css'
 
 // Популярные города для быстрого выбора
 const POPULAR_CITIES = [
-  { city: 'Париж',    countryCode: 'FR', emoji: '🗼' },
-  { city: 'Рим',      countryCode: 'IT', emoji: '🏛️' },
-  { city: 'Барселона',countryCode: 'ES', emoji: '🌊' },
-  { city: 'Бухарест', countryCode: 'RO', emoji: '🏰' },
-  { city: 'Берлин',   countryCode: 'DE', emoji: '🎡' },
-  { city: 'Прага',    countryCode: 'CZ', emoji: '🌉' },
-  { city: 'Стамбул',  countryCode: 'TR', emoji: '🕌' },
-  { city: 'Дубай',    countryCode: 'AE', emoji: '🏙️' },
-  { city: 'Амстердам',countryCode: 'NL', emoji: '🚲' },
-  { city: 'Вена',     countryCode: 'AT', emoji: '🎶' },
+  { city: 'Batumi',    countryCode: 'GE', emoji: '🌊' },
+  { city: 'Berlin',    countryCode: 'DE', emoji: '🎡' },
+  { city: 'Brasov',    countryCode: 'RO', emoji: '🏔️' },
+  { city: 'Bucharest', countryCode: 'RO', emoji: '🏰' },
+  { city: 'Cavaillon', countryCode: 'FR', emoji: '🍈' },
+  { city: 'Chisinau',  countryCode: 'MD', emoji: '🍷' },
+  { city: 'Germany',   countryCode: 'DE', emoji: '🇩🇪' },
+  { city: 'Japan',     countryCode: 'JP', emoji: '🗾' },
+  { city: 'Moscow',    countryCode: 'RU', emoji: '🏛️' },
+  { city: 'Paris',     countryCode: 'FR', emoji: '🗼' },
+  { city: 'Tbilisi',   countryCode: 'GE', emoji: '🕌' },
 ]
 
 const AI_PROMPTS = [
@@ -59,7 +60,7 @@ export function CreateTripModal({ onClose, onCreate }) {
     setForm(f => ({ ...f, city: c.city, countryCode: c.countryCode }))
   }
 
-  const handleCreate = async (withAI) => {
+  const handleCreate = async () => {
     setLoading(true)
     setError('')
     try {
@@ -74,9 +75,19 @@ export function CreateTripModal({ onClose, onCreate }) {
         status: 0,
       })
       onCreate?.(trip)
+
+      if (form.useAI && form.aiPrompt.trim()) {
+        try {
+          const aiResult = await tripApi.aiSuggest(trip.tripId, form.aiPrompt)
+          navigate(`/trips/${trip.tripId}`, { state: { aiSuggestions: aiResult } })
+        } catch {
+          navigate(`/trips/${trip.tripId}`)
+        }
+      } else {
+        navigate(`/trips/${trip.tripId}`)
+      }
+
       onClose()
-      // Если AI — переходим на страницу поездки где будет AI-чат
-      navigate(`/trips/${trip.tripId}`)
     } catch {
       setError('Не удалось создать поездку')
     } finally {
@@ -335,7 +346,10 @@ export function CreateTripModal({ onClose, onCreate }) {
               onClick={() => handleCreate(form.useAI)}
               disabled={loading || form.useAI === null}
             >
-              {loading ? 'Создаём...' : form.useAI ? '✨ Создать с AI' : '📋 Создать поездку'}
+              {loading
+                ? (form.useAI ? '✨ Подбираем места...' : 'Создаём...')
+                : form.useAI ? '✨ Создать с AI' : '📋 Создать поездку'
+              }
             </button>
           )}
         </div>

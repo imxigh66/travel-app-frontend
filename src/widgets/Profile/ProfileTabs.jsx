@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PostCard } from '../../entities/post/ui/PostCard';
 import { postApi } from '../../entities/post/api/postApi';
+import { CommentSection } from '../../features/comment/CommentSection';
 import { tripApi } from '../../entities/trip/api/tripApi';
 import { CreatePostCard } from '../../features/post/ui/CreatePostCard';
 import { TravelDiary } from '../TravelDiary/TravelDiary'
@@ -171,7 +172,14 @@ export default function ProfileTabs({ currentUser, userId, isOwnProfile = true }
                 : (
                   <div className={styles.postsList}>
                     {posts.map(post => (
-                      <PostCard key={post.postId} post={post} user={currentUser} />
+                      <PostCard
+                        key={post.postId}
+                        post={post}
+                        user={currentUser}
+                        renderComments={(postId, onCountChange) => (
+                          <CommentSection postId={postId} onCountChange={onCountChange} />
+                        )}
+                      />
                     ))}
                   </div>
                 )
