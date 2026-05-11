@@ -4,9 +4,11 @@ import { placeApi } from '../../entities/place/model/place.api'
 import { getCategoryLabel } from '../../entities/place/model/place.helpers'
 import { useSavePlace } from '../../features/save-place/useSavePlace'
 import { PlacePosts } from '../../widgets/PlacePosts/PlacePosts'
+import { PlaceReviews } from '../../widgets/PlaceReviews/PlaceReviews'
 import styles from './PlaceDetailPage.module.css'
 import { PlaceDetailMap } from '../../widgets/PlacesMap/PlaceDetailMap'
 import { AddToTripModal } from '../../features/trip/ui/AddToTripModal'
+import { getCurrentUser } from '../../entities/user/api/userApi'
 
 const MOOD_LABELS = {
   0:  'С компанией',
@@ -148,7 +150,11 @@ export function PlaceDetailPage() {
   const [lightbox, setLightbox]     = useState(null)
   const { isSaved: saved, toggle: toggleSave } = useSavePlace(Number(id), initialSaved)
   const [addToTripOpen, setAddToTripOpen] = useState(false)
+  const [currentUser, setCurrentUser] = useState(null)
 
+  useEffect(() => {
+    getCurrentUser().then(res => { if (res.success) setCurrentUser(res.data) }).catch(() => {})
+  }, [])
 
   useEffect(() => {
     if (!id) return
@@ -340,6 +346,9 @@ export function PlaceDetailPage() {
 
           {/* Посты */}
           <PlacePosts placeId={place.placeId} />
+
+          {/* Отзывы */}
+          <PlaceReviews placeId={place.placeId} currentUser={currentUser} />
 
           {/* Nearby */}
           {nearby.length > 0 && (
