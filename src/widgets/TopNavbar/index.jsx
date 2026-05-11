@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getCurrentUser } from '../../entities/user/api/userApi';
 import { placeApi } from '../../entities/place/index';
 import api from '../../shared/api/axios';
+import { messageApi } from '../../entities/message/api/messageApi';
 import styles from './TopNavbar.module.css';
 
 const LANGUAGES = [
@@ -15,6 +16,7 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
   const [isLoading, setIsLoading]     = useState(true);
   const [lang, setLang]               = useState('RU');
   const [openDrop, setOpenDrop]       = useState(null);
+  const [totalUnread, setTotalUnread] = useState(0);
 
   // Search
   const [query, setQuery]             = useState('');
@@ -31,6 +33,13 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
       if (result.success && result.data) {
         setCurrentUser(result.data);
         if (onUserLoad) onUserLoad(result.data);
+        messageApi.getConversations()
+          .then(data => {
+            const list = Array.isArray(data) ? data : data?.items ?? []
+            const count = list.reduce((sum, c) => sum + (c.unreadCount ?? 0), 0)
+            setTotalUnread(count)
+          })
+          .catch(() => {})
       } else navigate('/login');
       setIsLoading(false);
     }).catch(() => { navigate('/login'); setIsLoading(false); });
@@ -178,9 +187,14 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
       {/* ── Right controls ── */}
       <div className={styles.controls} ref={navRef}>
 
-        <button className={styles.iconBtn} onClick={() => navigate('/messages')} title="Сообщения">
-          <MessageIcon />
-        </button>
+        <div className={styles.iconBtnWrap}>
+          <button className={styles.iconBtn} onClick={() => navigate('/messages')} title="Сообщения">
+            <MessageIcon />
+          </button>
+          {totalUnread > 0 && (
+            <span className={styles.msgBadge}>{totalUnread > 99 ? '99+' : totalUnread}</span>
+          )}
+        </div>
 
         {/* Уведомления */}
         <div className={styles.dropdownWrap}>

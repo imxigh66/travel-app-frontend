@@ -1,83 +1,382 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { messageApi } from '../../entities/message/api/messageApi'
+import { getCurrentUser } from '../../entities/user/api/userApi'
+import { chatHub } from '../../shared/lib/chatHub'
+import { isToday, isYesterday } from '../../shared/utils/dateUtils'
+import api from '../../shared/api/axios'
 import styles from './MessagesPage.module.css'
 
-// ── Mock data ─────────────────────────────────────────────────
-const CONVERSATIONS = [
-  {
-    id: 1, name: 'Анна Попеску', username: 'anna_pop',
-    avatar: null, initials: 'АП',
-    lastMsg: 'Спасибо за совет про Прагу! 🙏',
-    time: '14:32', unread: 2, online: true,
-  },
-  {
-    id: 2, name: 'Mihai Lungu', username: 'mihai_l',
-    avatar: null, initials: 'ML',
-    lastMsg: 'Когда планируешь в Тбилиси?',
-    time: '11:05', unread: 0, online: true,
-  },
-  {
-    id: 3, name: 'TravelFlow Support', username: 'support',
-    avatar: null, initials: 'TF',
-    lastMsg: 'Ваша заявка рассмотрена.',
-    time: 'Вчера', unread: 0, online: false,
-  },
-  {
-    id: 4, name: 'Дарья Козлова', username: 'dasha_k',
-    avatar: null, initials: 'ДК',
-    lastMsg: 'Классные фото из Рима!',
-    time: 'Вчера', unread: 0, online: false,
-  },
-  {
-    id: 5, name: 'Ion Moraru', username: 'ion_m',
-    avatar: null, initials: 'IM',
-    lastMsg: 'Привет! Как поездка прошла?',
-    time: 'Пн', unread: 0, online: false,
-  },
-]
+const PAGE_SIZE = 30
 
-const MESSAGES = {
-  1: [
-    { id: 1, from: 'them', text: 'Привет! Слышала ты была в Праге?', time: '14:20' },
-    { id: 2, from: 'me',   text: 'Да, только вернулась! Потрясающий город 😍', time: '14:22' },
-    { id: 3, from: 'them', text: 'Что обязательно посмотреть? Еду через месяц', time: '14:25' },
-    { id: 4, from: 'me',   text: 'Старый город, Карлов мост на рассвете — там почти нет туристов. И обязательно попробуй трдельник!', time: '14:28' },
-    { id: 5, from: 'me',   text: 'Ещё советую Вышеград — туда мало кто добирается, но виды невероятные', time: '14:29' },
-    { id: 6, from: 'them', text: 'Спасибо за совет про Прагу! 🙏', time: '14:32' },
-  ],
-  2: [
-    
-    { id: 2, from: 'me',   text: 'Привет! Подскажи место в Паиже где вкусно поесть! 😊', time: '10:55' },
-    { id: 3, from: 'them', text: 'Привет! Советую ресторан Le Procope, это самый классный ресторан французской кухни в Париже!', time: '11:05' },
-  ],
+// ── Time formatting ───────────────────────────────────────────
+function formatConvTime(iso) {
+  if (!iso) return ''
+  const d = new Date(iso)
+  if (isToday(d)) return d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
+  if (isYesterday(d)) return 'Вчера'
+  const now = new Date()
+  if (now - d < 7 * 24 * 60 * 60 * 1000) {
+    return d.toLocaleDateString('ru-RU', { weekday: 'short' })
+  }
+  return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })
 }
 
-export default function MessagesPage() {
-  const [activeId, setActiveId]   = useState(1)
-  const [input, setInput]         = useState('')
-  const [search, setSearch]       = useState('')
+function formatMsgTime(iso) {
+  if (!iso) return ''
+  return new Date(iso).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
+}
 
-  const active = CONVERSATIONS.find(c => c.id === activeId)
-  const msgs   = MESSAGES[activeId] ?? []
+function formatDateDivider(iso) {
+  const d = new Date(iso)
+  if (isToday(d)) return 'Сегодня'
+  if (isYesterday(d)) return 'Вчера'
+  return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })
+}
 
-  const filtered = CONVERSATIONS.filter(c =>
-    c.name.toLowerCase().includes(search.toLowerCase()) ||
-    c.username.toLowerCase().includes(search.toLowerCase())
+function isSameDay(a, b) {
+  const da = new Date(a), db = new Date(b)
+  return da.getFullYear() === db.getFullYear() &&
+    da.getMonth() === db.getMonth() &&
+    da.getDate() === db.getDate()
+}
+
+// ── Avatar helper ─────────────────────────────────────────────
+function Avatar({ src, name, size = 44, className }) {
+  const initials = (name ?? '?').slice(0, 2).toUpperCase()
+  return (
+    <div className={className} style={{ width: size, height: size }}>
+      {src ? <img src={src} alt={name} /> : <span>{initials}</span>}
+    </div>
   )
+}
 
-  const handleSend = () => {
-    if (!input.trim()) return
-    setInput('')
+// ── New conversation modal ────────────────────────────────────
+function NewConvModal({ onClose, onStart }) {
+  const [query, setQuery]     = useState('')
+  const [results, setResults] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [starting, setStarting] = useState(null)
+  const inputRef = useRef(null)
+
+  useEffect(() => { inputRef.current?.focus() }, [])
+
+  useEffect(() => {
+    if (!query.trim()) { setResults([]); return }
+    const t = setTimeout(async () => {
+      setLoading(true)
+      try {
+        const res = await api.get('/users', { params: { search: query, pageSize: 10 } })
+        const list = res.data?.data?.items ?? res.data?.data ?? res.data?.items ?? res.data ?? []
+        setResults(Array.isArray(list) ? list : [])
+      } catch { setResults([]) }
+      finally { setLoading(false) }
+    }, 300)
+    return () => clearTimeout(t)
+  }, [query])
+
+  const handleStart = async (user) => {
+    setStarting(user.userId)
+    try {
+      const conv = await messageApi.startConversation(user.userId)
+      onStart(conv, user)
+    } catch { /* ignore */ }
+    finally { setStarting(null) }
   }
 
   return (
-    <div className={styles.page}>
+    <div className={styles.ncOverlay} onClick={onClose}>
+      <div className={styles.ncModal} onClick={e => e.stopPropagation()}>
+        <div className={styles.ncHeader}>
+          <span className={styles.ncTitle}>Новый диалог</span>
+          <button className={styles.ncClose} onClick={onClose}>✕</button>
+        </div>
+        <div className={styles.ncSearchWrap}>
+          <SearchIcon />
+          <input
+            ref={inputRef}
+            className={styles.ncInput}
+            placeholder="Поиск пользователей..."
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+          />
+        </div>
+        <div className={styles.ncList}>
+          {loading && <div className={styles.ncHint}>Поиск...</div>}
+          {!loading && query.trim() && results.length === 0 && (
+            <div className={styles.ncHint}>Пользователи не найдены</div>
+          )}
+          {!loading && !query.trim() && (
+            <div className={styles.ncHint}>Введите имя пользователя</div>
+          )}
+          {results.map(u => (
+            <button
+              key={u.userId}
+              className={styles.ncItem}
+              onClick={() => handleStart(u)}
+              disabled={starting === u.userId}
+            >
+              <div className={styles.ncAvatar}>
+                {u.profilePicture
+                  ? <img src={u.profilePicture} alt={u.username} />
+                  : <span>{(u.username ?? '?').slice(0, 2).toUpperCase()}</span>
+                }
+              </div>
+              <div className={styles.ncInfo}>
+                <span className={styles.ncName}>{u.username}</span>
+                {u.fullName && <span className={styles.ncSub}>{u.fullName}</span>}
+              </div>
+              <span className={styles.ncAction}>
+                {starting === u.userId ? '...' : '→'}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
 
-      {/* ── Левая колонка: список диалогов ── */}
+// ── Skeleton row ──────────────────────────────────────────────
+function ConvSkeleton() {
+  return (
+    <div className={styles.skeletonItem}>
+      <div className={`${styles.skeleton} ${styles.skeletonAvatar}`} />
+      <div className={styles.skeletonLines}>
+        <div className={`${styles.skeleton} ${styles.skeletonLine}`} style={{ width: '60%' }} />
+        <div className={`${styles.skeleton} ${styles.skeletonLine}`} style={{ width: '40%' }} />
+      </div>
+    </div>
+  )
+}
+
+// ═════════════════════════════════════════════════════════════
+export default function MessagesPage() {
+  const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  const [currentUser, setCurrentUser]   = useState(null)
+  const [conversations, setConversations] = useState([])
+  const [convsLoading, setConvsLoading]  = useState(true)
+
+  const [activeConv, setActiveConv]     = useState(null)
+  const [messages, setMessages]         = useState([])
+  const [msgsLoading, setMsgsLoading]   = useState(false)
+  const [page, setPage]                 = useState(1)
+  const [hasMore, setHasMore]           = useState(false)
+  const [loadingMore, setLoadingMore]   = useState(false)
+
+  const [onlineUsers, setOnlineUsers]   = useState(new Set())
+  const [newConvOpen, setNewConvOpen]   = useState(false)
+
+  const [input, setInput]               = useState('')
+  const [search, setSearch]             = useState('')
+  const [sending, setSending]           = useState(false)
+
+  const messagesEndRef  = useRef(null)
+  const messagesTopRef  = useRef(null)
+  const activeConvRef   = useRef(null)
+  activeConvRef.current = activeConv
+
+  // ── Load current user ──────────────────────────────────────
+  useEffect(() => {
+    getCurrentUser().then(res => { if (res.success) setCurrentUser(res.data) })
+  }, [])
+
+  // ── Load conversations ─────────────────────────────────────
+  useEffect(() => {
+    setConvsLoading(true)
+    messageApi.getConversations()
+      .then(data => setConversations(Array.isArray(data) ? data : data?.items ?? []))
+      .catch(() => {})
+      .finally(() => setConvsLoading(false))
+  }, [])
+
+  // ── Auto-open conversation from ?user= query param ────────
+  useEffect(() => {
+    if (convsLoading) return
+    const targetId = Number(searchParams.get('user'))
+    if (!targetId) return
+    setSearchParams({}, { replace: true })
+
+    const existing = conversations.find(c => c.otherUserId === targetId)
+    if (existing) {
+      selectConversation(existing)
+    } else {
+      messageApi.startConversation(targetId)
+        .then(conv => {
+          const normalized = conv?.conversationId ? conv : {
+            conversationId: conv?.id ?? `tmp-${targetId}`,
+            otherUserId: targetId,
+            otherUsername: conv?.otherUsername ?? String(targetId),
+            otherUserProfilePicture: conv?.otherUserProfilePicture ?? null,
+            lastMessageText: null,
+            lastMessageAt: null,
+            unreadCount: 0,
+          }
+          setConversations(prev =>
+            prev.some(c => c.conversationId === normalized.conversationId)
+              ? prev : [normalized, ...prev]
+          )
+          selectConversation(normalized)
+        })
+        .catch(console.error)
+    }
+  }, [convsLoading]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Connect SignalR on mount, disconnect on unmount ────────
+  useEffect(() => {
+    chatHub.connect().catch(console.error)
+    chatHub.onUserOnline(userId => {
+      setOnlineUsers(prev => new Set(prev).add(userId))
+    })
+    chatHub.onUserOffline(userId => {
+      setOnlineUsers(prev => {
+        const next = new Set(prev)
+        next.delete(userId)
+        return next
+      })
+    })
+    return () => { chatHub.disconnect() }
+  }, [])
+
+  // ── Subscribe to incoming messages ────────────────────────
+  useEffect(() => {
+    const unsubscribe = chatHub.onReceiveMessage((msg) => {
+      if (msg.conversationId === activeConvRef.current?.conversationId) {
+        setMessages(prev => [...prev, msg])
+      }
+      // Update last message in sidebar
+      setConversations(prev => prev.map(c =>
+        c.conversationId === msg.conversationId
+          ? { ...c, lastMessageText: msg.content, lastMessageAt: msg.createdAt }
+          : c
+      ))
+    })
+    return unsubscribe
+  }, [])
+
+  // ── Auto-scroll on new messages ────────────────────────────
+  useEffect(() => {
+    if (!loadingMore) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [messages, loadingMore])
+
+  // ── Select conversation ────────────────────────────────────
+  const selectConversation = useCallback(async (conv) => {
+    if (activeConv?.conversationId === conv.conversationId) return
+    setActiveConv(conv)
+    setMessages([])
+    setPage(1)
+    setHasMore(false)
+    setInput('')
+    setMsgsLoading(true)
+
+    try {
+      await chatHub.connect()
+      chatHub.joinConversation(conv.conversationId)
+
+      const data = await messageApi.getMessages(conv.conversationId, 1, PAGE_SIZE)
+      const list = Array.isArray(data) ? data : data?.items ?? []
+      const total = data?.totalCount ?? list.length
+      setMessages(list)
+      setHasMore(list.length < total)
+      setPage(1)
+    } catch (e) {
+      console.error('selectConversation error:', e)
+    } finally {
+      setMsgsLoading(false)
+    }
+    // Clear unread badge
+    setConversations(prev => prev.map(c =>
+      c.conversationId === conv.conversationId ? { ...c, unreadCount: 0 } : c
+    ))
+  }, [activeConv])
+
+  // ── Load more (older) messages ─────────────────────────────
+  const handleLoadMore = async () => {
+    if (!activeConv || loadingMore) return
+    setLoadingMore(true)
+    try {
+      const nextPage = page + 1
+      const data = await messageApi.getMessages(activeConv.conversationId, nextPage, PAGE_SIZE)
+      const list = Array.isArray(data) ? data : data?.items ?? []
+      const total = data?.totalCount ?? (page * PAGE_SIZE + list.length)
+      setMessages(prev => [...list, ...prev])
+      setPage(nextPage)
+      setHasMore(nextPage * PAGE_SIZE < total)
+    } catch (e) {
+      console.error('loadMore error:', e)
+    } finally {
+      setLoadingMore(false)
+    }
+  }
+
+  // ── Send message ───────────────────────────────────────────
+  const handleSend = async () => {
+    const content = input.trim()
+    if (!content || !activeConv || sending) return
+    setInput('')
+    setSending(true)
+    try {
+      await chatHub.sendMessage(activeConv.conversationId, content)
+    } catch (e) {
+      console.error('send error:', e)
+      setInput(content)
+    } finally {
+      setSending(false)
+    }
+  }
+
+  // ── New conversation ──────────────────────────────────────
+  const handleNewConv = useCallback((conv, user) => {
+    // Normalize: if backend returns full ConversationDto use it,
+    // otherwise build a minimal shape from the user object
+    const normalized = conv?.conversationId
+      ? conv
+      : {
+          conversationId: conv?.conversationId ?? conv?.id ?? Date.now(),
+          otherUserId: user.userId,
+          otherUsername: user.username,
+          otherUserProfilePicture: user.profilePicture ?? null,
+          lastMessageText: null,
+          lastMessageAt: null,
+          unreadCount: 0,
+        }
+    setConversations(prev => {
+      const exists = prev.some(c => c.conversationId === normalized.conversationId)
+      return exists ? prev : [normalized, ...prev]
+    })
+    setNewConvOpen(false)
+    selectConversation(normalized)
+  }, [selectConversation])
+
+  // ── Filtered conversations ─────────────────────────────────
+  const filtered = conversations.filter(c =>
+    (c.otherUsername ?? '').toLowerCase().includes(search.toLowerCase())
+  )
+
+  // ── Build message list with date dividers ──────────────────
+  const msgsWithDividers = []
+  messages.forEach((msg, i) => {
+    const prev = messages[i - 1]
+    if (!prev || !isSameDay(prev.createdAt, msg.createdAt)) {
+      msgsWithDividers.push({ type: 'divider', id: `div-${msg.messageId}`, date: msg.createdAt })
+    }
+    msgsWithDividers.push({ type: 'msg', ...msg })
+  })
+
+  return (
+    <div className={styles.page}>
+      {newConvOpen && <NewConvModal onClose={() => setNewConvOpen(false)} onStart={handleNewConv} />}
+
+      {/* ── Sidebar ── */}
       <aside className={styles.sidebar}>
 
         <div className={styles.sidebarHeader}>
           <h2 className={styles.sidebarTitle}>Сообщения</h2>
-          <button className={styles.newBtn} title="Новый диалог">
+          <button className={styles.newBtn} title="Новый диалог" onClick={() => setNewConvOpen(true)}>
             <EditIcon />
           </button>
         </div>
@@ -93,27 +392,37 @@ export default function MessagesPage() {
         </div>
 
         <div className={styles.convList}>
-          {filtered.map(c => (
+          {convsLoading ? (
+            Array.from({ length: 5 }).map((_, i) => <ConvSkeleton key={i} />)
+          ) : filtered.length === 0 ? (
+            <div className={styles.emptyConvs}>
+              {conversations.length === 0
+                ? 'Нет сообщений.\nНапишите первым!'
+                : 'Не найдено'}
+            </div>
+          ) : filtered.map(c => (
             <button
-              key={c.id}
-              className={`${styles.convItem} ${activeId === c.id ? styles.convActive : ''}`}
-              onClick={() => setActiveId(c.id)}
+              key={c.conversationId}
+              className={`${styles.convItem} ${activeConv?.conversationId === c.conversationId ? styles.convActive : ''}`}
+              onClick={() => selectConversation(c)}
             >
               <div className={styles.convAvatar}>
-                {c.avatar
-                  ? <img src={c.avatar} alt="" />
-                  : <span>{c.initials}</span>
+                {c.otherUserProfilePicture
+                  ? <img src={c.otherUserProfilePicture} alt={c.otherUsername} />
+                  : <span>{(c.otherUsername ?? '?').slice(0, 2).toUpperCase()}</span>
                 }
-                {c.online && <span className={styles.onlineDot} />}
+                {onlineUsers.has(c.otherUserId) && <span className={styles.onlineDot} />}
               </div>
               <div className={styles.convInfo}>
                 <div className={styles.convTop}>
-                  <span className={styles.convName}>{c.name}</span>
-                  <span className={styles.convTime}>{c.time}</span>
+                  <span className={styles.convName}>{c.otherUsername}</span>
+                  <span className={styles.convTime}>{formatConvTime(c.lastMessageAt)}</span>
                 </div>
                 <div className={styles.convBottom}>
-                  <span className={styles.convLast}>{c.lastMsg}</span>
-                  {c.unread > 0 && <span className={styles.convBadge}>{c.unread}</span>}
+                  <span className={styles.convLast}>{c.lastMessageText ?? ''}</span>
+                  {c.unreadCount > 0 && (
+                    <span className={styles.convBadge}>{c.unreadCount}</span>
+                  )}
                 </div>
               </div>
             </button>
@@ -122,73 +431,134 @@ export default function MessagesPage() {
 
       </aside>
 
-      {/* ── Правая колонка: чат ── */}
+      {/* ── Chat panel ── */}
       <div className={styles.chat}>
 
-        {/* Header */}
-        <div className={styles.chatHeader}>
-          <div className={styles.chatUser}>
-            <div className={styles.chatAvatar}>
-              <span>{active?.initials}</span>
-              {active?.online && <span className={styles.onlineDot} />}
+        {!activeConv ? (
+          <div className={styles.emptyChat}>
+            <div className={styles.emptyChatIcon}>
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
             </div>
-            <div>
-              <div className={styles.chatName}>{active?.name}</div>
-              <div className={styles.chatStatus}>
-                {active?.online ? 'В сети' : `@${active?.username}`}
-              </div>
-            </div>
+            <div className={styles.emptyChatTitle}>Выберите диалог</div>
+            <div className={styles.emptyChatSub}>Нажмите на контакт слева, чтобы начать общение</div>
           </div>
-          <div className={styles.chatActions}>
-            <button className={styles.chatActionBtn} title="Профиль"><UserIcon /></button>
-            <button className={styles.chatActionBtn} title="Ещё"><MoreIcon /></button>
-          </div>
-        </div>
-
-        {/* Messages */}
-        <div className={styles.messages}>
-          {msgs.map(msg => (
-            <div
-              key={msg.id}
-              className={`${styles.msg} ${msg.from === 'me' ? styles.msgMe : styles.msgThem}`}
-            >
-              {msg.from === 'them' && (
-                <div className={styles.msgAvatar}>
-                  <span>{active?.initials}</span>
+        ) : (
+          <>
+            {/* Header */}
+            <div className={styles.chatHeader}>
+              <div className={styles.chatUser}>
+                <div className={styles.chatAvatar}>
+                  {activeConv.otherUserProfilePicture
+                    ? <img src={activeConv.otherUserProfilePicture} alt={activeConv.otherUsername} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                    : <span>{(activeConv.otherUsername ?? '?').slice(0, 2).toUpperCase()}</span>
+                  }
                 </div>
-              )}
-              <div className={styles.msgBubble}>
-                <span className={styles.msgText}>{msg.text}</span>
-                <span className={styles.msgTime}>{msg.time}</span>
+                <div>
+                  <div className={styles.chatName}>{activeConv.otherUsername}</div>
+                  <div className={styles.chatStatus}>
+                    {onlineUsers.has(activeConv.otherUserId)
+                      ? <><span className={styles.onlineDot} style={{ display: 'inline-block', marginRight: 5 }} />В сети</>
+                      : <span style={{ color: 'var(--text-muted)' }}>@{activeConv.otherUsername}</span>
+                    }
+                  </div>
+                </div>
+              </div>
+              <div className={styles.chatActions}>
+                <button
+                  className={styles.chatActionBtn}
+                  title="Профиль"
+                  onClick={() => navigate(`/users/${activeConv.otherUserId}`)}
+                >
+                  <UserIcon />
+                </button>
+                <button className={styles.chatActionBtn} title="Ещё"><MoreIcon /></button>
               </div>
             </div>
-          ))}
-        </div>
 
-        {/* Input */}
-        <div className={styles.inputRow}>
-          <button className={styles.attachBtn} title="Прикрепить"><AttachIcon /></button>
-          <input
-            className={styles.input}
-            placeholder="Написать сообщение..."
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleSend()}
-          />
-          <button
-            className={`${styles.sendBtn} ${input.trim() ? styles.sendBtnActive : ''}`}
-            onClick={handleSend}
-          >
-            <SendIcon />
-          </button>
-        </div>
+            {/* Messages */}
+            <div className={styles.messages}>
+              {hasMore && (
+                <button
+                  className={styles.loadMore}
+                  onClick={handleLoadMore}
+                  disabled={loadingMore}
+                >
+                  {loadingMore ? 'Загружаем...' : 'Загрузить ещё'}
+                </button>
+              )}
+              <div ref={messagesTopRef} />
+
+              {msgsLoading ? (
+                Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className={`${styles.msg} ${i % 2 === 0 ? styles.msgThem : styles.msgMe}`}>
+                    {i % 2 === 0 && <div className={`${styles.msgAvatar} ${styles.skeleton}`} style={{ width: 28, height: 28, borderRadius: '50%' }} />}
+                    <div className={`${styles.skeleton} ${styles.skeletonBubble}`} style={{ width: `${30 + (i * 17) % 40}%`, height: 40 }} />
+                  </div>
+                ))
+              ) : msgsWithDividers.length === 0 ? (
+                <div className={styles.noMsgs}>Нет сообщений. Напишите первым!</div>
+              ) : (
+                msgsWithDividers.map(item => {
+                  if (item.type === 'divider') {
+                    return (
+                      <div key={item.id} className={styles.dateDivider}>
+                        <span>{formatDateDivider(item.date)}</span>
+                      </div>
+                    )
+                  }
+                  const isMe = currentUser && item.senderId === currentUser.userId
+                  return (
+                    <div key={item.messageId} className={`${styles.msg} ${isMe ? styles.msgMe : styles.msgThem}`}>
+                      {!isMe && (
+                        <div className={styles.msgAvatar}>
+                          {activeConv.otherUserProfilePicture
+                            ? <img src={activeConv.otherUserProfilePicture} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                            : <span>{(activeConv.otherUsername ?? '?').slice(0, 2).toUpperCase()}</span>
+                          }
+                        </div>
+                      )}
+                      <div className={styles.msgBubble}>
+                        <span className={styles.msgText}>{item.content}</span>
+                        <span className={styles.msgTime}>{formatMsgTime(item.createdAt)}</span>
+                      </div>
+                    </div>
+                  )
+                })
+              )}
+
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Input */}
+            <div className={styles.inputRow}>
+              <button className={styles.attachBtn} title="Прикрепить"><AttachIcon /></button>
+              <input
+                className={styles.input}
+                placeholder="Написать сообщение..."
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() } }}
+                disabled={sending}
+              />
+              <button
+                className={`${styles.sendBtn} ${input.trim() ? styles.sendBtnActive : ''}`}
+                onClick={handleSend}
+                disabled={!input.trim() || sending}
+              >
+                <SendIcon />
+              </button>
+            </div>
+          </>
+        )}
 
       </div>
     </div>
   )
 }
 
-// ── Icons ─────────────────────────────────────────────────────
+// ── Icons ────────────────────────────────────────────────────
 function SearchIcon() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> }
 function EditIcon()   { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> }
 function UserIcon()   { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> }
