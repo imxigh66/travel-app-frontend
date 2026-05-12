@@ -32,10 +32,11 @@
 }
 .headerLeft { display: flex; flex-direction: column; gap: 4px; }
 .title {
-  font-size: 24px; font-weight: 800;
+  font-size: var(--fs-xl); font-weight: 800;
+  font-family: var(--font-display);
   color: var(--text-dark); margin: 0; letter-spacing: -0.4px;
 }
-.subtitle { font-size: 13px; color: var(--text-muted); margin: 0; }
+.subtitle { font-size: var(--fs-sm); color: var(--text-muted); margin: 0; }
 
 /* Tabs */
 .tabs {
@@ -67,27 +68,39 @@
 .skeletonHeader { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
 .skeletonAvatar {
   width: 36px; height: 36px; border-radius: 50%;
-  background: linear-gradient(90deg, var(--mint-tag) 25%, rgba(209,219,205,0.25) 50%, var(--mint-tag) 75%);
-  background-size: 200% 100%; animation: shimmer 1.4s infinite; flex-shrink: 0;
+  background: var(--color-border);
+  position: relative; overflow: hidden; flex-shrink: 0;
 }
 .skeletonLines { flex: 1; }
 .skeletonLine {
   height: 12px; border-radius: 6px; margin-bottom: 8px; width: 60%;
-  background: linear-gradient(90deg, var(--mint-tag) 25%, rgba(209,219,205,0.25) 50%, var(--mint-tag) 75%);
-  background-size: 200% 100%; animation: shimmer 1.4s infinite;
+  background: var(--color-border);
+  position: relative; overflow: hidden;
 }
 .skeletonLineShort { width: 35%; }
 .skeletonBody {
   height: 14px; border-radius: 6px; margin-bottom: 10px;
-  background: linear-gradient(90deg, var(--mint-tag) 25%, rgba(209,219,205,0.25) 50%, var(--mint-tag) 75%);
-  background-size: 200% 100%; animation: shimmer 1.4s infinite;
+  background: var(--color-border);
+  position: relative; overflow: hidden;
 }
 .skeletonImage {
   height: 200px; border-radius: 12px;
-  background: linear-gradient(90deg, var(--mint-tag) 25%, rgba(209,219,205,0.25) 50%, var(--mint-tag) 75%);
-  background-size: 200% 100%; animation: shimmer 1.4s infinite;
+  background: var(--color-border);
+  position: relative; overflow: hidden;
 }
-@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.skeletonAvatar::after,
+.skeletonLine::after,
+.skeletonBody::after,
+.skeletonImage::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.65) 50%, transparent 100%);
+  animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer {
+  0%   { transform: translateX(-100%) }
+  100% { transform: translateX(100%) }
+}
 
 /* Empty */
 .empty {

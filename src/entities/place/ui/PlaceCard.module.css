@@ -85,7 +85,7 @@
 }
 
 .name {
-  font-size: 13px;
+  font-size: var(--fs-sm);
   font-weight: 700;
   color: var(--text-dark);
   white-space: nowrap;
@@ -95,12 +95,12 @@
 }
 
 .loc {
-  font-size: 11px;
+  font-size: var(--fs-xs);
   color: var(--text-muted);
 }
 
 .desc {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-muted);
   margin-top: 6px;
   line-height: 1.45;
@@ -117,9 +117,9 @@
 }
 .cardGrid .thumb  { height: 200px; }
 .cardGrid .body   { padding: 14px 16px 16px; }
-.cardGrid .name   { font-size: 15px; margin-bottom: 5px; }
-.cardGrid .loc    { font-size: 12px; }
-.cardGrid .desc   { font-size: 13px; margin-top: 8px; -webkit-line-clamp: 3; }
+.cardGrid .name   { font-size: var(--fs-md); margin-bottom: 5px; }
+.cardGrid .loc    { font-size: var(--fs-xs); }
+.cardGrid .desc   { font-size: var(--fs-sm); margin-top: 8px; -webkit-line-clamp: 3; }
 .cardGrid .save   { width: 32px; height: 32px; border-radius: 10px; }
 
 /* ── MOBILE ── */
