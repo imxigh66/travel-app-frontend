@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { getCurrentUser } from '../../entities/user/api/userApi';
 import { placeApi } from '../../entities/place/index';
 import api from '../../shared/api/axios';
@@ -18,15 +18,16 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
   const [openDrop, setOpenDrop]       = useState(null);
   const [totalUnread, setTotalUnread] = useState(0);
 
-  // Search
-  const [query, setQuery]             = useState('');
+  const [query, setQuery]                 = useState('');
   const [searchResults, setSearchResults] = useState(null);
-  const [searching, setSearching]     = useState(false);
-  const searchRef                     = useRef(null);
-  const searchTimer                   = useRef(null);
+  const [searching, setSearching]         = useState(false);
 
-  const navigate = useNavigate();
-  const navRef   = useRef(null);
+  const navRef      = useRef(null);
+  const searchRef   = useRef(null);
+  const searchTimer = useRef(null);
+  const navigate    = useNavigate();
+  const location    = useLocation();
+  const hideSearch  = location.pathname === '/explore';
 
   useEffect(() => {
     getCurrentUser().then(result => {
@@ -35,17 +36,16 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
         if (onUserLoad) onUserLoad(result.data);
         messageApi.getConversations()
           .then(data => {
-            const list = Array.isArray(data) ? data : data?.items ?? []
-            const count = list.reduce((sum, c) => sum + (c.unreadCount ?? 0), 0)
-            setTotalUnread(count)
+            const list  = Array.isArray(data) ? data : data?.items ?? [];
+            const count = list.reduce((sum, c) => sum + (c.unreadCount ?? 0), 0);
+            setTotalUnread(count);
           })
-          .catch(() => {})
+          .catch(() => {});
       } else navigate('/login');
       setIsLoading(false);
     }).catch(() => { navigate('/login'); setIsLoading(false); });
   }, []);
 
-  // Закрыть дропдауны при клике вне
   useEffect(() => {
     const handler = (e) => {
       if (navRef.current && !navRef.current.contains(e.target)) setOpenDrop(null);
@@ -55,7 +55,6 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // Debounced search
   const handleQueryChange = (e) => {
     const val = e.target.value;
     setQuery(val);
@@ -68,9 +67,7 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
     setSearching(true);
     try {
       const [placesRes, usersRes] = await Promise.allSettled([
-        // ✅ правильный метод
         placeApi.getAll({ search: q, pageNumber: 1, pageSize: 4 }),
-        // ✅ прямой вызов axios — search поддерживается через query handler модератора
         api.get('/users', { params: { search: q, pageNumber: 1, pageSize: 4 } })
           .then(r => r.data?.items ?? r.data?.data?.items ?? []),
       ]);
@@ -92,7 +89,7 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
     if (e.key === 'Escape') { setSearchResults(null); setQuery(''); }
   };
 
-  const toggle = (name) => setOpenDrop(prev => prev === name ? null : name);
+  const toggle      = (name) => setOpenDrop(prev => prev === name ? null : name);
   const getInitials = () => currentUser?.username?.slice(0, 2).toUpperCase() ?? '?';
   const handleLogout = () => {
     localStorage.removeItem('authToken');
@@ -106,83 +103,78 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
   return (
     <header className={`${styles.navbar} ${collapsed ? styles.collapsed : ''}`}>
 
-      {/* ── Search ── */}
-      <div className={styles.searchWrap} ref={searchRef}>
-        <span className={styles.searchIcon}><SearchIcon /></span>
-        <input
-          className={styles.searchInput}
-          type="text"
-          placeholder="Поиск мест и людей…"
-          value={query}
-          onChange={handleQueryChange}
-          onKeyDown={handleSearchKeyDown}
-          onFocus={() => query.trim() && doSearch(query.trim())}
-        />
+      {/* ── Search (hidden on /explore — spacer keeps controls on the right) ── */}
+      {hideSearch && <div style={{ flex: 1 }} />}
+      {!hideSearch && (
+        <div className={styles.searchWrap} ref={searchRef}>
+          <span className={styles.searchIcon}><SearchIcon /></span>
+          <input
+            className={styles.searchInput}
+            type="text"
+            placeholder="Поиск мест и людей…"
+            value={query}
+            onChange={handleQueryChange}
+            onKeyDown={handleSearchKeyDown}
+            onFocus={() => query.trim() && doSearch(query.trim())}
+          />
 
-        {searchResults && (
-          <div className={styles.searchResults}>
-            {!hasResults ? (
-              <div className={styles.resultsEmpty}>
-                {searching ? 'Поиск…' : 'Ничего не найдено'}
-              </div>
-            ) : (
-              <>
-                {searchResults.places.length > 0 && (
-                  <div className={styles.resultsSection}>
-                    <div className={styles.resultsSectionTitle}>Места</div>
-                    {searchResults.places.map(place => (
-                      <button
-                        key={place.placeId}
-                        className={styles.resultItem}
-                        onClick={() => { setSearchResults(null); setQuery(''); navigate(`/places/${place.placeId}`); }}
-                      >
-                        <div className={styles.resultPlaceIcon}>
-                          {place.coverImageUrl
-                            ? <img src={place.coverImageUrl} alt="" style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius: 10 }} />
-                            : <span>📍</span>
-                          }
-                        </div>
-                        <div>
-                          <div className={styles.resultName}>{place.name}</div>
-                          <div className={styles.resultSub}>{place.city ?? ''}</div>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
+          {searchResults && (
+            <div className={styles.searchResults}>
+              {!hasResults ? (
+                <div className={styles.resultsEmpty}>
+                  {searching ? 'Поиск…' : 'Ничего не найдено'}
+                </div>
+              ) : (
+                <>
+                  {searchResults.places.length > 0 && (
+                    <div className={styles.resultsSection}>
+                      <div className={styles.resultsSectionTitle}>Места</div>
+                      {searchResults.places.map(place => (
+                        <button key={place.placeId} className={styles.resultItem}
+                          onClick={() => { setSearchResults(null); setQuery(''); navigate(`/places/${place.placeId}`); }}>
+                          <div className={styles.resultPlaceIcon}>
+                            {place.coverImageUrl
+                              ? <img src={place.coverImageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 10 }} />
+                              : <span>📍</span>}
+                          </div>
+                          <div>
+                            <div className={styles.resultName}>{place.name}</div>
+                            <div className={styles.resultSub}>{place.city ?? ''}</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
 
-                {searchResults.places.length > 0 && searchResults.users.length > 0 && (
-                  <div className={styles.resultsDivider} />
-                )}
+                  {searchResults.places.length > 0 && searchResults.users.length > 0 && (
+                    <div className={styles.resultsDivider} />
+                  )}
 
-                {searchResults.users.length > 0 && (
-                  <div className={styles.resultsSection}>
-                    <div className={styles.resultsSectionTitle}>Люди</div>
-                    {searchResults.users.map(user => (
-                      <button
-                        key={user.userId}
-                        className={styles.resultItem}
-                        onClick={() => { setSearchResults(null); setQuery(''); navigate(`/users/${user.userId}`); }}
-                      >
-                        <div className={styles.resultAvatar}>
-                          {user.profilePicture
-                            ? <img src={user.profilePicture} alt="" />
-                            : user.username?.slice(0, 2).toUpperCase()
-                          }
-                        </div>
-                        <div>
-                          <div className={styles.resultName}>{user.name || user.username}</div>
-                          <div className={styles.resultSub}>@{user.username}</div>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        )}
-      </div>
+                  {searchResults.users.length > 0 && (
+                    <div className={styles.resultsSection}>
+                      <div className={styles.resultsSectionTitle}>Люди</div>
+                      {searchResults.users.map(user => (
+                        <button key={user.userId} className={styles.resultItem}
+                          onClick={() => { setSearchResults(null); setQuery(''); navigate(`/users/${user.userId}`); }}>
+                          <div className={styles.resultAvatar}>
+                            {user.profilePicture
+                              ? <img src={user.profilePicture} alt="" />
+                              : user.username?.slice(0, 2).toUpperCase()}
+                          </div>
+                          <div>
+                            <div className={styles.resultName}>{user.name || user.username}</div>
+                            <div className={styles.resultSub}>@{user.username}</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ── Right controls ── */}
       <div className={styles.controls} ref={navRef}>
@@ -196,7 +188,6 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
           )}
         </div>
 
-        {/* Уведомления */}
         <div className={styles.dropdownWrap}>
           <button
             className={`${styles.iconBtn} ${openDrop === 'notif' ? styles.open : ''}`}
@@ -221,7 +212,6 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
 
         <div className={styles.divider} />
 
-        {/* Язык */}
         <div className={styles.dropdownWrap}>
           <button
             className={`${styles.langBtn} ${openDrop === 'lang' ? styles.open : ''}`}
@@ -234,11 +224,9 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
           {openDrop === 'lang' && (
             <div className={`${styles.dropdown} ${styles.langDropdown}`}>
               {LANGUAGES.map(l => (
-                <button
-                  key={l.code}
+                <button key={l.code}
                   className={`${styles.langOption} ${lang === l.code ? styles.selected : ''}`}
-                  onClick={() => { setLang(l.code); setOpenDrop(null); }}
-                >
+                  onClick={() => { setLang(l.code); setOpenDrop(null); }}>
                   <span className={styles.langFlag}>{l.flag}</span>{l.label}
                 </button>
               ))}
@@ -248,7 +236,6 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
 
         <div className={styles.divider} />
 
-        {/* Аватар */}
         <div className={styles.dropdownWrap}>
           {isLoading ? (
             <div className={styles.avatarSkeleton} />
@@ -290,10 +277,10 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
   );
 }
 
-function SearchIcon()  { return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>; }
-function MessageIcon() { return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>; }
-function BellIcon()    { return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>; }
+function SearchIcon()  { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>; }
+function MessageIcon() { return <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>; }
+function BellIcon()    { return <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>; }
 function ChevronIcon() { return <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="6 9 12 15 18 9"/></svg>; }
-function ProfileIcon() { return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>; }
-function SettingsIcon(){ return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>; }
-function LogoutIcon()  { return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>; }
+function ProfileIcon() { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>; }
+function SettingsIcon(){ return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>; }
+function LogoutIcon()  { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>; }
