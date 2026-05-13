@@ -4,6 +4,7 @@ import { getCurrentUser } from '../../entities/user/api/userApi';
 import { placeApi } from '../../entities/place/index';
 import api from '../../shared/api/axios';
 import { messageApi } from '../../entities/message/api/messageApi';
+import { notificationApi } from '../../entities/notification/api/notificationApi';
 import styles from './TopNavbar.module.css';
 
 const LANGUAGES = [
@@ -17,6 +18,10 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
   const [lang, setLang]               = useState('RU');
   const [openDrop, setOpenDrop]       = useState(null);
   const [totalUnread, setTotalUnread] = useState(0);
+
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount]     = useState(0);
+  const [notifsLoading, setNotifsLoading] = useState(false);
 
   const [query, setQuery]                 = useState('');
   const [searchResults, setSearchResults] = useState(null);
@@ -40,6 +45,9 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
             const count = list.reduce((sum, c) => sum + (c.unreadCount ?? 0), 0);
             setTotalUnread(count);
           })
+          .catch(() => {});
+        notificationApi.getUnreadCount()
+          .then(data => setUnreadCount(data.count ?? 0))
           .catch(() => {});
       } else navigate('/login');
       setIsLoading(false);
@@ -96,6 +104,25 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
     localStorage.removeItem('refreshToken');
     setOpenDrop(null);
     navigate('/login');
+  };
+
+  const handleOpenNotifs = async () => {
+    setOpenDrop('notifications');
+    if (notifications.length === 0) {
+      setNotifsLoading(true);
+      try {
+        const data = await notificationApi.getNotifications();
+        setNotifications(Array.isArray(data) ? data : []);
+      } catch {
+        setNotifications([]);
+      }
+      setNotifsLoading(false);
+    }
+    if (unreadCount > 0) {
+      notificationApi.markAllRead().catch(() => {});
+      setUnreadCount(0);
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    }
   };
 
   const hasResults = searchResults && (searchResults.places.length > 0 || searchResults.users.length > 0);
@@ -189,23 +216,48 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
         </div>
 
         <div className={styles.dropdownWrap}>
-          <button
-            className={`${styles.iconBtn} ${openDrop === 'notif' ? styles.open : ''}`}
-            onClick={() => toggle('notif')}
-            title="Уведомления"
-          >
-            <BellIcon />
-          </button>
-          {openDrop === 'notif' && (
+          <div className={styles.iconBtnWrap}>
+            <button
+              className={`${styles.iconBtn} ${openDrop === 'notifications' ? styles.open : ''}`}
+              onClick={handleOpenNotifs}
+              title="Уведомления"
+            >
+              <BellIcon />
+            </button>
+            {unreadCount > 0 && (
+              <span className={styles.badge}>{unreadCount > 99 ? '99+' : unreadCount}</span>
+            )}
+          </div>
+          {openDrop === 'notifications' && (
             <div className={`${styles.dropdown} ${styles.notifDropdown}`}>
               <div className={styles.notifHeader}>
-                <span className={styles.notifTitle}>Уведомления</span>
-                <button className={styles.notifMarkAll}>Прочитать все</button>
+                <span>Уведомления</span>
               </div>
-              <div className={styles.notifEmpty}>
-                <span className={styles.notifEmptyIcon}>🔔</span>
-                Пока нет уведомлений
-              </div>
+              {notifsLoading ? (
+                <div className={styles.notifLoading}>
+                  {[1, 2, 3].map(i => <div key={i} className={styles.notifSkeleton} />)}
+                </div>
+              ) : notifications.length === 0 ? (
+                <div className={styles.notifEmpty}>Нет уведомлений</div>
+              ) : notifications.map(n => (
+                <div
+                  key={n.notificationId}
+                  className={`${styles.notifItem} ${!n.isRead ? styles.notifUnread : ''}`}
+                  onClick={() => n.link && navigate(n.link)}
+                >
+                  <div className={styles.notifAvatar}>
+                    {n.actorProfilePicture
+                      ? <img src={n.actorProfilePicture} alt="" />
+                      : <span>{n.actorUsername?.slice(0, 2).toUpperCase() ?? '?'}</span>}
+                  </div>
+                  <div className={styles.notifContent}>
+                    <span className={styles.notifActor}>{n.actorUsername} </span>
+                    <span className={styles.notifMsg}>{n.message}</span>
+                    <div className={styles.notifTime}>{formatTime(n.createdAt)}</div>
+                  </div>
+                  {!n.isRead && <span className={styles.notifDot} />}
+                </div>
+              ))}
             </div>
           )}
         </div>
@@ -275,6 +327,16 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
       </div>
     </header>
   );
+}
+
+function formatTime(dateStr) {
+  const d    = new Date(dateStr);
+  const now  = new Date();
+  const diff = Math.floor((now - d) / 1000);
+  if (diff < 60)    return 'только что';
+  if (diff < 3600)  return `${Math.floor(diff / 60)} мин назад`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} ч назад`;
+  return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
 }
 
 function SearchIcon()  { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>; }
