@@ -1,0 +1,204 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  height: 520px;
+  border-radius: var(--radius-xl, 24px);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+/* ── Message list ── */
+.messageList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 16px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.loadMore {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 8px;
+  text-align: center;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  font-size: 12px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: var(--font-main);
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.loadMore:hover:not(:disabled) { border-color: var(--mint-dark); color: var(--mint-dark); }
+.loadMore:disabled { opacity: 0.6; cursor: default; }
+
+.empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+.emptyIcon { font-size: 2.2rem; }
+
+/* ── Date divider ── */
+.dateDivider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+.dateDivider::before,
+.dateDivider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
+/* ── Message row ── */
+.msgRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin: 1px 0;
+}
+.msgMine  { flex-direction: row-reverse; }
+.msgOther { flex-direction: row; }
+
+.msgAvatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+  overflow: hidden;
+  align-self: flex-end;
+}
+.msgAvatar img { width: 100%; height: 100%; object-fit: cover; }
+
+.msgContent {
+  display: flex;
+  flex-direction: column;
+  max-width: 65%;
+  gap: 2px;
+}
+.msgMine .msgContent { align-items: flex-end; }
+
+.msgSender {
+  font-size: 11px;
+  color: var(--text-muted);
+  padding-left: 2px;
+}
+
+.msgBubble {
+  padding: 9px 13px;
+  font-size: 14px;
+  line-height: 1.5;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+.bubbleMine {
+  background: var(--mint-soft);
+  border: 1px solid rgba(184,206,194,0.4);
+  border-radius: 16px 16px 4px 16px;
+  color: var(--text-dark);
+}
+.bubbleOther {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px 16px 16px 4px;
+  color: var(--text-dark);
+}
+
+.msgTime {
+  font-size: 10px;
+  color: var(--text-light, #B5ADA8);
+  padding: 0 2px;
+}
+.timeMine { text-align: right; }
+
+/* ── Input ── */
+.inputRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 12px 14px;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+  flex-shrink: 0;
+}
+
+.input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-bg);
+  font-size: 14px;
+  color: var(--text-dark);
+  font-family: var(--font-main);
+  outline: none;
+  resize: none;
+  max-height: 120px;
+  line-height: 1.5;
+  transition: border-color 0.15s;
+}
+.input:focus { border-color: var(--mint-dark); background: var(--color-surface); }
+.input::placeholder { color: var(--text-light, #B5ADA8); }
+
+.sendBtn {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: none;
+  background: var(--mint-dark);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.sendBtn:hover:not(:disabled) { opacity: 0.85; transform: translateY(-1px); }
+.sendBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Skeleton ── */
+.skeletons { display: flex; flex-direction: column; gap: 14px; padding: 4px 0; }
+.skeleton {
+  height: 54px;
+  border-radius: 14px;
+  background: var(--color-border);
+  position: relative;
+  overflow: hidden;
+}
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%);
+  animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}

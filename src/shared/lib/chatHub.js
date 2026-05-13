@@ -56,4 +56,29 @@ export const chatHub = {
     connection.on('UserOffline', callback);
     return () => connection?.off('UserOffline', callback);
   },
+
+  joinTripChat(tripId) {
+    if (!connection) return;
+    connection.invoke('JoinTripChat', tripId).catch(console.error);
+  },
+
+  leaveTripChat(tripId) {
+    if (!connection) return;
+    connection.invoke('LeaveTripChat', tripId).catch(console.error);
+  },
+
+  sendTripMessage(tripId, content) {
+    if (!connection) return;
+    return connection.invoke('SendTripMessage', tripId, content);
+  },
+
+  onReceiveTripMessage(callback) {
+    if (!connection) return;
+    connection.on('ReceiveTripMessage', callback);
+  },
+
+  offReceiveTripMessage() {
+    if (!connection) return;
+    connection.off('ReceiveTripMessage');
+  },
 };

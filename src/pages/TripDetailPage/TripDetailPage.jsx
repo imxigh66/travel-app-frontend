@@ -8,6 +8,8 @@ import { TripNotes } from '../../widgets/TripDetail/TripNotes';
 import styles from './TripDetailPage.module.css';
 import { TripBudget } from '../../widgets/TripDetail/TripBudget'
 import { TripDestinations } from '../../widgets/TripDetail/TripDestinations'
+import { TripMembers } from '../../widgets/TripMembers/TripMembers'
+import { TripChat } from '../../widgets/TripChat/TripChat'
 
 const STATUS_LABEL = { 0: 'Запланировано', 1: 'В процессе', 2: 'Завершено' };
 const STATUS_CLASS = { 0: 'planned', 1: 'inprogress', 2: 'completed' };
@@ -16,7 +18,9 @@ const TABS = [
   { id: 'overview', label: 'Обзор' },
   { id: 'route',    label: 'Маршрут' },
   { id: 'notes',    label: 'Заметки' },
-  { id: 'budget',   label: 'Бюджет' },  
+  { id: 'budget',   label: 'Бюджет' },
+  { id: 'members',  label: '👥 Участники' },
+  { id: 'chat',     label: '💬 Чат' },
 ]
 
 export default function TripDetailPage() {
@@ -173,8 +177,21 @@ export default function TripDetailPage() {
           <TripNotes tripId={trip.tripId} />
         )}
         {activeTab === 'budget' && isOwner && (
-  <TripBudget tripId={trip.tripId} isOwner={isOwner} />
-)}
+          <TripBudget tripId={trip.tripId} isOwner={isOwner} />
+        )}
+        {activeTab === 'members' && (
+          <TripMembers
+            tripId={trip.tripId}
+            currentUser={currentUser}
+            isOwner={isOwner}
+          />
+        )}
+        {activeTab === 'chat' && (
+          <TripChat
+            tripId={trip.tripId}
+            currentUser={currentUser}
+          />
+        )}
       </div>
     </div>
   );
