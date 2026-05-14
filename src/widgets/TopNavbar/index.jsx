@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../shared/i18n';
 import { getCurrentUser } from '../../entities/user/api/userApi';
 import { placeApi } from '../../entities/place/index';
 import api from '../../shared/api/axios';
@@ -8,14 +10,16 @@ import { notificationApi } from '../../entities/notification/api/notificationApi
 import styles from './TopNavbar.module.css';
 
 const LANGUAGES = [
-  { code: 'RU', label: 'Русский', flag: '🇷🇺' },
-  { code: 'EN', label: 'English', flag: '🇬🇧' },
+  { code: 'ru', label: 'Русский',  flag: '🇷🇺' },
+  { code: 'ro', label: 'Română',   flag: '🇷🇴' },
+  { code: 'en', label: 'English',  flag: '🇬🇧' },
 ];
 
 export default function TopNavbar({ onUserLoad, collapsed = false }) {
+  const { t } = useTranslation();
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoading, setIsLoading]     = useState(true);
-  const [lang, setLang]               = useState('RU');
+  const [lang, setLang]               = useState(i18n.language?.slice(0, 2) || 'ru');
   const [openDrop, setOpenDrop]       = useState(null);
   const [totalUnread, setTotalUnread] = useState(0);
 
@@ -106,6 +110,12 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
     navigate('/login');
   };
 
+  const handleLangChange = (code) => {
+    setLang(code);
+    i18n.changeLanguage(code);
+    setOpenDrop(null);
+  };
+
   const handleOpenNotifs = async () => {
     setOpenDrop('notifications');
     if (notifications.length === 0) {
@@ -126,11 +136,12 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
   };
 
   const hasResults = searchResults && (searchResults.places.length > 0 || searchResults.users.length > 0);
+  const currentLang = LANGUAGES.find(l => l.code === lang) ?? LANGUAGES[0];
 
   return (
     <header className={`${styles.navbar} ${collapsed ? styles.collapsed : ''}`}>
 
-      {/* ── Search (hidden on /explore — spacer keeps controls on the right) ── */}
+      {/* ── Search ── */}
       {hideSearch && <div style={{ flex: 1 }} />}
       {!hideSearch && (
         <div className={styles.searchWrap} ref={searchRef}>
@@ -138,7 +149,7 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
           <input
             className={styles.searchInput}
             type="text"
-            placeholder="Поиск мест и людей…"
+            placeholder={t('navbar.searchPlaceholder')}
             value={query}
             onChange={handleQueryChange}
             onKeyDown={handleSearchKeyDown}
@@ -149,13 +160,13 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
             <div className={styles.searchResults}>
               {!hasResults ? (
                 <div className={styles.resultsEmpty}>
-                  {searching ? 'Поиск…' : 'Ничего не найдено'}
+                  {searching ? t('navbar.searchShort') : t('navbar.noResults')}
                 </div>
               ) : (
                 <>
                   {searchResults.places.length > 0 && (
                     <div className={styles.resultsSection}>
-                      <div className={styles.resultsSectionTitle}>Места</div>
+                      <div className={styles.resultsSectionTitle}>{t('navbar.places')}</div>
                       {searchResults.places.map(place => (
                         <button key={place.placeId} className={styles.resultItem}
                           onClick={() => { setSearchResults(null); setQuery(''); navigate(`/places/${place.placeId}`); }}>
@@ -179,7 +190,7 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
 
                   {searchResults.users.length > 0 && (
                     <div className={styles.resultsSection}>
-                      <div className={styles.resultsSectionTitle}>Люди</div>
+                      <div className={styles.resultsSectionTitle}>{t('navbar.people')}</div>
                       {searchResults.users.map(user => (
                         <button key={user.userId} className={styles.resultItem}
                           onClick={() => { setSearchResults(null); setQuery(''); navigate(`/users/${user.userId}`); }}>
@@ -207,7 +218,7 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
       <div className={styles.controls} ref={navRef}>
 
         <div className={styles.iconBtnWrap}>
-          <button className={styles.iconBtn} onClick={() => navigate('/messages')} title="Сообщения">
+          <button className={styles.iconBtn} onClick={() => navigate('/messages')} title={t('navbar.messages')}>
             <MessageIcon />
           </button>
           {totalUnread > 0 && (
@@ -220,7 +231,7 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
             <button
               className={`${styles.iconBtn} ${openDrop === 'notifications' ? styles.open : ''}`}
               onClick={handleOpenNotifs}
-              title="Уведомления"
+              title={t('navbar.notifications')}
             >
               <BellIcon />
             </button>
@@ -231,14 +242,14 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
           {openDrop === 'notifications' && (
             <div className={`${styles.dropdown} ${styles.notifDropdown}`}>
               <div className={styles.notifHeader}>
-                <span>Уведомления</span>
+                <span>{t('navbar.notifications')}</span>
               </div>
               {notifsLoading ? (
                 <div className={styles.notifLoading}>
                   {[1, 2, 3].map(i => <div key={i} className={styles.notifSkeleton} />)}
                 </div>
               ) : notifications.length === 0 ? (
-                <div className={styles.notifEmpty}>Нет уведомлений</div>
+                <div className={styles.notifEmpty}>{t('navbar.noNotifications')}</div>
               ) : notifications.map(n => (
                 <div
                   key={n.notificationId}
@@ -253,7 +264,7 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
                   <div className={styles.notifContent}>
                     <span className={styles.notifActor}>{n.actorUsername} </span>
                     <span className={styles.notifMsg}>{n.message}</span>
-                    <div className={styles.notifTime}>{formatTime(n.createdAt)}</div>
+                    <div className={styles.notifTime}>{formatTime(n.createdAt, t)}</div>
                   </div>
                   {!n.isRead && <span className={styles.notifDot} />}
                 </div>
@@ -269,8 +280,8 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
             className={`${styles.langBtn} ${openDrop === 'lang' ? styles.open : ''}`}
             onClick={() => toggle('lang')}
           >
-            <span className={styles.langFlag}>{LANGUAGES.find(l => l.code === lang)?.flag}</span>
-            {lang}
+            <span className={styles.langFlag}>{currentLang.flag}</span>
+            <span>{currentLang.code.toUpperCase()}</span>
             <ChevronIcon />
           </button>
           {openDrop === 'lang' && (
@@ -278,7 +289,7 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
               {LANGUAGES.map(l => (
                 <button key={l.code}
                   className={`${styles.langOption} ${lang === l.code ? styles.selected : ''}`}
-                  onClick={() => { setLang(l.code); setOpenDrop(null); }}>
+                  onClick={() => handleLangChange(l.code)}>
                   <span className={styles.langFlag}>{l.flag}</span>{l.label}
                 </button>
               ))}
@@ -310,14 +321,14 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
                     <div className={styles.dropdownUsername}>@{currentUser?.username}</div>
                   </div>
                   <button className={styles.dropdownItem} onClick={() => { navigate('/profile'); setOpenDrop(null); }}>
-                    <ProfileIcon /> Профиль
+                    <ProfileIcon /> {t('sidebar.profile')}
                   </button>
                   <button className={styles.dropdownItem} onClick={() => { navigate('/settings'); setOpenDrop(null); }}>
-                    <SettingsIcon /> Настройки
+                    <SettingsIcon /> {t('settings.title')}
                   </button>
                   <div className={styles.dropdownSep} />
                   <button className={`${styles.dropdownItem} ${styles.dropdownItemDanger}`} onClick={handleLogout}>
-                    <LogoutIcon /> Выйти
+                    <LogoutIcon /> {t('sidebar.logout')}
                   </button>
                 </div>
               )}
@@ -329,14 +340,14 @@ export default function TopNavbar({ onUserLoad, collapsed = false }) {
   );
 }
 
-function formatTime(dateStr) {
+function formatTime(dateStr, t) {
   const d    = new Date(dateStr);
   const now  = new Date();
   const diff = Math.floor((now - d) / 1000);
-  if (diff < 60)    return 'только что';
-  if (diff < 3600)  return `${Math.floor(diff / 60)} мин назад`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)} ч назад`;
-  return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+  if (diff < 60)    return t('navbar.justNow');
+  if (diff < 3600)  return t('navbar.minutesAgo', { count: Math.floor(diff / 60) });
+  if (diff < 86400) return t('navbar.hoursAgo', { count: Math.floor(diff / 3600) });
+  return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
 }
 
 function SearchIcon()  { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>; }

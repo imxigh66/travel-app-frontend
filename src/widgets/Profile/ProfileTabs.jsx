@@ -1,12 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { PostCard } from '../../entities/post/ui/PostCard';
 import { postApi } from '../../entities/post/api/postApi';
 import { CommentSection } from '../../features/comment/CommentSection';
 import { tripApi } from '../../entities/trip/api/tripApi';
+import { getVisitedCountries } from '../../entities/user/api/userApi';
 import { CreatePostCard } from '../../features/post/ui/CreatePostCard';
 import { TravelDiary } from '../TravelDiary/TravelDiary'
 import styles from './ProfileTabs.module.css';
+
+const toFlagUrl = (code) =>
+  `https://flagcdn.com/w40/${code.toLowerCase()}.png`;
 
 const STATUS_LABEL = { 0: 'planned', 1: 'inprogress', 2: 'completed' };
 const STATUS_TEXT  = { 0: '→ PLANNED', 1: '✈ IN PROGRESS', 2: '✓ DONE' };
@@ -69,23 +74,26 @@ function EmptyState({ title, text }) {
 }
 
 function LoadingState() {
+  const { t } = useTranslation();
   return (
     <div className={styles.loading}>
       <svg className={styles.spinner} width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
       </svg>
-      <p>Загрузка...</p>
+      <p>{t('loading')}</p>
     </div>
   );
 }
 
-export default function ProfileTabs({ currentUser, userId, isOwnProfile = true }) {
+export default function ProfileTabs({ currentUser, userId, isOwnProfile = true, onTripStatsChange }) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [activeTab, setActiveTab]         = useState('posts');
   const [posts, setPosts]                 = useState([]);
   const [trips, setTrips]                 = useState([]);
   const [isLoading, setIsLoading]         = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(null);
+  const [visitedCountries, setVisitedCountries] = useState([]);
 
   const fetchPosts = async () => {
     setIsLoading(true);
@@ -103,7 +111,19 @@ export default function ProfileTabs({ currentUser, userId, isOwnProfile = true }
       const res = isOwnProfile
         ? await tripApi.getMyTrips()
         : await tripApi.getUserTrips(userId);
-      setTrips(res ?? []);
+      const data = res ?? [];
+      setTrips(data);
+      if (onTripStatsChange) {
+        const ccSet   = new Set();
+        const citySet = new Set();
+        data.forEach(t => {
+          if (t.countryCode) ccSet.add(t.countryCode);
+          (t.destinations ?? []).forEach(d => { if (d.countryCode) ccSet.add(d.countryCode); });
+          if (t.city) citySet.add(t.city);
+          (t.destinations ?? []).forEach(d => { if (d.city) citySet.add(d.city); });
+        });
+        onTripStatsChange({ countries: ccSet.size, trips: data.length, cities: citySet.size });
+      }
     } catch (e) { console.error(e); }
   };
 
@@ -114,10 +134,17 @@ export default function ProfileTabs({ currentUser, userId, isOwnProfile = true }
 
   useEffect(() => { fetchTrips(); }, [userId, isOwnProfile]);
 
+  useEffect(() => {
+    if (!userId) return;
+    getVisitedCountries(userId)
+      .then(data => setVisitedCountries(data ?? []))
+      .catch(() => {});
+  }, [userId]);
+
   const tabs = [
-    { id: 'posts',  label: 'Posts'  },
-    { id: 'photos', label: 'Photo'  },
-    { id: 'travel', label: 'Travel' },
+    { id: 'posts',  label: t('profile.posts')  },
+    { id: 'photos', label: t('profile.photos') },
+    { id: 'travel', label: t('profile.travel') },
   ];
 
   const allPhotos   = posts.flatMap(p => p.imageUrls || []);
@@ -156,10 +183,34 @@ export default function ProfileTabs({ currentUser, userId, isOwnProfile = true }
         </div>
       )}
 
-      {/* Posts / Photos — с сайдбаром */}
+      {/* Posts / Photos — три колонки */}
       {!isTravelTab && (
         <div className={styles.contentRow}>
 
+          {/* ── Left: Active Trips ── */}
+          <aside className={styles.tripsAside}>
+            <div className={styles.tripsAsideTitle}><TripIcon /> {t('profile.activeTrips')}</div>
+            {trips.filter(tr => Number(tr.status) === 1).length === 0 ? (
+              <p className={styles.tripsEmpty}>{t('profile.noActiveTrips')}</p>
+            ) : (
+              trips.filter(tr => Number(tr.status) === 1).slice(0, 4).map(trip => (
+                <div key={trip.tripId} className={styles.tripItem} onClick={() => navigate(`/trips/${trip.tripId}`)}>
+                  <div className={styles.tripIcon}>
+                    {trip.coverImageUrl ? <img src={trip.coverImageUrl} alt="" /> : <PlaneIcon />}
+                  </div>
+                  <div className={styles.tripInfo}>
+                    <div className={styles.tripName}>{trip.title}</div>
+                    <div className={`${styles.tripStatus} ${styles.inprogress}`}>✈ {t('trips.inProgress').toUpperCase()}</div>
+                  </div>
+                </div>
+              ))
+            )}
+            {trips.filter(tr => Number(tr.status) !== 1).length > 0 && (
+              <span className={styles.tripsLink} onClick={() => navigate('/trips')}>{t('profile.allTrips')}</span>
+            )}
+          </aside>
+
+          {/* ── Center: Posts / Photos ── */}
           <div className={styles.mainCol}>
             {isOwnProfile && activeTab === 'posts' && (
               <CreatePostCard currentUser={currentUser} onSuccess={fetchPosts} />
@@ -168,7 +219,7 @@ export default function ProfileTabs({ currentUser, userId, isOwnProfile = true }
             {activeTab === 'posts' && (
               isLoading ? <LoadingState /> :
               posts.length === 0
-                ? <EmptyState title="Постов пока нет" text="Поделитесь своими впечатлениями" />
+                ? <EmptyState title={t('profile.noPosts')} text={t('profile.shareImpressions')} />
                 : (
                   <div className={styles.postsList}>
                     {posts.map(post => (
@@ -176,6 +227,7 @@ export default function ProfileTabs({ currentUser, userId, isOwnProfile = true }
                         key={post.postId}
                         post={post}
                         user={currentUser}
+                        compact
                         renderComments={(postId, onCountChange) => (
                           <CommentSection postId={postId} onCountChange={onCountChange} />
                         )}
@@ -187,7 +239,7 @@ export default function ProfileTabs({ currentUser, userId, isOwnProfile = true }
 
             {activeTab === 'photos' && (
               allPhotos.length === 0
-                ? <EmptyState title="Фото пока нет" text="Загрузите фото из ваших поездок" />
+                ? <EmptyState title={t('profile.noPhotos')} text={t('profile.uploadPhotos')} />
                 : (
                   <div className={styles.photoGrid}>
                     {allPhotos.map((url, i) => (
@@ -208,26 +260,33 @@ export default function ProfileTabs({ currentUser, userId, isOwnProfile = true }
             )}
           </div>
 
-          {/* Sidebar */}
-          <aside className={styles.tripsAside}>
-            <div className={styles.tripsAsideTitle}><span>🗺</span> Активные поездки</div>
-            {trips.filter(t => Number(t.status) === 1).length === 0 ? (
-              <p className={styles.tripsEmpty}>Нет активных поездок</p>
+          {/* ── Right: Visited Countries ── */}
+          <aside className={styles.countriesAside}>
+            <div className={styles.countriesTitle}>
+              <GlobeIcon />
+              {t('profile.visitedCountries')}
+              {visitedCountries.length > 0 && (
+                <span className={styles.countriesCount}>{visitedCountries.length}</span>
+              )}
+            </div>
+            {visitedCountries.length === 0 ? (
+              <p className={styles.countriesEmpty}>{t('profile.noVisitedCountries')}</p>
             ) : (
-              trips.filter(t => Number(t.status) === 1).slice(0, 3).map(trip => (
-                <div key={trip.tripId} className={styles.tripItem} onClick={() => navigate(`/trips/${trip.tripId}`)}>
-                  <div className={styles.tripIcon}>
-                    {trip.coverImageUrl ? <img src={trip.coverImageUrl} alt="" /> : '✈️'}
+              <div className={styles.flagsGrid}>
+                {visitedCountries.map((c) => (
+                  <div
+                    key={c.countryCode}
+                    className={styles.flagItem}
+                    title={c.countryCode}
+                  >
+                    <img
+                      src={toFlagUrl(c.countryCode)}
+                      alt={c.countryCode}
+                      loading="lazy"
+                    />
                   </div>
-                  <div className={styles.tripInfo}>
-                    <div className={styles.tripName}>{trip.title}</div>
-                    <div className={`${styles.tripStatus} ${styles.inprogress}`}>✈ IN PROGRESS</div>
-                  </div>
-                </div>
-              ))
-            )}
-            {trips.length > 0 && (
-              <span className={styles.tripsLink} onClick={() => navigate('/trips')}>Все поездки →</span>
+                ))}
+              </div>
             )}
           </aside>
 
@@ -237,3 +296,7 @@ export default function ProfileTabs({ currentUser, userId, isOwnProfile = true }
     </div>
   );
 }
+
+function TripIcon()  { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 17l4-8 4 4 4-6 4 10"/></svg>; }
+function PlaneIcon() { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21 4 19.5 2.5S18 2 16.5 3.5L13 7 4.8 5.2C4.3 5.1 4 5.5 4.2 5.9l2 4c.2.4.6.6 1 .5l3.6-.9 3 3-.9 3.6c-.1.4.1.8.5 1l4 2c.4.2.8-.1.9-.6z"/></svg>; }
+function GlobeIcon() { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>; }

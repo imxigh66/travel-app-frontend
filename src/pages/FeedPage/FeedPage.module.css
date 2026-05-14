@@ -1,10 +1,9 @@
 .page {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 250px;
-  gap: 24px;
+  grid-template-columns: minmax(0, 640px) 260px;
+  gap: 28px;
+  justify-content: center;
   align-items: start;
-  max-width: 980px;
-  margin: 0 auto;
   padding-bottom: 80px;
 }
 
@@ -137,6 +136,71 @@
 @media (max-width: 600px) {
   .title { font-size: 20px; }
 }
+
+/* ── Side blocks ── */
+.sideBlock {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 14px;
+  margin-top: 12px;
+}
+.sideBlockTitle {
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .05em;
+  color: var(--text-muted); margin-bottom: 12px;
+  display: flex; align-items: center; gap: 6px;
+}
+.placeRow {
+  display: flex; align-items: center;
+  gap: 10px; padding: 6px 4px; cursor: pointer;
+  border-radius: 10px; transition: background .15s;
+}
+.placeRow:hover { background: var(--color-bg); }
+.placeThumb {
+  width: 40px; height: 40px; border-radius: 10px;
+  flex-shrink: 0; background: var(--color-bg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; overflow: hidden;
+}
+.placeThumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.placeInfo { flex: 1; min-width: 0; }
+.placeName {
+  font-size: 13px; font-weight: 600;
+  color: var(--text-dark); white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.placeMeta { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+.suggRow {
+  display: flex; align-items: center;
+  gap: 8px; padding: 5px 0;
+}
+.suggAvatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--mint-soft); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: var(--mint-dark);
+  overflow: hidden; cursor: pointer;
+}
+.suggAvatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.suggInfo { flex: 1; min-width: 0; }
+.suggName {
+  font-size: 13px; font-weight: 600; color: var(--text-dark);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  cursor: pointer;
+}
+.suggName:hover { text-decoration: underline; }
+.suggUsername { font-size: 11px; color: var(--text-muted); }
+.followBtn {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 1.5px solid var(--mint-dark);
+  background: transparent; color: var(--mint-dark);
+  font-size: 18px; cursor: pointer; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s; font-family: var(--font-main);
+}
+.followBtn:hover { background: var(--mint-soft); }
+.followBtnDone { border-color: var(--mint-dark); background: var(--mint-dark); color: #fff; }
 
 /* ── Friends sidebar ── */
 .friendsCard {

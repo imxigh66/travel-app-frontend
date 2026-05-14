@@ -1,39 +1,40 @@
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import styles from './Sidebar.module.css';
 import LogoutButton from '../../features/auth/logout/ui/LogoutButton';
-
-const SECTIONS = [
-  {
-    label: 'MENU',
-    items: [
-      { icon: <HomeIcon />,     label: 'Каталог',     path: '/explore' },
-      { icon: <FeedIcon />,     label: 'Лента',       path: '/feed' },
-      { icon: <MapIcon />,      label: 'Маршруты',    path: '/trips' },
-    ],
-  },
-  {
-    label: 'COLLECTIONS',
-    items: [
-      { icon: <BookmarkIcon />, label: 'Сохранённые', path: '/saved' },
-      { icon: <PinPlusIcon />,  label: 'Мои места',   path: '/my-places' },
-    ],
-  },
-];
-
-const BOTTOM_ITEMS = [
-  { icon: <HomeIcon />,     label: 'Каталог',  path: '/explore' },
-  { icon: <FeedIcon />,     label: 'Лента',    path: '/feed' },
-  { icon: <MapIcon />,      label: 'Маршруты', path: '/trips' },
-  { icon: <BookmarkIcon />, label: 'Сохранено',path: '/saved' },
-  { icon: <ProfileIcon />,  label: 'Профиль',  path: '/profile' },
-];
 
 export default function Sidebar({ collapsed, setCollapsed }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
+
+  const SECTIONS = [
+    {
+      label: t('sidebar.menu'),
+      items: [
+        { icon: <HomeIcon />,     label: t('sidebar.catalog'),  path: '/explore' },
+        { icon: <FeedIcon />,     label: t('sidebar.feed'),     path: '/feed' },
+        { icon: <MapIcon />,      label: t('sidebar.trips'),    path: '/trips' },
+      ],
+    },
+    {
+      label: t('sidebar.collections'),
+      items: [
+        { icon: <BookmarkIcon />, label: t('sidebar.saved'),    path: '/saved' },
+        { icon: <PinPlusIcon />,  label: t('sidebar.myPlaces'), path: '/my-places' },
+      ],
+    },
+  ];
+
+  const BOTTOM_ITEMS = [
+    { icon: <HomeIcon />,     label: t('sidebar.catalog'), path: '/explore' },
+    { icon: <FeedIcon />,     label: t('sidebar.feed'),    path: '/feed' },
+    { icon: <MapIcon />,      label: t('sidebar.trips'),   path: '/trips' },
+    { icon: <BookmarkIcon />, label: t('sidebar.saved'),   path: '/saved' },
+    { icon: <ProfileIcon />,  label: t('sidebar.profile'), path: '/profile' },
+  ];
 
   const isActive = (path) => location.pathname === path;
-
   const wrapClass = `${styles.sidebarWrap} ${collapsed ? styles.collapsed : ''}`;
 
   return (
@@ -51,7 +52,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
             <button
               className={styles.collapseBtn}
               onClick={() => setCollapsed(!collapsed)}
-              title={collapsed ? 'Развернуть' : 'Свернуть'}
+              title={collapsed ? t('sidebar.expand') : t('sidebar.collapse')}
             >
               <ChevronIcon flipped={collapsed} />
             </button>
@@ -81,7 +82,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
 
           <div className={styles.spacer} />
 
-          <div className={styles.logoutWrap} title={collapsed ? 'Выйти' : ''}>
+          <div className={styles.logoutWrap} title={collapsed ? t('sidebar.logout') : ''}>
             <LogoutButton className={styles.logoutBtn} collapsed={collapsed} />
           </div>
 

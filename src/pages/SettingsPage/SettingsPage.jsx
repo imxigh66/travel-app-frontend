@@ -1,23 +1,38 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import i18n from '../../shared/i18n'
 import styles from './SettingsPage.module.css'
 
-const SECTIONS = [
-  { id: 'account',   label: 'Аккаунт',          icon: <UserIcon /> },
-  { id: 'security',  label: 'Безопасность',      icon: <LockIcon /> },
-  { id: 'privacy',   label: 'Конфиденциальность', icon: <ShieldIcon /> },
-  { id: 'notifications', label: 'Уведомления',   icon: <BellIcon /> },
-  { id: 'language',  label: 'Язык',              icon: <GlobeIcon /> },
+const LANGUAGES = [
+  { code: 'ru', label: 'Русский', flag: '🇷🇺' },
+  { code: 'ro', label: 'Română',  flag: '🇷🇴' },
+  { code: 'en', label: 'English', flag: '🇬🇧' },
 ]
 
 export default function SettingsPage() {
+  const { t } = useTranslation()
   const [active, setActive] = useState('account')
+  const [currentLang, setCurrentLang] = useState(i18n.language?.slice(0, 2) || 'ru')
+
+  const SECTIONS = [
+    { id: 'account',       label: t('settings.account'),       icon: <UserIcon /> },
+    { id: 'security',      label: t('settings.security'),      icon: <LockIcon /> },
+    { id: 'privacy',       label: t('settings.privacy'),       icon: <ShieldIcon /> },
+    { id: 'notifications', label: t('settings.notifications'), icon: <BellIcon /> },
+    { id: 'language',      label: t('settings.language'),      icon: <GlobeIcon /> },
+  ]
+
+  const handleLangChange = (code) => {
+    setCurrentLang(code)
+    i18n.changeLanguage(code)
+  }
 
   return (
     <div className={styles.page}>
 
       {/* ── Sidebar ── */}
       <aside className={styles.sidebar}>
-        <h2 className={styles.sidebarTitle}>Настройки</h2>
+        <h2 className={styles.sidebarTitle}>{t('settings.title')}</h2>
         <nav className={styles.nav}>
           {SECTIONS.map(s => (
             <button
@@ -36,80 +51,77 @@ export default function SettingsPage() {
       <div className={styles.content}>
 
         {active === 'account' && (
-          <Section title="Аккаунт">
-            <Field label="Имя пользователя" value="lara" />
-            <Field label="Полное имя" value="Lara" />
-            <Field label="Email" value="lara@mail.ru" />
-            <Field label="Город" value="Кишинёв" />
-            <Field label="Страна" value="MD" />
+          <Section title={t('settings.account')}>
+            <Field label={t('settings.username')} value="lara" />
+            <Field label={t('settings.fullName')} value="Lara" />
+            <Field label={t('settings.email')} value="lara@mail.ru" />
+            <Field label={t('settings.city')} value="Кишинёв" />
+            <Field label={t('settings.country')} value="MD" />
             <div className={styles.fieldGroup}>
-              <label className={styles.fieldLabel}>Тип аккаунта</label>
+              <label className={styles.fieldLabel}>{t('settings.accountType')}</label>
               <div className={styles.typeToggle}>
-                <button className={`${styles.typeBtn} ${styles.typeBtnActive}`}>Personal</button>
-                <button className={styles.typeBtn}>Business</button>
+                <button className={`${styles.typeBtn} ${styles.typeBtnActive}`}>{t('settings.personal')}</button>
+                <button className={styles.typeBtn}>{t('settings.business')}</button>
               </div>
             </div>
             <div className={styles.actions}>
-              <button className={styles.saveBtn}>Сохранить изменения</button>
+              <button className={styles.saveBtn}>{t('settings.saveChanges')}</button>
             </div>
           </Section>
         )}
 
         {active === 'security' && (
-          <Section title="Безопасность">
-            <Field label="Текущий пароль" type="password" value="••••••••" />
-            <Field label="Новый пароль" type="password" value="" placeholder="Минимум 8 символов" />
-            <Field label="Подтвердите пароль" type="password" value="" placeholder="Повторите новый пароль" />
+          <Section title={t('settings.security')}>
+            <Field label={t('settings.currentPassword')} type="password" value="••••••••" />
+            <Field label={t('settings.newPassword')} type="password" value="" placeholder={t('settings.minChars')} />
+            <Field label={t('settings.confirmPassword')} type="password" value="" placeholder={t('settings.repeatPassword')} />
             <div className={styles.actions}>
-              <button className={styles.saveBtn}>Изменить пароль</button>
+              <button className={styles.saveBtn}>{t('settings.changePassword')}</button>
             </div>
             <div className={styles.divider} />
             <div className={styles.dangerZone}>
-              <div className={styles.dangerTitle}>Опасная зона</div>
+              <div className={styles.dangerTitle}>{t('settings.dangerZone')}</div>
               <div className={styles.dangerRow}>
                 <div>
-                  <div className={styles.dangerLabel}>Удалить аккаунт</div>
-                  <div className={styles.dangerDesc}>Это действие необратимо. Все данные будут удалены.</div>
+                  <div className={styles.dangerLabel}>{t('settings.deleteAccount')}</div>
+                  <div className={styles.dangerDesc}>{t('settings.deleteWarning')}</div>
                 </div>
-                <button className={styles.dangerBtn}>Удалить</button>
+                <button className={styles.dangerBtn}>{t('settings.delete')}</button>
               </div>
             </div>
           </Section>
         )}
 
         {active === 'privacy' && (
-          <Section title="Конфиденциальность">
-            <Toggle label="Закрытый аккаунт" desc="Только подписчики могут видеть ваши публикации" />
-            <Toggle label="Скрывать в поиске" desc="Ваш профиль не будет отображаться в результатах поиска" />
-            <Toggle label="Показывать активность" desc="Другие пользователи видят когда вы были онлайн" defaultOn />
+          <Section title={t('settings.privacy')}>
+            <Toggle label={t('settings.privateAccount')} desc={t('settings.privateAccountDesc')} />
+            <Toggle label={t('settings.hideFromSearch')} desc={t('settings.hideFromSearchDesc')} />
+            <Toggle label={t('settings.showActivity')} desc={t('settings.showActivityDesc')} defaultOn />
           </Section>
         )}
 
         {active === 'notifications' && (
-          <Section title="Уведомления">
-            <Toggle label="Новые подписчики" desc="Уведомлять когда кто-то подписывается на вас" defaultOn />
-            <Toggle label="Лайки" desc="Уведомлять о новых лайках на ваши публикации" defaultOn />
-            <Toggle label="Комментарии" desc="Уведомлять о новых комментариях" defaultOn />
-            <Toggle label="Сообщения" desc="Уведомлять о новых личных сообщениях" defaultOn />
-            <Toggle label="Обновления системы" desc="Новости и обновления платформы TravelFlow" />
+          <Section title={t('settings.notifications')}>
+            <Toggle label={t('settings.notifFollowers')} desc={t('settings.notifFollowersDesc')} defaultOn />
+            <Toggle label={t('settings.notifLikes')} desc={t('settings.notifLikesDesc')} defaultOn />
+            <Toggle label={t('settings.notifComments')} desc={t('settings.notifCommentsDesc')} defaultOn />
+            <Toggle label={t('settings.notifMessages')} desc={t('settings.notifMessagesDesc')} defaultOn />
+            <Toggle label={t('settings.notifSystem')} desc={t('settings.notifSystemDesc')} />
           </Section>
         )}
 
         {active === 'language' && (
-          <Section title="Язык интерфейса">
+          <Section title={t('settings.interfaceLang')}>
             <div className={styles.langList}>
-              {[
-                { code: 'RU', label: 'Русский', flag: '🇷🇺' },
-                { code: 'RO', label: 'Română',  flag: '🇷🇴' },
-                { code: 'EN', label: 'English', flag: '🇬🇧' },
-              ].map(l => (
+              {LANGUAGES.map(l => (
                 <button
                   key={l.code}
-                  className={`${styles.langItem} ${l.code === 'RU' ? styles.langActive : ''}`}
+                  className={`${styles.langItem} ${currentLang === l.code ? styles.langActive : ''}`}
+                  onClick={() => handleLangChange(l.code)}
                 >
                   <span className={styles.langFlag}>{l.flag}</span>
                   <span className={styles.langLabel}>{l.label}</span>
-                  {l.code === 'RU' && <span className={styles.langCheck}>✓</span>}
+                  {currentLang === l.code && <span className={styles.langCheck}>✓</span>}
                 </button>
               ))}
             </div>

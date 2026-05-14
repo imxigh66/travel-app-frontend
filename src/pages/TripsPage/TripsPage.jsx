@@ -1,22 +1,24 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { tripApi } from '../../entities/trip/api/tripApi';
 import { TripCard } from '../../entities/trip/ui/TripCard';
 import { CreateTripModal } from '../../features/trip/ui/CreateTripModal';
 import styles from './TripsPage.module.css';
 
-const STATUS_FILTERS = [
-  { value: null, label: 'Все' },
-  { value: 0, label: 'Запланировано' },
-  { value: 1, label: 'В процессе' },
-  { value: 2, label: 'Завершено' },
-];
-
 export default function TripsPage() {
+  const { t } = useTranslation();
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [statusFilter, setStatusFilter] = useState(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+
+  const STATUS_FILTERS = [
+    { value: null, label: t('trips.all') },
+    { value: 0, label: t('trips.planned') },
+    { value: 1, label: t('trips.inProgress') },
+    { value: 2, label: t('trips.completed') },
+  ];
 
   useEffect(() => {
     fetchTrips();
@@ -29,7 +31,7 @@ export default function TripsPage() {
       const data = await tripApi.getMyTrips();
       setTrips(data ?? []);
     } catch {
-      setError('Не удалось загрузить поездки');
+      setError(t('profile.errorLoad'));
     } finally {
       setLoading(false);
     }
@@ -40,12 +42,12 @@ export default function TripsPage() {
   };
 
   const handleDelete = async (tripId) => {
-    if (!confirm('Удалить поездку? Это действие нельзя отменить.')) return;
+    if (!confirm(t('trips.deleteConfirm'))) return;
     try {
       await tripApi.deleteTrip(tripId);
-      setTrips(prev => prev.filter(t => t.tripId !== tripId));
+      setTrips(prev => prev.filter(tr => tr.tripId !== tripId));
     } catch {
-      alert('Не удалось удалить поездку');
+      alert(t('trips.deleteError'));
     }
   };
 
@@ -55,43 +57,40 @@ export default function TripsPage() {
 
   return (
     <div className={styles.page}>
-      {/* Header */}
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Мои поездки</h1>
-          <p className={styles.subtitle}>Планируйте и отслеживайте путешествия</p>
+          <h1 className={styles.title}>{t('trips.title')}</h1>
+          <p className={styles.subtitle}>{t('trips.subtitle')}</p>
         </div>
         <button className={styles.createBtn} onClick={() => setIsCreateOpen(true)}>
           <PlusIcon />
-          Новая поездка
+          {t('trips.newTrip')}
         </button>
       </div>
 
-      {/* Stats */}
       {!loading && trips.length > 0 && (
         <div className={styles.stats}>
           <div className={styles.statItem}>
             <span className={styles.statNum}>{trips.length}</span>
-            <span className={styles.statLabel}>поездок</span>
+            <span className={styles.statLabel}>{t('trips.tripsCount')}</span>
           </div>
           <div className={styles.statDivider} />
           <div className={styles.statItem}>
             <span className={styles.statNum}>
               {[...new Set(trips.map(t => t.countryCode))].length}
             </span>
-            <span className={styles.statLabel}>стран</span>
+            <span className={styles.statLabel}>{t('trips.countriesCount')}</span>
           </div>
           <div className={styles.statDivider} />
           <div className={styles.statItem}>
             <span className={styles.statNum}>
               {trips.reduce((sum, t) => sum + (t.placesCount ?? 0), 0)}
             </span>
-            <span className={styles.statLabel}>мест</span>
+            <span className={styles.statLabel}>{t('trips.placesCount')}</span>
           </div>
         </div>
       )}
 
-      {/* Filters */}
       {!loading && trips.length > 0 && (
         <div className={styles.filters}>
           {STATUS_FILTERS.map(f => (
@@ -106,7 +105,6 @@ export default function TripsPage() {
         </div>
       )}
 
-      {/* Content */}
       {loading && (
         <div className={styles.grid}>
           {Array.from({ length: 6 }).map((_, i) => (
@@ -120,7 +118,7 @@ export default function TripsPage() {
           <span className={styles.emptyIcon}>⚠️</span>
           <p>{error}</p>
           <button className={styles.retryBtn} onClick={fetchTrips}>
-            Попробовать снова
+            {t('retry')}
           </button>
         </div>
       )}
@@ -128,13 +126,11 @@ export default function TripsPage() {
       {!loading && !error && trips.length === 0 && (
         <div className={styles.empty}>
           <span className={styles.emptyIcon}>🗺️</span>
-          <h2 className={styles.emptyTitle}>Поездок пока нет</h2>
-          <p className={styles.emptyText}>
-            Создайте свою первую поездку и начните планировать маршрут
-          </p>
+          <h2 className={styles.emptyTitle}>{t('trips.emptyTitle')}</h2>
+          <p className={styles.emptyText}>{t('trips.emptyText')}</p>
           <button className={styles.createBtn} onClick={() => setIsCreateOpen(true)}>
             <PlusIcon />
-            Создать поездку
+            {t('trips.createTrip')}
           </button>
         </div>
       )}
@@ -155,11 +151,10 @@ export default function TripsPage() {
       {!loading && !error && trips.length > 0 && filtered.length === 0 && (
         <div className={styles.empty}>
           <span className={styles.emptyIcon}>🔍</span>
-          <p>Нет поездок с выбранным статусом</p>
+          <p>{t('trips.noStatus')}</p>
         </div>
       )}
 
-      {/* Modal */}
       {isCreateOpen && (
         <CreateTripModal
           onClose={() => setIsCreateOpen(false)}

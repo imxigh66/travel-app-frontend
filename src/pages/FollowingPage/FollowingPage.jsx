@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { followApi } from '../../entities/follow/model/follow.api'
 import { UserFollowCard } from '../../entities/follow/ui/UserFollowCard'
 import styles from './FollowingPage.module.css'
@@ -7,6 +8,7 @@ import styles from './FollowingPage.module.css'
 export function FollowingPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   const [following, setFollowing]   = useState([])
   const [loading, setLoading]       = useState(true)
@@ -25,7 +27,7 @@ export function FollowingPage() {
       setTotalCount(data.totalCount)
       setPageNumber(data.pageNumber)
     } catch {
-      setError('Не удалось загрузить подписки')
+      setError(t('following.loadError'))
     } finally {
       setLoading(false)
     }
@@ -49,12 +51,12 @@ export function FollowingPage() {
             stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
             <polyline points="15 18 9 12 15 6"/>
           </svg>
-          Назад
+          {t('following.back')}
         </button>
       </div>
 
       <div className={styles.header}>
-        <h1 className={styles.title}>Подписки</h1>
+        <h1 className={styles.title}>{t('following.title')}</h1>
         {totalCount > 0 && (
           <span className={styles.badge}>{totalCount}</span>
         )}
@@ -75,7 +77,7 @@ export function FollowingPage() {
             <span>⚠️</span>
             <p>{error}</p>
             <button className={styles.retryBtn} onClick={() => fetchFollowing(pageNumber)}>
-              Попробовать снова
+              {t('following.retry')}
             </button>
           </div>
         )}
@@ -83,8 +85,8 @@ export function FollowingPage() {
         {!loading && !error && following.length === 0 && (
           <div className={styles.empty}>
             <span className={styles.emptyIcon}>🔍</span>
-            <h2>Подписок пока нет</h2>
-            <p>Подписывайтесь на интересных людей, чтобы следить за их путешествиями</p>
+            <h2>{t('following.emptyTitle')}</h2>
+            <p>{t('following.emptyText')}</p>
           </div>
         )}
 

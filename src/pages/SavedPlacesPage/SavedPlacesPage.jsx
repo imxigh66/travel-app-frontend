@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { placeApi } from '../../entities/place/model/place.api'
 import { PlaceCard } from '../../entities/place/ui/PlaceCard'
 import styles from './SavedPlacesPage.module.css'
 
 export function SavedPlacesPage() {
+  const { t } = useTranslation()
   const [places, setPlaces]         = useState([])
   const [loading, setLoading]       = useState(true)
   const [error, setError]           = useState(null)
@@ -21,7 +23,7 @@ export function SavedPlacesPage() {
       setTotalCount(data.totalCount)
       setPageNumber(data.pageNumber)
     } catch {
-      setError('Не удалось загрузить сохранённые места')
+      setError(t('savedPlaces.loadError'))
     } finally {
       setLoading(false)
     }
@@ -51,13 +53,13 @@ export function SavedPlacesPage() {
                 <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
               </svg>
             </span>
-            Сохранённые места
+            {t('savedPlaces.title')}
           </h1>
           {totalCount > 0 && (
             <span className={styles.badge}>{totalCount}</span>
           )}
         </div>
-        <p className={styles.subtitle}>Места, которые вы хотите посетить</p>
+        <p className={styles.subtitle}>{t('savedPlaces.subtitle')}</p>
       </div>
 
       {/* Content */}
@@ -81,7 +83,7 @@ export function SavedPlacesPage() {
           </span>
           <p>{error}</p>
           <button className={styles.retryBtn} onClick={() => fetchSaved(pageNumber)}>
-            Попробовать снова
+            {t('retry')}
           </button>
         </div>
       )}
@@ -94,10 +96,8 @@ export function SavedPlacesPage() {
               <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
             </svg>
           </span>
-          <h2 className={styles.emptyTitle}>Пока ничего нет</h2>
-          <p className={styles.emptyText}>
-            Сохраняйте понравившиеся места, чтобы вернуться к ним позже
-          </p>
+          <h2 className={styles.emptyTitle}>{t('savedPlaces.emptyTitle')}</h2>
+          <p className={styles.emptyText}>{t('savedPlaces.emptyText')}</p>
         </div>
       )}
 

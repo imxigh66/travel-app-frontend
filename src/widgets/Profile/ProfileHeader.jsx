@@ -1,29 +1,31 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import UserCard from '../../entities/user/ui/UserCard';
 import EditProfileModal from '../../features/edit-profile/ui/EditProfileModal';
 import FollowButton from '../../features/follow/FollowButton';
 import styles from './ProfileHeader.module.css';
 
-export default function ProfileHeader({ user, onUserUpdate, isOwnProfile = true, isFollowing = false }) {
+export default function ProfileHeader({ user, onUserUpdate, isOwnProfile = true, isFollowing = false, tripStats }) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const getMissingFields = () => {
     const missing = [];
     const isPersonal = user?.accountType === 0;
     const isBusiness = user?.accountType === 1;
-    if (!user?.name)           missing.push('Имя');
-    if (!user?.bio)            missing.push('Описание');
-    if (!user?.country)        missing.push('Страна');
-    if (!user?.profilePicture) missing.push('Фото профиля');
+    if (!user?.name)           missing.push(t('profileHeader.missingName'));
+    if (!user?.bio)            missing.push(t('profileHeader.missingBio'));
+    if (!user?.country)        missing.push(t('profileHeader.missingCountry'));
+    if (!user?.profilePicture) missing.push(t('profileHeader.missingPhoto'));
     if (isPersonal) {
-      if (user?.travelInterest == null) missing.push('Интересы');
-      if (user?.travelStyle    == null) missing.push('Стиль путешествий');
+      if (user?.travelInterest == null) missing.push(t('profileHeader.missingInterests'));
+      if (user?.travelStyle    == null) missing.push(t('profileHeader.missingStyle'));
     }
     if (isBusiness) {
-      if (user?.businessType    == null) missing.push('Тип бизнеса');
-      if (!user?.businessAddress)        missing.push('Адрес');
+      if (user?.businessType    == null) missing.push(t('profileHeader.missingBusinessType'));
+      if (!user?.businessAddress)        missing.push(t('profileHeader.missingAddress'));
     }
     return missing;
   };
@@ -31,8 +33,8 @@ export default function ProfileHeader({ user, onUserUpdate, isOwnProfile = true,
   const missingFields = getMissingFields();
 
   const stats = {
-    countries: 24,
-    trips: 8,
+    countries: tripStats?.countries ?? 0,
+    trips:     tripStats?.trips     ?? 0,
     followers: user?.followersCount ?? 0,
     following: user?.followingCount ?? 0,
   };
@@ -60,8 +62,8 @@ export default function ProfileHeader({ user, onUserUpdate, isOwnProfile = true,
         <div className={styles.incompleteWarning}>
           <WarningIcon />
           <div>
-            <strong>Профиль не заполнен</strong>
-            <p className={styles.missingFields}>Не хватает: {missingFields.join(', ')}</p>
+            <strong>{t('profileHeader.incomplete')}</strong>
+            <p className={styles.missingFields}>{t('profileHeader.missing')} {missingFields.join(', ')}</p>
           </div>
         </div>
       )}

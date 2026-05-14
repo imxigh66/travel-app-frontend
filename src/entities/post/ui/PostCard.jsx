@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { postApi } from '../api/postApi';
 import { formatDistanceToNow } from '../../../shared/utils/dateUtils';
 import styles from './PostCard.module.css';
 
-export const PostCard = ({ post, onLikeChange, currentUserId, renderComments }) => {
+export const PostCard = ({ post, onLikeChange, currentUserId, renderComments, compact = false }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [isLiked, setIsLiked] = useState(post.isLikedByCurrentUser || false);
   const [likesCount, setLikesCount] = useState(post.likesCount);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -63,7 +65,7 @@ export const PostCard = ({ post, onLikeChange, currentUserId, renderComments }) 
   const placeCover = post.placeCoverImageUrl ?? post.place?.coverImageUrl ?? null;
 
   return (
-    <div className={styles.card}>
+    <div className={`${styles.card} ${compact ? styles.compact : ''}`}>
 
       {/* ── Header ── */}
       <div className={styles.header}>
@@ -85,7 +87,7 @@ export const PostCard = ({ post, onLikeChange, currentUserId, renderComments }) 
                 <span className={styles.metaDot}>·</span>
                 <button className={styles.placeLink} onClick={handlePlaceClick}>
                   <PinIcon />
-                  {placeName ?? (placeCity ?? 'Место')}
+                  {placeName ?? (placeCity ?? t('post.place'))}
                 </button>
               </>
             )}

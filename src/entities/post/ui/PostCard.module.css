@@ -58,7 +58,7 @@
   position: relative;
   background: var(--color-bg);
   overflow: hidden;
-  aspect-ratio: 4/3;
+  aspect-ratio: 16/9;
 }
 
 .carouselImage {
@@ -149,6 +149,11 @@
   flex-shrink: 0;
   opacity: 0.8;
 }
+
+/* ── Compact variant (profile tab) ── */
+.compact .header      { padding: 10px 14px 8px; }
+.compact .textContent { padding: 0 14px 10px; }
+.compact .actions     { padding: 8px 10px; }
 
 @media (max-width: 640px) {
   .card { border-radius: 14px; }

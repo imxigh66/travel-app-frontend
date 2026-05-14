@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { followApi } from '../../entities/follow/model/follow.api'
 import { UserFollowCard } from '../../entities/follow/ui/UserFollowCard'
 import styles from './FollowersPage.module.css'
@@ -7,6 +8,7 @@ import styles from './FollowersPage.module.css'
 export function FollowersPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   const [followers, setFollowers] = useState([])
   const [loading, setLoading]     = useState(true)
@@ -25,7 +27,7 @@ export function FollowersPage() {
       setTotalCount(data.totalCount)
       setPageNumber(data.pageNumber)
     } catch {
-      setError('Не удалось загрузить подписчиков')
+      setError(t('followers.loadError'))
     } finally {
       setLoading(false)
     }
@@ -49,12 +51,12 @@ export function FollowersPage() {
             stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
             <polyline points="15 18 9 12 15 6"/>
           </svg>
-          Назад
+          {t('followers.back')}
         </button>
       </div>
 
       <div className={styles.header}>
-        <h1 className={styles.title}>Подписчики</h1>
+        <h1 className={styles.title}>{t('followers.title')}</h1>
         {totalCount > 0 && (
           <span className={styles.badge}>{totalCount}</span>
         )}
@@ -75,7 +77,7 @@ export function FollowersPage() {
             <span>⚠️</span>
             <p>{error}</p>
             <button className={styles.retryBtn} onClick={() => fetchFollowers(pageNumber)}>
-              Попробовать снова
+              {t('followers.retry')}
             </button>
           </div>
         )}
@@ -83,8 +85,8 @@ export function FollowersPage() {
         {!loading && !error && followers.length === 0 && (
           <div className={styles.empty}>
             <span className={styles.emptyIcon}>👥</span>
-            <h2>Подписчиков пока нет</h2>
-            <p>Когда кто-то подпишется — они появятся здесь</p>
+            <h2>{t('followers.emptyTitle')}</h2>
+            <p>{t('followers.emptyText')}</p>
           </div>
         )}
 

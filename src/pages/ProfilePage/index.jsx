@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { getCurrentUser, getUserById } from '../../entities/user/api/userApi';
 import { followApi } from '../../entities/follow/model/follow.api';
 import ProfileHeader from '../../widgets/Profile/ProfileHeader';
@@ -7,14 +8,15 @@ import ProfileTabs from '../../widgets/Profile/ProfileTabs';
 import styles from './ProfilePage.module.css';
 
 export default function ProfilePage() {
-  const { id } = useParams() // undefined на /profile, число на /users/:id
-  
+  const { id } = useParams();
+  const { t } = useTranslation();
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isFollowing, setIsFollowing] = useState(false)
-  const [currentUserId, setCurrentUserId] = useState(null)  
+  const [currentUserId, setCurrentUserId] = useState(null)
+  const [tripStats, setTripStats] = useState({ countries: 0, trips: 0, cities: 0 })
 
   const isOwnProfile = !id || (currentUserId !== null && Number(id) === currentUserId)
   useEffect(() => {
@@ -36,13 +38,13 @@ const loadUser = async () => {
       ])
 
       if (meResult.success) setCurrentUserId(meResult.data.userId)
-if (userResult.success) setUser(userResult.data)      // ← добавь
-else setError(userResult.error ?? 'Не удалось загрузить профиль')
+if (userResult.success) setUser(userResult.data)
+else setError(userResult.error ?? t('profile.errorLoad'))
 
       setIsFollowing(following)  
     }
   } catch (e) {
-    setError('Не удалось загрузить профиль')
+    setError(t('profile.errorLoad'))
   } finally {
     setLoading(false)
   }
@@ -58,7 +60,7 @@ else setError(userResult.error ?? 'Не удалось загрузить про
     return (
       <div className={styles.loading}>
         <div className={styles.spinner} />
-        <p>Загрузка профиля...</p>
+        <p>{t('profile.loading')}</p>
       </div>
     );
   }
@@ -66,7 +68,7 @@ else setError(userResult.error ?? 'Не удалось загрузить про
   if (error) {
     return (
       <div className={styles.error}>
-        <h2>Ошибка</h2>
+        <h2>{t('profile.error')}</h2>
         <p>{error}</p>
       </div>
     );
@@ -77,15 +79,17 @@ else setError(userResult.error ?? 'Не удалось загрузить про
  return (
   <div className={styles.page}>
     <ProfileHeader
-      user={user}                   
-      onUserUpdate={handleUserUpdate} 
+      user={user}
+      onUserUpdate={handleUserUpdate}
       isOwnProfile={isOwnProfile}
-      isFollowing={isFollowing}   
+      isFollowing={isFollowing}
+      tripStats={tripStats}
     />
     <ProfileTabs
       currentUser={user}
-      userId={user?.userId}          
-      isOwnProfile={isOwnProfile}    
+      userId={user?.userId}
+      isOwnProfile={isOwnProfile}
+      onTripStatsChange={setTripStats}
     />
   </div>
 );

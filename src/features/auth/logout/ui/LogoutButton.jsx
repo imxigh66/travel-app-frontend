@@ -1,8 +1,10 @@
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { logout } from '../api/logoutApi';
 
 export default function LogoutButton({ className, collapsed }) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleLogout = async () => {
     try {
@@ -21,7 +23,7 @@ export default function LogoutButton({ className, collapsed }) {
         <polyline points="16 17 21 12 16 7" />
         <line x1="21" y1="12" x2="9" y2="12" />
       </svg>
-      {!collapsed && 'Выйти'}
+      {!collapsed && t('sidebar.logout')}
     </button>
   );
 }
